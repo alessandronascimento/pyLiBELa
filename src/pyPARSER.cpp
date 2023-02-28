@@ -582,7 +582,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pyPARSER)
 {
-    class_<PARSER>("PARSER", init<void>())
+    class_<PARSER>("PARSER")
         .def_readwrite("param", & PARSER::param)
         .def_readwrite("number_steps", & PARSER::number_steps)
         .def_readwrite("temp", & PARSER::temp)
