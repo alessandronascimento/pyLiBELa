@@ -82,7 +82,7 @@ public:
 	//! Temporary string to parse prmtop file.
 	string line;
 	//!
-	char str[100];
+    char* str ;
 	//! Keeps Vaa for RefMol/CompMol
 	double self_obj_function;
 	//!
