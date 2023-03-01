@@ -934,18 +934,16 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("rmsd", & Mol2::rmsd)
         .def_readwrite("longest_axis", & Mol2::longest_axis)
         .def_readwrite("radius", & Mol2::radius)
-;
-}
-/*        .def(init<PARSER*, string>())
-        .def("parse_gzipped_file", &Mol2::parse_gzipped_file)
-        .def("parse_mol2file", &Mol2::parse_mol2file)
-        .def("get_next_xyz", &Mol2::get_next_xyz)
-        .def("initialize_gaff", &Mol2::initialize_gaff)
-        .def("get_gaff_atomic_parameters", &Mol2::get_gaff_atomic_parameters)
-        .def("sybyl_2_gaff", &Mol2::sybyl_2_gaff)
-        .def("sybyl_2_amber", &Mol2::sybyl_2_amber)
-        .def("find_longest_axis", &Mol2::find_longest_axis)
-        .def("distance", &Mol2::distance)
+
+        .def(init<PARSER, string>())
+        .def("parse_gzipped_file", & Mol2::parse_gzipped_file)
+        .def("parse_mol2file", & Mol2::parse_mol2file)
+        .def("get_next_xyz", & Mol2::get_next_xyz)
+        .def("initialize_gaff", & Mol2::initialize_gaff)
+        .def("get_gaff_atomic_parameters", & Mol2::get_gaff_atomic_parameters)
+        .def("sybyl_2_gaff", & Mol2::sybyl_2_gaff)
+        .def("sybyl_2_amber", & Mol2::sybyl_2_amber)
+        .def("find_longest_axis", & Mol2::find_longest_axis)
+        .def("distance", & Mol2::distance)
     ;
 }
-*/
