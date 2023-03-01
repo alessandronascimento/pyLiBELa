@@ -946,4 +946,10 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def("find_longest_axis", & Mol2::find_longest_axis)
         .def("distance", & Mol2::distance)
     ;
+    class_<atom_param>("atom_param")
+        .def_readwrite("type", & Mol2::atom_param::type)
+        .def_readwrite("radius", & Mol2::atom_param::radius)
+        .def_readwrite("epsilon", & Mol2::atom_param::epsilon)
+        .def_readwrite("mass", & Mol2::atom_param::mass)
+    ;
 }
