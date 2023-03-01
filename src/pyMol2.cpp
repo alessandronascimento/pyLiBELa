@@ -934,6 +934,7 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("rmsd", & Mol2::rmsd)
         .def_readwrite("longest_axis", & Mol2::longest_axis)
         .def_readwrite("radius", & Mol2::radius)
+        .def_readwrite("gaff_force_field", & Mol2::gaff_force_field)
 
         .def(init<PARSER*, string>())
         .def("parse_gzipped_file", & Mol2::parse_gzipped_file)
