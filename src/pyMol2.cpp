@@ -934,8 +934,9 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("rmsd", & Mol2::rmsd)
         .def_readwrite("longest_axis", & Mol2::longest_axis)
         .def_readwrite("radius", & Mol2::radius)
-
-//        .def(init<PARSER*, string>())
+;
+}
+/*        .def(init<PARSER*, string>())
         .def("parse_gzipped_file", &Mol2::parse_gzipped_file)
         .def("parse_mol2file", &Mol2::parse_mol2file)
         .def("get_next_xyz", &Mol2::get_next_xyz)
@@ -947,3 +948,4 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def("distance", &Mol2::distance)
     ;
 }
+*/
