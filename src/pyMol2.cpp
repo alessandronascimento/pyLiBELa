@@ -10,9 +10,11 @@
 using namespace std;
 
 Mol2::Mol2(){
+    str = new char[100];
 }
 
 Mol2::Mol2(PARSER Input, string molfile) {
+    str = new char[100];
     bool ok;
     if ((molfile.substr(molfile.size()-3, 3) == ".gz") or (molfile.substr(molfile.size()-2, 2) == ".z")){
         ok = this->parse_gzipped_file(Input, molfile);
