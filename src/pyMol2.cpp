@@ -22,14 +22,6 @@ vector<double>::iterator Mol2::DoubVec_end(vector<double> v){
 
 
 Mol2::Mol2(PARSER Input, string molfile) {
-    vector<double>::iterator begin()
-        {
-            return mS.begin();
-        }
-        std::vector<std::string>::iterator end()
-        {
-            return mS.end();
-        }
     bool ok;
     if ((molfile.substr(molfile.size()-3, 3) == ".gz") or (molfile.substr(molfile.size()-2, 2) == ".z")){
         ok = this->parse_gzipped_file(Input, molfile);
@@ -919,7 +911,6 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(pyMol2)
 {
     class_<Mol2>("Mol2", init< >())
-        .def
         .def_readwrite("N", & Mol2::N)
         .def_readwrite("Nres", & Mol2::Nres)
         .def_readwrite("Natomtypes", & Mol2::Natomtypes)
