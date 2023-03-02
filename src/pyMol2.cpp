@@ -12,7 +12,24 @@ using namespace std;
 Mol2::Mol2(){
 }
 
+vector<double>::iterator Mol2::DoubVec_begin(vector<double> v){
+    return v.begin();
+}
+
+vector<double>::iterator Mol2::DoubVec_end(vector<double> v){
+    return v.end();
+}
+
+
 Mol2::Mol2(PARSER Input, string molfile) {
+    vector<double>::iterator begin()
+        {
+            return mS.begin();
+        }
+        std::vector<std::string>::iterator end()
+        {
+            return mS.end();
+        }
     bool ok;
     if ((molfile.substr(molfile.size()-3, 3) == ".gz") or (molfile.substr(molfile.size()-2, 2) == ".z")){
         ok = this->parse_gzipped_file(Input, molfile);
@@ -901,9 +918,6 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pyMol2)
 {
-    class_<std::vector<double> >("FloatDouble")
-            .def(vector_indexing_suite<std::vector<double> >());
-
     class_<Mol2>("Mol2", init< >())
         .def
         .def_readwrite("N", & Mol2::N)
@@ -911,7 +925,8 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("Natomtypes", & Mol2::Natomtypes)
         .def_readwrite("Nbonds", & Mol2::Nbonds)
         .def_readwrite("molname", & Mol2::molname)
-        .def_readwrite("charges", & Mol2::charges)
+//        .def_readwrite("charges", & Mol2::charges)
+        .def_readwrite("charges", range(&Mol2::DoubVec_begin(Mol2::charges), &Mol2::DoubVec_end(Mol2::charges)))
         .def_readwrite("masses", & Mol2::masses)
         .def_readwrite("amberatoms", & Mol2::amberatoms)
         .def_readwrite("atomtypes_prm", & Mol2::atomtypes_prm)
