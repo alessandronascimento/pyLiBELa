@@ -906,18 +906,21 @@ double Mol2::distance(vector<double> atom1, vector<double> atom2) {
 
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pyMol2)
 {
+    class_< vector<double> >("vectorDouble")
+        .def(vector_indexing_suite<vector<double> >())
+    ;
     class_<Mol2>("Mol2", init< >())
         .def_readwrite("N", & Mol2::N)
         .def_readwrite("Nres", & Mol2::Nres)
         .def_readwrite("Natomtypes", & Mol2::Natomtypes)
         .def_readwrite("Nbonds", & Mol2::Nbonds)
         .def_readwrite("molname", & Mol2::molname)
-//        .def_readwrite("charges", & Mol2::charges)
-        .def_readwrite("charges", range(&Mol2::DoubVec_begin(Mol2::charges), &Mol2::DoubVec_end(Mol2::charges)))
+        .def_readwrite("charges", & Mol2::charges)
         .def_readwrite("masses", & Mol2::masses)
         .def_readwrite("amberatoms", & Mol2::amberatoms)
         .def_readwrite("atomtypes_prm", & Mol2::atomtypes_prm)
