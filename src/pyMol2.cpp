@@ -12,15 +12,6 @@ using namespace std;
 Mol2::Mol2(){
 }
 
-vector<double>::iterator Mol2::DoubVec_begin(vector<double> v){
-    return v.begin();
-}
-
-vector<double>::iterator Mol2::DoubVec_end(vector<double> v){
-    return v.end();
-}
-
-
 Mol2::Mol2(PARSER Input, string molfile) {
     bool ok;
     if ((molfile.substr(molfile.size()-3, 3) == ".gz") or (molfile.substr(molfile.size()-2, 2) == ".z")){
@@ -913,7 +904,7 @@ BOOST_PYTHON_MODULE(pyMol2)
 {
     class_< vector<double> >("vectorDouble")
         .def(vector_indexing_suite<vector<double> >())
-    ;
+        ;
     class_<Mol2>("Mol2", init< >())
         .def_readwrite("N", & Mol2::N)
         .def_readwrite("Nres", & Mol2::Nres)

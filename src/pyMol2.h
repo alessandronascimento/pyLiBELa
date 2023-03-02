@@ -133,8 +133,6 @@ public:
     void find_longest_axis();
     double distance(vector<double> atom1, vector<double> atom2);
 
-    vector<double>::iterator DoubVec_begin(vector<double> v);
-    vector<double>::iterator DoubVec_end(vector<double> v);
 };
 
 #endif /* MOL2_H_ */
