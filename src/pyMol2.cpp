@@ -902,11 +902,10 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pyMol2)
 {
-/*
+
     class_< vector<double> >("vectorDouble")
         .def(vector_indexing_suite<vector<double> >())
-        ;
-*/
+    ;
     class_<Mol2>("Mol2", init< >())
         .def_readwrite("N", & Mol2::N)
         .def_readwrite("Nres", & Mol2::Nres)
