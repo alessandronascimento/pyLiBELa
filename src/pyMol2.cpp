@@ -152,13 +152,8 @@ bool Mol2::parse_gzipped_file(PARSER Input, string molfile){
 /*
  * Here we read the GAFF/AMBER parameters fro LJ potentials
  */
-    cout << "Initializing GAFF parameters" << endl;
 
     this->initialize_gaff();
-
-    cout << "GAFF parameters read!" << endl;
-    cout << "Opening gzipped mol2 file..." << endl;
-
 
     gzFile mol2file = gzopen(molfile.c_str(), "r");
     if (mol2file != NULL){
@@ -173,15 +168,11 @@ bool Mol2::parse_gzipped_file(PARSER Input, string molfile){
         gzgets(mol2file, str, 100);
         sscanf(str, "%d %d %d %d %d", &this->N, &this->Nbonds, &this->Nres, &tint, &tint);
 
-        printf("N=%5d Nbonds=%5d Nres=%5d", this->N, this->Nbonds, this->Nres);
-
         cpstr = string(str);
         while (cpstr.substr(0,13) != "@<TRIPOS>ATOM"){
             gzgets(mol2file, str, 100);
             cpstr = string(str);
         }
-
-        cout << "Parsing coordinates..." << endl;
 
         for (int i=0; i<this->N; i++){
             gzgets(mol2file, str, 100);
@@ -910,7 +901,11 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pyMol2)
 {
+    class_<std::vector<double> >("FloatDouble")
+            .def(vector_indexing_suite<std::vector<double> >());
+
     class_<Mol2>("Mol2", init< >())
+        .def
         .def_readwrite("N", & Mol2::N)
         .def_readwrite("Nres", & Mol2::Nres)
         .def_readwrite("Natomtypes", & Mol2::Natomtypes)
