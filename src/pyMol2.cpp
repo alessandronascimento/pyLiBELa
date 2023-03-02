@@ -173,6 +173,8 @@ bool Mol2::parse_gzipped_file(PARSER Input, string molfile){
         gzgets(mol2file, str, 100);
         sscanf(str, "%d %d %d %d %d", &this->N, &this->Nbonds, &this->Nres, &tint, &tint);
 
+        printf("N=%5d Nbonds=%5d Nres=%5d", this->N, this->Nbonds, this->Nres);
+
         cpstr = string(str);
         while (cpstr.substr(0,13) != "@<TRIPOS>ATOM"){
             gzgets(mol2file, str, 100);
