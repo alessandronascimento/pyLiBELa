@@ -110,11 +110,11 @@ public:
 	 * comparing molecules.
 	 */
 	Mol2();
-	Mol2(PARSER *Input, string molfile);
-    bool parse_gzipped_file(PARSER* Input, string molfile);
-    bool parse_mol2file(PARSER* Input, string molfile);
-    bool parse_gzipped_ensemble(PARSER *Input, string molfile, int skipper);
-    vector<vector<double> > get_next_xyz(PARSER* Input, gzFile mol2file);
+    Mol2(PARSER Input, string molfile);
+    bool parse_gzipped_file(PARSER Input, string molfile);
+    bool parse_mol2file(PARSER Input, string molfile);
+    bool parse_gzipped_ensemble(PARSER Input, string molfile, int skipper);
+    vector<vector<double> > get_next_xyz(gzFile mol2file);
 
 	/*!
 	 *

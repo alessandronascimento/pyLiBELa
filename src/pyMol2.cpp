@@ -12,7 +12,7 @@ using namespace std;
 Mol2::Mol2(){
 }
 
-Mol2::Mol2(PARSER *Input, string molfile) {
+Mol2::Mol2(PARSER Input, string molfile) {
     bool ok;
     if ((molfile.substr(molfile.size()-3, 3) == ".gz") or (molfile.substr(molfile.size()-2, 2) == ".z")){
         ok = this->parse_gzipped_file(Input, molfile);
@@ -30,7 +30,7 @@ Mol2::Mol2(PARSER *Input, string molfile) {
     }
 }
 
-bool Mol2::parse_mol2file(PARSER *Input, string molfile) {
+bool Mol2::parse_mol2file(PARSER Input, string molfile) {
 	FILE *mol2file;
 	int tint;
 	float tx, ty, tz;
@@ -76,7 +76,7 @@ bool Mol2::parse_mol2file(PARSER *Input, string molfile) {
 			this->charges.push_back(tcharge);
 			this->atomnames.push_back(str);
 
-			if (Input->mol2_aa){
+            if (Input.mol2_aa){
 				this->amberatoms.push_back(tatomtype);
                 atom_param* at = new atom_param;
                 this->get_gaff_atomic_parameters(string(tatomtype), at);
@@ -87,7 +87,7 @@ bool Mol2::parse_mol2file(PARSER *Input, string molfile) {
                 delete at;
 			}
             else{
-                if (Input->atomic_model_ff == "AMBER" or Input->atomic_model_ff == "amber"){
+                if (Input.atomic_model_ff == "AMBER" or Input.atomic_model_ff == "amber"){
                     this->amberatoms.push_back(this->sybyl_2_amber(string(tatomtype)));
                 }
                 else {
@@ -137,7 +137,7 @@ bool Mol2::parse_mol2file(PARSER *Input, string molfile) {
 	return (bret);
 }
 
-bool Mol2::parse_gzipped_file(PARSER* Input, string molfile){
+bool Mol2::parse_gzipped_file(PARSER Input, string molfile){
     bool bret = false;
     int tint;
     float tx, ty, tz;
@@ -152,8 +152,13 @@ bool Mol2::parse_gzipped_file(PARSER* Input, string molfile){
 /*
  * Here we read the GAFF/AMBER parameters fro LJ potentials
  */
+    cout << "Initializing GAFF parameters" << endl;
 
     this->initialize_gaff();
+
+    cout << "GAFF parameters read!" << endl;
+    cout << "Opening gzipped mol2 file..." << endl;
+
 
     gzFile mol2file = gzopen(molfile.c_str(), "r");
     if (mol2file != NULL){
@@ -174,6 +179,8 @@ bool Mol2::parse_gzipped_file(PARSER* Input, string molfile){
             cpstr = string(str);
         }
 
+        cout << "Parsing coordinates..." << endl;
+
         for (int i=0; i<this->N; i++){
             gzgets(mol2file, str, 100);
             sscanf(str, "%d %s %f %f %f %s %d %s %f\n", &tint, str, &tx, &ty, &tz, tatomtype, &tres, resname, &tcharge);
@@ -186,7 +193,7 @@ bool Mol2::parse_gzipped_file(PARSER* Input, string molfile){
             this->charges.push_back(tcharge);
             this->atomnames.push_back(str);
 
-            if (Input->mol2_aa){
+            if (Input.mol2_aa){
                 this->amberatoms.push_back(tatomtype);
                 atom_param* at = new atom_param;
                 this->get_gaff_atomic_parameters(string(tatomtype), at);
@@ -197,7 +204,7 @@ bool Mol2::parse_gzipped_file(PARSER* Input, string molfile){
                 delete at;
             }
             else{
-                if (Input->atomic_model_ff == "AMBER" or Input->atomic_model_ff == "amber"){
+                if (Input.atomic_model_ff == "AMBER" or Input.atomic_model_ff == "amber"){
                     this->amberatoms.push_back(this->sybyl_2_amber(string(tatomtype)));
                 }
                 else {
@@ -638,7 +645,7 @@ string Mol2::sybyl_2_amber(string atom){
     return(amber_atom);
 }
 
-bool Mol2::parse_gzipped_ensemble(PARSER* Input, string molfile, int skipper=1){
+bool Mol2::parse_gzipped_ensemble(PARSER Input, string molfile, int skipper=1){
     char tstr[80];
     bool bret = false;
     int tint;
@@ -703,7 +710,7 @@ bool Mol2::parse_gzipped_ensemble(PARSER* Input, string molfile, int skipper=1){
             this->charges.push_back(tcharge);
             this->atomnames.push_back(str);
 
-            if (Input->mol2_aa){
+            if (Input.mol2_aa){
                 this->amberatoms.push_back(tatomtype);
                 atom_param* at = new atom_param;
                 this->get_gaff_atomic_parameters(string(tatomtype), at);
@@ -714,7 +721,7 @@ bool Mol2::parse_gzipped_ensemble(PARSER* Input, string molfile, int skipper=1){
                 delete at;
             }
             else{
-                if (Input->atomic_model_ff == "AMBER" or Input->atomic_model_ff == "amber"){
+                if (Input.atomic_model_ff == "AMBER" or Input.atomic_model_ff == "amber"){
                     this->amberatoms.push_back(this->sybyl_2_amber(string(tatomtype)));
                 }
                 else {
@@ -818,7 +825,7 @@ bool Mol2::parse_gzipped_ensemble(PARSER* Input, string molfile, int skipper=1){
     return (bret);
 }
 
-vector<vector<double> > Mol2::get_next_xyz(PARSER* Input, gzFile mol2file) {
+vector<vector<double> > Mol2::get_next_xyz(gzFile mol2file) {
     char tstr[80];
     int tint;
     float tx, ty, tz;
