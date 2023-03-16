@@ -18,8 +18,17 @@
 #include<cmath>
 #include"pyPARSER.h"
 #include <zlib.h>
+#include <openbabel/obconversion.h>
+#include <openbabel/mol.h>
+#include <openbabel/forcefield.h>
+#include <openbabel/builder.h>
+#include <openbabel/obiter.h>
+#include <openbabel/elements.h>
+#include <openbabel/math/align.h>
+#include <openbabel/bond.h>
 
 using namespace std;
+using namespace OpenBabel;
 
 class Mol2 {
 public:
@@ -82,7 +91,7 @@ public:
 	//! Temporary string to parse prmtop file.
 	string line;
 	//!
-    char* str ;
+	char str[100];
 	//! Keeps Vaa for RefMol/CompMol
 	double self_obj_function;
 	//!
@@ -110,11 +119,12 @@ public:
 	 * comparing molecules.
 	 */
 	Mol2();
-    Mol2(PARSER Input, string molfile);
-    bool parse_gzipped_file(PARSER Input, string molfile);
-    bool parse_mol2file(PARSER Input, string molfile);
-    bool parse_gzipped_ensemble(PARSER Input, string molfile, int skipper);
-    vector<vector<double> > get_next_xyz(gzFile mol2file);
+	Mol2(PARSER *Input, string molfile);
+    bool parse_smiles(PARSER *Input, string smiles_input, string molname);
+    bool parse_gzipped_file(PARSER* Input, string molfile);
+    bool parse_mol2file(PARSER* Input, string molfile);
+    bool parse_gzipped_ensemble(PARSER *Input, string molfile, int skipper);
+    vector<vector<double> > get_next_xyz(PARSER* Input, gzFile mol2file);
 
 	/*!
 	 *
@@ -122,17 +132,19 @@ public:
 	~Mol2();
 
     void initialize_gaff();
+    void initialize_gaff2();
     vector<double> ensemble_energies;
     vector<double> ensemble_rmsd;
     vector<atom_param> gaff_force_field;
     void get_gaff_atomic_parameters(string gaff_atom, atom_param* ap);
     string sybyl_2_gaff(string atom);
     string sybyl_2_amber(string atom);
+    string gaff_2_sybyl(string atom);
 
     //!
     void find_longest_axis();
     double distance(vector<double> atom1, vector<double> atom2);
-
+    vector<vector<double> > copy_from_obmol(OBMol mymol);
 };
 
 #endif /* MOL2_H_ */
