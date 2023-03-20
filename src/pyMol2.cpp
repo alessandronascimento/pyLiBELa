@@ -2198,13 +2198,16 @@ vector<vector<double> > Mol2::copy_from_obmol(OBMol mymol){
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
 
+
 BOOST_PYTHON_MODULE(pyMol2)
 {
 
     class_< vector<double> >("vectorDouble")
         .def(vector_indexing_suite<vector<double> >())
     ;
+
     class_<Mol2>("Mol2", init< >())
+        .def(init<PARSER*, string>())
         .def_readwrite("N", & Mol2::N)
         .def_readwrite("Nres", & Mol2::Nres)
         .def_readwrite("Natomtypes", & Mol2::Natomtypes)
@@ -2227,7 +2230,6 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("HBacceptors", & Mol2::HBacceptors)
         .def_readwrite("HBdonors", & Mol2::HBdonors)
         .def_readwrite("line", & Mol2::line)
-        .def_readwrite("str", & Mol2::str)
         .def_readwrite("self_obj_function", & Mol2::self_obj_function)
         .def_readwrite("bonds", & Mol2::bonds)
         .def_readwrite("sybyl_atoms", & Mol2::sybyl_atoms)
@@ -2238,8 +2240,6 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("longest_axis", & Mol2::longest_axis)
         .def_readwrite("radius", & Mol2::radius)
         .def_readwrite("gaff_force_field", & Mol2::gaff_force_field)
-
-        .def(init<PARSER*, string>())
         .def("parse_smiles", & Mol2::parse_smiles)
         .def("parse_gzipped_file", & Mol2::parse_gzipped_file)
         .def("parse_mol2file", & Mol2::parse_mol2file)
@@ -2254,6 +2254,7 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def("distance", & Mol2::distance)
         .def("copy_from_obmol", & Mol2::copy_from_obmol)
     ;
+
     class_<Mol2::atom_param>("atom_param")
         .def_readwrite("type", & Mol2::atom_param::type)
         .def_readwrite("radius", & Mol2::atom_param::radius)
