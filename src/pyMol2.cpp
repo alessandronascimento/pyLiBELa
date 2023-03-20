@@ -2239,7 +2239,7 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("radius", & Mol2::radius)
         .def_readwrite("gaff_force_field", & Mol2::gaff_force_field)
 
-        .def(init<PARSER, string>())
+        .def(init<PARSER*, string>())
         .def("parse_smiles", & Mol2::parse_smiles)
         .def("parse_gzipped_file", & Mol2::parse_gzipped_file)
         .def("parse_mol2file", & Mol2::parse_mol2file)
