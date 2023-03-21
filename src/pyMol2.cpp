@@ -10,10 +10,12 @@
 using namespace std;
 
 Mol2::Mol2(){
+    str=new char[100];
 }
 
 Mol2::Mol2(PARSER *Input, string molfile) {
     bool ok;
+    str=new char[100];
     if ((molfile.substr(molfile.size()-3, 3) == ".gz") or (molfile.substr(molfile.size()-2, 2) == ".z")){
         ok = this->parse_gzipped_file(Input, molfile);
         if (! ok){
@@ -441,6 +443,7 @@ Mol2::~Mol2(){
     this->atomnames.clear();
     this->masses.clear();
     this->amberatoms.clear();
+    delete str;
 }
 
 void Mol2::initialize_gaff(){
@@ -2225,6 +2228,7 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("epsilons", & Mol2::epsilons)
         .def_readwrite("epsilons", & Mol2::epsilons_sqrt)
         .def_readwrite("radii", & Mol2::radii)
+        .def_readwrite("str", & Mol2::str)
         .def_readwrite("resnames", & Mol2::resnames)
         .def_readwrite("residue_pointer", & Mol2::residue_pointer)
         .def_readwrite("HBacceptors", & Mol2::HBacceptors)
@@ -2262,7 +2266,6 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("mass", & Mol2::atom_param::mass)
     ;
 }
-
 
 
 
