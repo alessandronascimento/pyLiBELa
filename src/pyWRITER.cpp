@@ -718,10 +718,7 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(pyWRITER)
 {
 
-/*    class_< vector<double> >("vectorDouble")
-        .def(vector_indexing_suite<vector<double> >())
-    ;
-*/
+
 
     void    (WRITER::*wpdb_1)(vector<vector<double> >xyz, int N, vector<string> atomnames, double energy, double temp, string outname)  = &WRITER::write_pdb;
     void    (WRITER::*wpdb_2)(Mol2 *Cmol, vector<vector<double> >xyz, double energy, double rmsd, string outname)   = &WRITER::write_pdb;
