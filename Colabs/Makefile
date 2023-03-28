@@ -37,8 +37,9 @@ RM = rm -rf
 #Compilation and linking
 #
 all: objFolder $(PROJ_NAME)
+	
 
-$(PROJ_NAME): $(OBJ)
+$(PROJ_NAME): $(OBJ) 
 
 ./obj/%.so: ./src/%.cpp ./src/%.h
 	@echo 'Building dinamic libraries using G++ compiler: $<'
@@ -84,7 +85,9 @@ install:
 	@ mkdir src
 	@ mv *.h *.cpp *.gz src/
 
-	
+uninstall:
+	@ rm -rf src/*
+	@ rmdir src
 clean:
 	@ $(RM) ./obj/*.so $(PROJ_NAME) *~
 	@ rmdir obj
