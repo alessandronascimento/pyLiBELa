@@ -38,7 +38,7 @@ RM = rm -rf
 #
 all: $(PROJ_NAME): $(OBJ) 
 
-./%.so: ./src/%.cpp ./src/%.h
+%.so: ./src/%.cpp ./src/%.h
 	@echo 'Building dinamic libraries using G++ compiler: $<'
 	$(CC) $< $(CC_FLAGS) -o $@ $(LD_FLAGS)
 	@echo ' '
