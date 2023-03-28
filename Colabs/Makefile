@@ -36,9 +36,11 @@ RM = rm -rf
 #
 #Compilation and linking
 #
-all: $(PROJ_NAME): $(OBJ) 
+all: objFolder $(PROJ_NAME)
 
-./%.so: ./src/%.cpp ./src/%.h
+$(PROJ_NAME): $(OBJ)
+
+./obj/%.so: ./src/%.cpp ./src/%.h
 	@echo 'Building dinamic libraries using G++ compiler: $<'
 	$(CC) $< $(CC_FLAGS) -o $@ $(LD_FLAGS)
 	@echo ' '
@@ -83,7 +85,13 @@ install:
 uninstall:
 	@ rm -rf src/*
 	@ rmdir src
+	
+objFolder:
+	@ mkdir -p obj
+	
+	
 clean:
-	@ $(RM) *.so $(PROJ_NAME) *~
+	@ $(RM) ./obj/*.so $(PROJ_NAME) *~
+	@ rmdir obj
 
 .PHONY: all clean
