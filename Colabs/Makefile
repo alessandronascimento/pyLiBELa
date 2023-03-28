@@ -21,8 +21,8 @@ CC_FLAGS=-fPIC                       \
 	 -I/usr/include/openbabel3   \
 	 -I/usr/include/eigen3       \
 	 -DBUILD=0                   \
-	 -DHAVE_EIGEN                
-	    
+	 -DHAVE_EIGEN
+	 
 #Linkage
 LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 	 -lboost_python38           \
@@ -38,7 +38,7 @@ RM = rm -rf
 #
 all: $(PROJ_NAME): $(OBJ) 
 
-%.so: ./src/%.cpp ./src/%.h
+./%.so: ./src/%.cpp ./src/%.h
 	@echo 'Building dinamic libraries using G++ compiler: $<'
 	$(CC) $< $(CC_FLAGS) -o $@ $(LD_FLAGS)
 	@echo ' '
