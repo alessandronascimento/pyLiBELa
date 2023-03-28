@@ -36,18 +36,16 @@ RM = rm -rf
 #
 #Compilation and linking
 #
-all: objFolder $(PROJ_NAME)
+all: $(PROJ_NAME)
 	
 
 $(PROJ_NAME): $(OBJ) 
 
-./obj/%.so: ./src/%.cpp ./src/%.h
+./%.so: ./src/%.cpp ./src/%.h
 	@echo 'Building dinamic libraries using G++ compiler: $<'
 	$(CC) $< $(CC_FLAGS) -o $@ $(LD_FLAGS)
 	@echo ' '
 
-objFolder:
-	@ mkdir -p obj
 	
 install:
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
@@ -89,7 +87,6 @@ uninstall:
 	@ rm -rf src/*
 	@ rmdir src
 clean:
-	@ $(RM) ./obj/*.so $(PROJ_NAME) *~
-	@ rmdir obj
+	@ $(RM) *.so $(PROJ_NAME) *~
 
 .PHONY: all clean
