@@ -36,10 +36,7 @@ RM = rm -rf
 #
 #Compilation and linking
 #
-all: $(PROJ_NAME)
-	
-
-$(PROJ_NAME): $(OBJ) 
+all: $(PROJ_NAME): $(OBJ) 
 
 ./%.so: ./src/%.cpp ./src/%.h
 	@echo 'Building dinamic libraries using G++ compiler: $<'
