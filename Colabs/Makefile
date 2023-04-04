@@ -6,10 +6,10 @@ CPP_SRC= pyPARSER.cpp pyMol2.cpp
 
 
 #Every .h file
-H_SRC=$(wildcard ./src/*.h)
+H_SRC=$(subst .cpp,.h,$(CPP_SRC))
 
 #Dinamic libraries
-OBJ=$(subst .cpp,.so,$(subst src,obj,$(CPP_SRC)))
+OBJ=$(subst .cpp,.so,$(subst src,obj,$(CPP_SRC))
 
 
 #Compiler
