@@ -9,7 +9,7 @@ CPP_SRC= pyPARSER.cpp pyMol2.cpp
 H_SRC=$(subst .cpp,.h,$(CPP_SRC))
 
 #Dinamic libraries
-OBJ=$(subst .cpp,.so,$(subst src,obj,$(CPP_SRC))
+OBJ=$(subst .cpp,.so,$(subst src,obj,$(CPP_SRC)))
 
 
 #Compiler
@@ -40,7 +40,6 @@ RM = rm -rf
 all: objFolder $(PROJ_NAME)
 
 $(PROJ_NAME): $(OBJ)
-
 
 pyPARSER.so: pyPARSER.cpp pyPARSER.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
