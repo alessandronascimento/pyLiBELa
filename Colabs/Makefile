@@ -38,9 +38,8 @@ RM = rm -rf
 #Compilation and linking
 
 all: $(PROJ_NAME)
-@echo 'bla'
 
-$(PROJ_NAME): $(OBJ)
+$(PROJ_NAME): pyPARSER.so pyMol2.so
 
 pyPARSER.so: pyPARSER.cpp pyPARSER.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
@@ -91,12 +90,6 @@ install:
 uninstall:
 	@ rm -rf src
 	@ rm -rf test
-	
-#objFolder:
-#	@ mkdir -p obj
-#	@ mkdir src
-#	@ mkdir test
-	
 	
 clean:
 	@ $(RM) ./obj/*.so $(PROJ_NAME) *~
