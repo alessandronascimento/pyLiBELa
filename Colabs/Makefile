@@ -29,8 +29,10 @@ RM = rm -rf
 all: $(PROJ_NAME)
 
 $(PROJ_NAME): PARSER Mol2 WRITER Grid COORD_MC FindHB Energy2 Conformer
-	@ mv *.h *.cpp src/
-	@ mv *gz test/
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
+#	@ mv *.h *.cpp src/
+#	@ mv *gz test/
 
 PARSER: 
 	@echo 'Building PARSER dinamic library.'
@@ -91,7 +93,6 @@ Conformer:
 	@echo ' '
 
 clean:
-	@ $(RM) ./obj/*.so $(PROJ_NAME) *~
-	@ rmdir obj
+	@ $(RM) *.so *.h *.cpp $(PROJ_NAME) *~
 
 .PHONY: all clean
