@@ -2,7 +2,8 @@
 PROJ_NAME=pyLiBELa
 
 #Classes
-CLASS= PARSER Mol2 WRITER Grid COORD_MC FindHB Energy2 Conformer RAND
+CLASSES= PARSER Mol2 WRITER Grid COORD_MC FindHB Energy2 Conformer RAND
+
 #Compiler
 CC=g++
 
