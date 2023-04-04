@@ -39,7 +39,7 @@ RM = rm -rf
 
 all: objFolder $(PROJ_NAME)
 
-$(PROJ_NAME): $(pyPARSER.so pyMol2.so)
+$(PROJ_NAME): $(OBJ)
 
 
 pyPARSER.so: pyPARSER.cpp pyPARSER.h
