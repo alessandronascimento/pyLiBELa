@@ -39,33 +39,21 @@ RM = rm -rf
 
 all: $(PROJ_NAME)
 
-<<<<<<< HEAD
 $(PROJ_NAME): PARSER Mol2
 
 PARSER: pyPARSER.cpp pyPARSER.h
-=======
-$(PROJ_NAME): pyPARSER.so 
-
-pyPARSER.so: pyPARSER.cpp pyPARSER.h
->>>>>>> de17290e3b54b629e86b3ecc2edaa08cbacf4d13
 	@echo 'Building PARSER dinamic library.'
-	$(CC) $< $(CC_FLAGS) pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
+	$(CC) $(CC_FLAGS) pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
+
 
 pyPARSER.cpp pyPARSER.h:
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
-<<<<<<< HEAD
 
 Mol2: pyMol2.cpp pyMol2.h
-=======
-	
-pyMol2.so: pyMol2.cpp pyMol2.h
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.cpp
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
->>>>>>> de17290e3b54b629e86b3ecc2edaa08cbacf4d13
 	@echo 'Building Mol2 dinamic library.'
-	$(CC) $< $(CC_FLAGS) pyMol2.cpp -o pyMol2.so $(LD_FLAGS)
+	$(CC) $(CC_FLAGS) pyMol2.cpp -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
 
 pyMol2.cpp pyMol2.h:
