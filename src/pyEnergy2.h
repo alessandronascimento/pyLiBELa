@@ -13,8 +13,7 @@
  *
  */
 
-class Energy2
-{
+class Energy2 {
 public:
     struct GridInterpol{
         double vdwA;
