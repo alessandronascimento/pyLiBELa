@@ -37,7 +37,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: objFolder $(PROJ_NAME)
+all: $(PROJ_NAME)
 
 $(PROJ_NAME): $(OBJ)
 
