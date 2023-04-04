@@ -41,25 +41,20 @@ all: $(PROJ_NAME)
 
 $(PROJ_NAME): PARSER Mol2
 
-PARSER: pyPARSER.cpp pyPARSER.h
+PARSER: 
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
 	@echo 'Building PARSER dinamic library.'
 	$(CC) $(CC_FLAGS) pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
-
-pyPARSER.cpp pyPARSER.h:
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
-
-Mol2: pyMol2.cpp pyMol2.h
+Mol2:
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.cpp
 	@echo 'Building Mol2 dinamic library.'
 	$(CC) $(CC_FLAGS) pyMol2.cpp -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
 
-pyMol2.cpp pyMol2.h:
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.cpp
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
-	
 install:
 	
 	
