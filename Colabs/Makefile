@@ -2,7 +2,7 @@
 PROJ_NAME=pyLiBELa
 
 #Classes
-CLASSES= PARSER Mol2 WRITER Grid COORD_MC FindHB Energy2 Conformer RAND
+CLASSES= PARSER Mol2 WRITER Grid COORD_MC FindHB Energy2 Conformer RAND Gaussian
 
 #Compiler
 CC=g++
@@ -102,6 +102,14 @@ RAND:
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.cpp
 	$(CC) $(CC_FLAGS) pyRAND.cpp -o pyRAND.so $(LD_FLAGS)
 	@echo ' '
+
+Gaussian:
+	@echo 'Building Gaussian dinamic library.'
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.h
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.cpp
+	$(CC) $(CC_FLAGS) pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
+	@echo ' '
+
 
 clean:
 	@ $(RM) *.so *.h *.cpp $(PROJ_NAME) *~
