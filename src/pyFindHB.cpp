@@ -1,5 +1,4 @@
 #include "pyFindHB.h"
-#include "pyCOORD_MC.h"
 #include "pyCOORD_MC.cpp"
 
 
