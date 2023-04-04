@@ -39,15 +39,17 @@ RM = rm -rf
 
 all: $(PROJ_NAME)
 
-$(PROJ_NAME): pyPARSER.so pyMol2.so
+$(PROJ_NAME): pyPARSER.so 
 
 pyPARSER.so: pyPARSER.cpp pyPARSER.h
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
 	@echo 'Building PARSER dinamic library.'
 	$(CC) $< $(CC_FLAGS) pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
+pyPARSER.cpp pyPARSER.h:
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
+	
 pyMol2.so: pyMol2.cpp pyMol2.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.cpp
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
