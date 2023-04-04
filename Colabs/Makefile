@@ -15,9 +15,10 @@ CC_FLAGS=-fPIC                       \
 	 
 #Linkage
 LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
-	 -lboost_python38           \
+	 -lboost_python38            \
 	 -lz                         \
-	 -lopenbabel                  
+	 -lopenbabel                 \
+	 -lgsl
 
 
 #Command to clean target
@@ -67,7 +68,6 @@ COORD_MC:
 	@echo 'Building COORD_MC dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyCOORD_MC.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyCOORD_MC.cpp
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.h
 	$(CC) $(CC_FLAGS) pyCOORD_MC.cpp -o pyCOORD_MC.so $(LD_FLAGS)
 	@echo ' '
 
