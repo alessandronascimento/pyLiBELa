@@ -91,11 +91,10 @@ uninstall:
 	@ rm -rf src
 	@ rm -rf test
 	
-objFolder:
-	@ mkdir -p obj
+#objFolder:
+#	@ mkdir -p obj
 #	@ mkdir src
-
-	@ mkdir test
+#	@ mkdir test
 	
 	
 clean:
