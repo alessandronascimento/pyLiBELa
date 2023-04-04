@@ -2,7 +2,8 @@
 PROJ_NAME=pyLiBELa
 
 #Every .cpp file
-CPP_SRC=$(wildcard ./src/*.cpp)
+CPP_SRC= pyPARSER.cpp pyMol2.cpp
+
 
 #Every .h file
 H_SRC=$(wildcard ./src/*.h)
@@ -36,7 +37,9 @@ RM = rm -rf
 #
 #Compilation and linking
 #
-all: objFolder PARSER Mol2
+all: objFolder $(PROJ_NAME)
+
+$(PROJ_NAME): PARSER Mol2
 
 
 PARSER: pyPARSER.cpp
