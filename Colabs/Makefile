@@ -34,12 +34,12 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 #Command to clean target
 RM = rm -rf
 
-#
+
 #Compilation and linking
-#
+
 all: objFolder $(PROJ_NAME)
 
-$(PROJ_NAME): pyPARSER.so pyMol2.so
+$(PROJ_NAME): $(pyPARSER.so pyMol2.so)
 
 
 pyPARSER.so: pyPARSER.cpp pyPARSER.h
