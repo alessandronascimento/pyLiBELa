@@ -38,17 +38,25 @@ RM = rm -rf
 #
 all: objFolder $(PROJ_NAME)
 
-$(PROJ_NAME): $(OBJ)
+$(PROJ_NAME): PARSER Mol2
 
-./obj/%.so: ./src/%.cpp ./src/%.h
-	@echo 'Building dinamic libraries using G++ compiler: $<'
-	$(CC) $< $(CC_FLAGS) -o $@ $(LD_FLAGS)
-	@echo ' '
 
-	
-install:
+PARSER: pyPARSER.cpp
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
+	@echo 'Building PARSER dinamic library.'
+	$(CC) $< $(CC_FLAGS) pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
+	@echo ' '
+
+Mol2: pyMol2.cpp
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.cpp
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
+	@echo 'Building Mol2 dinamic library.'
+	$(CC) $< $(CC_FLAGS) pyMol2.cpp -o pyMol2.so $(LD_FLAGS)
+	@echo ' '
+	
+install:
+	
 	
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.cpp
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
@@ -75,8 +83,7 @@ install:
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	
-	@ mkdir src
-	@ mkdir test
+
 	@ mv *.h *.cpp src/
 	@ mv *gz test/
 
@@ -86,6 +93,8 @@ uninstall:
 	
 objFolder:
 	@ mkdir -p obj
+	@ mkdir src
+	@ mkdir test
 	
 	
 clean:
