@@ -28,7 +28,7 @@ RM = rm -rf
 
 all: $(PROJ_NAME)
 
-$(PROJ_NAME): PARSER Mol2 WRITER Grid COORD_MC FindHB Energy2 Conformer
+$(PROJ_NAME): PARSER Mol2 WRITER Grid COORD_MC FindHB Energy2 Conformer RAND
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 #	@ mv *.h *.cpp src/
@@ -90,6 +90,13 @@ Conformer:
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyConformer.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyConformer.cpp
 	$(CC) $(CC_FLAGS) pyConformer.cpp -o pyConformer.so $(LD_FLAGS)
+	@echo ' '
+
+RAND:
+	@echo 'Building RAND dinamic library.'
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.h
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.cpp
+	$(CC) $(CC_FLAGS) pyRAND.cpp -o pyRAND.so $(LD_FLAGS)
 	@echo ' '
 
 clean:
