@@ -38,6 +38,7 @@ RM = rm -rf
 #Compilation and linking
 
 all: $(PROJ_NAME)
+@echo 'bla'
 
 $(PROJ_NAME): $(OBJ)
 
