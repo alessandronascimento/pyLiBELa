@@ -7,7 +7,6 @@
 
 #include "pyGrid.h"
 #include "iMcLiBELa.h"
-#include "pyWRITER.h"
 #include "pyWRITER.cpp"
 
 #define MAX_ALJ 100.0
