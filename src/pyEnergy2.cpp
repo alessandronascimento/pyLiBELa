@@ -1,4 +1,6 @@
 #include "pyEnergy2.h"
+#include "pyGrid.h"
+#include "pyGrid.cpp"
 
 Energy2::Energy2(PARSER* _Input)
 {
