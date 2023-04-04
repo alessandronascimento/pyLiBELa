@@ -93,7 +93,7 @@ uninstall:
 	
 objFolder:
 	@ mkdir -p obj
-	@ mkdir src
+#	@ mkdir src
 	@ mkdir test
 	
 	
