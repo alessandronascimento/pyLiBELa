@@ -36,9 +36,7 @@ RM = rm -rf
 #
 #Compilation and linking
 #
-all: objFolder $(PROJ_NAME)
-
-$(PROJ_NAME): PARSER Mol2
+all: objFolder PARSER Mol2
 
 
 PARSER: pyPARSER.cpp
