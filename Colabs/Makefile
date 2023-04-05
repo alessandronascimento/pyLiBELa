@@ -184,7 +184,7 @@ MC:
 
 folders:
 	@ mkdir src
-	@ mkdir test
+
 clean:
 	@ $(RM) *.so src/*.h src/*.cpp $(PROJ_NAME) *~
 	@ rmdir src
