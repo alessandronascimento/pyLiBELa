@@ -11,7 +11,10 @@ CLASSES= PARSER    \
 	 Energy2   \
 	 Conformer \
 	 RAND      \
-	 Gaussian 
+	 Gaussian  \
+	 McEntropy \
+	 SA	   \
+	 MC	     
 
 #Compiler
 CC=g++
@@ -30,7 +33,8 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 	 -lboost_python38            \
 	 -lz                         \
 	 -lopenbabel                 \
-	 -lgsl
+	 -lgsl                       \
+	 -lnlopt_cxx
 
 
 #Command to clean target
@@ -39,20 +43,21 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: $(PROJ_NAME)
+all: folders $(PROJ_NAME)
 
 $(PROJ_NAME): $(CLASSES)
 	
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
-#	@ mv *.h *.cpp src/
-#	@ mv *gz test/
+	@ mv *.gz test/
 
 PARSER: 
 	@echo 'Building PARSER dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
 	$(CC) $(CC_FLAGS) pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
 	@echo ' '
 
 Mol2: PARSER
@@ -60,6 +65,8 @@ Mol2: PARSER
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.cpp
 	$(CC) $(CC_FLAGS) pyMol2.cpp -o pyMol2.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
 	@echo ' '
 
 WRITER: Mol2 PARSER iMcLiBELa
@@ -67,6 +74,8 @@ WRITER: Mol2 PARSER iMcLiBELa
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyWRITER.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyWRITER.cpp
 	$(CC) $(CC_FLAGS) pyWRITER.cpp -o pyWRITER.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
 	@echo ' '
 
 Grid:   Mol2 PARSER WRITER
@@ -74,6 +83,8 @@ Grid:   Mol2 PARSER WRITER
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGrid.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGrid.cpp
 	$(CC) $(CC_FLAGS) pyGrid.cpp -o pyGrid.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
 	@echo ' '
 
 COORD_MC: RAND Mol2 iMcLiBELa
@@ -81,6 +92,8 @@ COORD_MC: RAND Mol2 iMcLiBELa
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyCOORD_MC.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyCOORD_MC.cpp
 	$(CC) $(CC_FLAGS) pyCOORD_MC.cpp -o pyCOORD_MC.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
 	@echo ' '
 
 FindHB: Mol2 PARSER COORD_MC
@@ -88,6 +101,8 @@ FindHB: Mol2 PARSER COORD_MC
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFindHB.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFindHB.cpp
 	$(CC) $(CC_FLAGS) pyFindHB.cpp -o pyFindHB.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
 	@echo ' '
 
 Energy2: PARSER Mol2 iMcLiBELa Grid
@@ -95,6 +110,8 @@ Energy2: PARSER Mol2 iMcLiBELa Grid
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyEnergy2.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyEnergy2.cpp
 	$(CC) $(CC_FLAGS) pyEnergy2.cpp -o pyEnergy2.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
 	@echo ' '
 
 Conformer: PARSER Mol2
@@ -102,6 +119,8 @@ Conformer: PARSER Mol2
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyConformer.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyConformer.cpp
 	$(CC) $(CC_FLAGS) pyConformer.cpp -o pyConformer.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
 	@echo ' '
 
 RAND: PARSER Mol2
@@ -109,6 +128,8 @@ RAND: PARSER Mol2
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.cpp
 	$(CC) $(CC_FLAGS) pyRAND.cpp -o pyRAND.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
 	@echo ' '
 
 Gaussian: iMcLiBELa Mol2 PARSER
@@ -116,12 +137,56 @@ Gaussian: iMcLiBELa Mol2 PARSER
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.cpp
 	$(CC) $(CC_FLAGS) pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
 	@echo ' '
 
 iMcLiBELa:
 	@wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/iMcLiBELa.h
+	@ mv *.h src/
+	@ mv *.cpp src/
 
+Gaussian: iMcLiBELa Mol2 PARSER
+	@echo 'Building Gaussian dinamic library.'
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.h
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.cpp
+	$(CC) $(CC_FLAGS) pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
+	@echo ' '
+
+McEntropy: PARSER Mol2 COORD_MC
+	@echo 'Building McEntropy dinamic library.'
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMcEntropy.h
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMcEntropy.cpp
+	$(CC) $(CC_FLAGS) pyMcEntropy.cpp -o pyMcEntropy.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
+	@echo ' '
+
+SA: Mol2 Grid Energy2 COORD_MC PARSER
+	@echo 'Building SA dinamic library.'
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pySA.h
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pySA.cpp
+	$(CC) $(CC_FLAGS) pySA.cpp -o pySA.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
+	@echo ' '
+
+MC: 
+	@echo 'Building MC dinamic library.'
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.h
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.cpp
+	$(CC) $(CC_FLAGS) pyMC.cpp -o pyMC.so $(LD_FLAGS)
+	@ mv *.h src/
+	@ mv *.cpp src/
+	@echo ' '
+
+folders:
+	@ mkdir src
+	@ mkdir test
 clean:
-	@ $(RM) *.so *.h *.cpp $(PROJ_NAME) *~
+	@ $(RM) *.so src/*.h src/*.cpp $(PROJ_NAME) *~
+	@ rmdir src
 
 .PHONY: all clean
