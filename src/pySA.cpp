@@ -6,6 +6,7 @@
  */
 
 #include "pySA.h"
+#include "pyGrid.cpp"
 
 SA::SA() {
 }

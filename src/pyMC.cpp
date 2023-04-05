@@ -1,4 +1,5 @@
 #include "pyMC.h"
+#include "pyEnergy2.cpp"
 
 using namespace OpenBabel;
 
