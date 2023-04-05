@@ -173,7 +173,7 @@ SA: Mol2 Grid Energy2 COORD_MC PARSER
 	@ mv *.cpp src/
 	@echo ' '
 
-MC: 
+MC: PARSER Grid Mol2 COORD_MC Energy2 Optimizer WRITER McEntropy iMcLiBELa 
 	@echo 'Building MC dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.cpp
@@ -181,6 +181,9 @@ MC:
 	@ mv *.h src/
 	@ mv *.cpp src/
 	@echo ' '
+
+Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.h
 
 folders:
 	@ mkdir src
