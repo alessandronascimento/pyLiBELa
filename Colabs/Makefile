@@ -55,7 +55,7 @@ PARSER:
 	@echo 'Building PARSER dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
-	$(CC) $(CC_FLAGS) pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
+	$(CC) $(CC_FLAGS) src/pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
 	@echo ' '
@@ -64,81 +64,81 @@ Mol2: PARSER
 	@echo 'Building Mol2 dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.cpp
-	$(CC) $(CC_FLAGS) pyMol2.cpp -o pyMol2.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyMol2.cpp -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
 
 WRITER: Mol2 PARSER iMcLiBELa
 	@echo 'Building WRITER dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyWRITER.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyWRITER.cpp
-	$(CC) $(CC_FLAGS) pyWRITER.cpp -o pyWRITER.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyWRITER.cpp -o pyWRITER.so $(LD_FLAGS)
 	@echo ' '
 
 Grid:   Mol2 PARSER WRITER
 	@echo 'Building Grid dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGrid.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGrid.cpp
-	$(CC) $(CC_FLAGS) pyGrid.cpp -o pyGrid.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyGrid.cpp -o pyGrid.so $(LD_FLAGS)
 	@echo ' '
 
 COORD_MC: RAND Mol2 iMcLiBELa
 	@echo 'Building COORD_MC dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyCOORD_MC.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyCOORD_MC.cpp
-	$(CC) $(CC_FLAGS) pyCOORD_MC.cpp -o pyCOORD_MC.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyCOORD_MC.cpp -o pyCOORD_MC.so $(LD_FLAGS)
 	@echo ' '
 
 FindHB: Mol2 PARSER COORD_MC
 	@echo 'Building FindHB dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFindHB.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFindHB.cpp
-	$(CC) $(CC_FLAGS) pyFindHB.cpp -o pyFindHB.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyFindHB.cpp -o pyFindHB.so $(LD_FLAGS)
 	@echo ' '
 
 Energy2: PARSER Mol2 iMcLiBELa Grid
 	@echo 'Building Energy2 dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyEnergy2.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyEnergy2.cpp
-	$(CC) $(CC_FLAGS) pyEnergy2.cpp -o pyEnergy2.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyEnergy2.cpp -o pyEnergy2.so $(LD_FLAGS)
 	@echo ' '
 
 Conformer: PARSER Mol2
 	@echo 'Building Conformer dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyConformer.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyConformer.cpp
-	$(CC) $(CC_FLAGS) pyConformer.cpp -o pyConformer.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyConformer.cpp -o pyConformer.so $(LD_FLAGS)
 	@echo ' '
 
 RAND: PARSER Mol2
 	@echo 'Building RAND dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.cpp
-	$(CC) $(CC_FLAGS) pyRAND.cpp -o pyRAND.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyRAND.cpp -o pyRAND.so $(LD_FLAGS)
 	@echo ' '
 
 Gaussian: iMcLiBELa Mol2 PARSER
 	@echo 'Building Gaussian dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.cpp
-	$(CC) $(CC_FLAGS) pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
 	@echo ' '
 
 iMcLiBELa:
@@ -150,40 +150,42 @@ Gaussian: iMcLiBELa Mol2 PARSER
 	@echo 'Building Gaussian dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.cpp
-	$(CC) $(CC_FLAGS) pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
 	@echo ' '
 
 McEntropy: PARSER Mol2 COORD_MC
 	@echo 'Building McEntropy dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMcEntropy.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMcEntropy.cpp
-	$(CC) $(CC_FLAGS) pyMcEntropy.cpp -o pyMcEntropy.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyMcEntropy.cpp -o pyMcEntropy.so $(LD_FLAGS)
 	@echo ' '
 
 SA: Mol2 Grid Energy2 COORD_MC PARSER
 	@echo 'Building SA dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pySA.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pySA.cpp
-	$(CC) $(CC_FLAGS) pySA.cpp -o pySA.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pySA.cpp -o pySA.so $(LD_FLAGS)
 	@echo ' '
 
 MC: PARSER Grid Mol2 COORD_MC Energy2 Optimizer WRITER McEntropy iMcLiBELa 
 	@echo 'Building MC dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.cpp
-	$(CC) $(CC_FLAGS) pyMC.cpp -o pyMC.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyMC.cpp -o pyMC.so $(LD_FLAGS)
 	@echo ' '
 
 Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.h
+	@ mv *.h src/
+	@ mv *.cpp src/
 
 folders:
 	@ mkdir src
