@@ -241,10 +241,6 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(pyCOORD_MC)
 {
 
-
-
-
-
     vector<double> (COORD_MC::*cc1)(Mol2 *Cmol) = &COORD_MC::compute_com;
     vector<double> (COORD_MC::*cc2)(vector<vector<double> >coords, Mol2* Cmol)   = &COORD_MC::compute_com;
 

@@ -9,7 +9,7 @@
 #define COORD_MC_H_
 
 #include<vector>
-#include "pyRAND.h"
+#include "pyRAND.cpp"
 #include<iostream>
 #include<cmath>
 #include"pyMol2.h"
