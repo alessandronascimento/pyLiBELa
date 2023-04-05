@@ -55,9 +55,9 @@ PARSER:
 	@echo 'Building PARSER dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
-	$(CC) $(CC_FLAGS) src/pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
 	@ mv *.h src/
 	@ mv *.cpp src/
+	$(CC) $(CC_FLAGS) src/pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
 Mol2: PARSER
