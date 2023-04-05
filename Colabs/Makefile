@@ -2,7 +2,16 @@
 PROJ_NAME=pyLiBELa
 
 #Classes
-CLASSES= PARSER Mol2 WRITER Grid COORD_MC FindHB Energy2 Conformer RAND Gaussian
+CLASSES= PARSER    \
+	 Mol2      \
+	 WRITER    \
+	 Grid      \
+	 COORD_MC  \
+	 FindHB    \
+	 Energy2   \
+	 Conformer \
+	 RAND      \
+	 Gaussian 
 
 #Compiler
 CC=g++
@@ -46,70 +55,71 @@ PARSER:
 	$(CC) $(CC_FLAGS) pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
-Mol2:
+Mol2: PARSER
 	@echo 'Building Mol2 dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.cpp
 	$(CC) $(CC_FLAGS) pyMol2.cpp -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
 
-WRITER:
+WRITER: Mol2 PARSER iMcLiBELa
 	@echo 'Building WRITER dinamic library.'
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/iMcLiBELa.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyWRITER.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyWRITER.cpp
 	$(CC) $(CC_FLAGS) pyWRITER.cpp -o pyWRITER.so $(LD_FLAGS)
 	@echo ' '
 
-Grid:
+Grid:   Mol2 PARSER WRITER
 	@echo 'Building Grid dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGrid.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGrid.cpp
 	$(CC) $(CC_FLAGS) pyGrid.cpp -o pyGrid.so $(LD_FLAGS)
 	@echo ' '
 
-COORD_MC:
+COORD_MC: RAND Mol2 iMcLiBELa
 	@echo 'Building COORD_MC dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyCOORD_MC.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyCOORD_MC.cpp
 	$(CC) $(CC_FLAGS) pyCOORD_MC.cpp -o pyCOORD_MC.so $(LD_FLAGS)
 	@echo ' '
 
-FindHB:
+FindHB: Mol2 PARSER COORD_MC
 	@echo 'Building FindHB dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFindHB.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFindHB.cpp
 	$(CC) $(CC_FLAGS) pyFindHB.cpp -o pyFindHB.so $(LD_FLAGS)
 	@echo ' '
 
-Energy2:
+Energy2: PARSER Mol2 iMcLiBELa Grid
 	@echo 'Building Energy2 dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyEnergy2.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyEnergy2.cpp
 	$(CC) $(CC_FLAGS) pyEnergy2.cpp -o pyEnergy2.so $(LD_FLAGS)
 	@echo ' '
 
-Conformer:
+Conformer: PARSER Mol2
 	@echo 'Building Conformer dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyConformer.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyConformer.cpp
 	$(CC) $(CC_FLAGS) pyConformer.cpp -o pyConformer.so $(LD_FLAGS)
 	@echo ' '
 
-RAND:
+RAND: PARSER Mol2
 	@echo 'Building RAND dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.cpp
 	$(CC) $(CC_FLAGS) pyRAND.cpp -o pyRAND.so $(LD_FLAGS)
 	@echo ' '
 
-Gaussian:
+Gaussian: iMcLiBELa Mol2 PARSER
 	@echo 'Building Gaussian dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.cpp
 	$(CC) $(CC_FLAGS) pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
 	@echo ' '
 
+iMcLiBELa:
+	@wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/iMcLiBELa.h
 
 clean:
 	@ $(RM) *.so *.h *.cpp $(PROJ_NAME) *~
