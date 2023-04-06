@@ -12,7 +12,7 @@
 #include <vector>
 #include <time.h>
 #include <cstdlib>
-#include "pyMol2.h"
+//#include "pyMol2.h"
 #include "pyGrid.h"
 #include "pyEnergy2.h"
 #include "pyCOORD_MC.h"
