@@ -6,7 +6,8 @@
  */
 
 #include "pySA.h"
-#include "pyGrid.cpp"
+//#include "pyGrid.cpp"
+#include "pyEnergy2.cpp"
 
 SA::SA() {
 }

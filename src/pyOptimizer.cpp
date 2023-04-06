@@ -1511,9 +1511,13 @@ using namespace boost::python;
 
 
 BOOST_PYTHON_MODULE(pyOptimizer)
-{
-    double (Optimizer::*ee1)(Mol2* Lig2, vector<vector<double> > new_xyz)                                 = &Optimizer::evaluate_energy;
-    void   (Optimizer::*ee2)(Mol2* Lig2, vector<vector<double> > new_xyz, energy_result_t* energy_result) = &Optimizer::evaluate_energy;
+{ 
+    //double (Optimizer::*ee1)(Mol2*, vector<vector<double> >)                   = &Optimizer::evaluate_energy;
+    //void   (Optimizer::*ee2)(Mol2*, vector<vector<double> >, energy_result_t*) = &Optimizer::evaluate_energy;
+
+    class_< vector< vector<double> > >("vectorvectorDouble")
+            .def(vector_indexing_suite< vector< vector<double> >  >())
+        ;
 
     class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
         .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
@@ -1528,8 +1532,9 @@ BOOST_PYTHON_MODULE(pyOptimizer)
         .def("distance", & Optimizer::distance)
         .def("distance_squared", & Optimizer::distance_squared)
 
-        .def("evaluate_energy", ee1)
-        .def("evaluate_energy", ee2)
+        //.def("evaluate_energy", ee1)
+        //.def("evaluate_energy", ee2)
+        .def("evaluate_energy", &Optimizer::evaluate_energy)
 
         .def("objective_energy_function", & Optimizer::objective_energy_function)
         .def("objective_overlay_function", & Optimizer::objective_overlay_function)

@@ -241,18 +241,18 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(pyCOORD_MC)
 {
 
-    vector<double> (COORD_MC::*cc1)(Mol2 *Cmol) = &COORD_MC::compute_com;
-    vector<double> (COORD_MC::*cc2)(vector<vector<double> >coords, Mol2* Cmol)   = &COORD_MC::compute_com;
+    vector<double> (COORD_MC::*cc1)(Mol2*)                            = &COORD_MC::compute_com;
+    vector<double> (COORD_MC::*cc2)(vector<vector<double> >, Mol2*)   = &COORD_MC::compute_com;
 
-    vector<vector<double> > (COORD_MC::*rt1)(vector<vector<double> >coordinates, int N, double alpha, double beta, double gamma, double transx, double transy, double transz) = &COORD_MC::rototranslate;
-    vector<vector<double> >(COORD_MC::*rt2)(vector<vector<double> >coordinates, Mol2* Lig, double alpha, double beta, double gamma, double transx, double transy, double transz) = &COORD_MC::rototranslate;
-    vector<vector<double> >(COORD_MC::*rt3)(vector<vector<double> >coordinates, Mol2* LIG, RAND* Rand) = &COORD_MC::rototranslate;
-    vector<vector<double> >(COORD_MC::*rt4)(vector<vector<double> >coordinates, int N, RAND* rand) = &COORD_MC::rototranslate;
+    vector<vector<double> > (COORD_MC::*rt1)(vector<vector<double> >, int, double, double, double, double, double, double) = &COORD_MC::rototranslate;
+    vector<vector<double> >(COORD_MC::*rt2)(vector<vector<double> >, Mol2*, double, double, double, double, double, double ) = &COORD_MC::rototranslate;
+    vector<vector<double> >(COORD_MC::*rt3)(vector<vector<double> >, Mol2*, RAND*) = &COORD_MC::rototranslate;
+    vector<vector<double> >(COORD_MC::*rt4)(vector<vector<double> >, int, RAND*) = &COORD_MC::rototranslate;
 
 
 
-    void (COORD_MC::*rta1)(Mol2 *Cmol, RAND *Rand) = &COORD_MC::rototranslate_all;
-    void (COORD_MC::*rta2)(Mol2 *Cmol, double alpha, double beta, double gamma, double transx, double transy, double transz) = &COORD_MC::rototranslate_all;
+    void (COORD_MC::*rta1)(Mol2*, RAND*) = &COORD_MC::rototranslate_all;
+    void (COORD_MC::*rta2)(Mol2*, double, double, double, double, double, double) = &COORD_MC::rototranslate_all;
 
 
 
