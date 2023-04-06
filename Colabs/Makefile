@@ -127,13 +127,6 @@ Gaussian: iMcLiBELa Mol2 PARSER
 iMcLiBELa:
 	@wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/iMcLiBELa.h
 
-Gaussian: iMcLiBELa Mol2 PARSER
-	@echo 'Building Gaussian dinamic library.'
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.h
-	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.cpp
-	$(CC) $(CC_FLAGS) pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
-	@echo ' '
-
 McEntropy: PARSER Mol2 COORD_MC
 	@echo 'Building McEntropy dinamic library.'
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMcEntropy.h
