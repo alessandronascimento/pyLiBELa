@@ -15,7 +15,7 @@
 //#include "pyMol2.h"
 #include "pyGrid.h"
 #include "pyEnergy2.h"
-#include "pyCOORD_MC.h"
+//#include "pyCOORD_MC.h"
 #include "pyPARSER.h"
 
 using namespace std;
