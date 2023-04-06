@@ -49,9 +49,10 @@ $(PROJ_NAME): $(CLASSES)
 	
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
+	@ mkdir test
+	@ mkdir src
 	@ mv *.gz test/
-	@ mv *.h src/
-	@ mv *.cpp src/
+	@ mv *.h *.cpp src/
 
 PARSER: 
 	@echo 'Building PARSER dinamic library.'
