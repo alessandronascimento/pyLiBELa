@@ -1509,11 +1509,12 @@ void Optimizer::pre_align(Mol2* Lig2, opt_result_t* opt_result){
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
 
+//BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(overloads, Optimizer::evaluate_energy, 1, 3);
 
 BOOST_PYTHON_MODULE(pyOptimizer)
 { 
-    double (Optimizer::*ee1)(Mol2*, vector<vector<double>>) = &Optimizer::evaluate_energy;
-    void   (Optimizer::*ee2)(Mol2*, vector<vector<double>>, energy_result_t*) = &Optimizer::evaluate_energy;
+    double (Optimizer::*ee1)(Mol2*, vector<vector<double> >) = &Optimizer::evaluate_energy;
+    void   (Optimizer::*ee2)(Mol2*, vector<vector<double> >, energy_result_t*) = &Optimizer::evaluate_energy;
 
     class_< vector< vector<double> > >("vectorvectorDouble")
             .def(vector_indexing_suite< vector< vector<double> >  >())
@@ -1526,15 +1527,28 @@ BOOST_PYTHON_MODULE(pyOptimizer)
         .def_readwrite("Parser", & Optimizer::Parser)
         .def_readwrite("Grids", & Optimizer::Grids)
 
-        .def("evaluate_rmsd", & Optimizer::evaluate_rmsd)
-        .def("Simulated_Annealing", & Optimizer::Simulated_Annealing)
-        .def("update_coords", & Optimizer::update_coords)
-        .def("distance", & Optimizer::distance)
-        .def("distance_squared", & Optimizer::distance_squared)
+        .def("evaluate_rmsd", & Optimizer::evaluate_rmsd).staticmethod("evaluate_rmsd")
+        .def("Simulated_Annealing", & Optimizer::Simulated_Annealing).staticmethod("Simulated_Annealing")
+        .def("update_coords", & Optimizer::update_coords).staticmethod("update_coords")
+        .def("distance", & Optimizer::distance).staticmethod("distance")
+        .def("distance_squared", & Optimizer::distance_squared).staticmethod("distance_squared")
 
+
+        // .def("evaluate_energy", &Optimizer::evaluate_energy,evaluate_energy_overloads( Mol2*, vector<vector<double> >  ).staticmethod("evaluate_energy")
         .def("evaluate_energy", ee1)
         .def("evaluate_energy", ee2)
-        //.def("evaluate_energy", &Optimizer::evaluate_energy)
+  //      .def("evaluate_energy", (double(Optimizer::*)(Mol2*, vector<vector<double> >))&Optimizer::evaluate_energy).staticmethod("evaluate_energy")
+  //     .def("evaluate_energy", (void(Optimizer::*)(Mol2*, vector<vector<double> >, energy_result_t*))&Optimizer::evaluate_energy).staticmethod("evaluate_energy")
+
+//        .def("evaluate_energy", (double(*)(Mol2*->Lig2, vector<vector<double> >->new_xyz))2, evaluate_energy_overloads()).staticmethod("evaluate_energy")
+//        .def("evaluate_energy", (void(*)(Mol2*->Lig2, vector<vector<double> >->new_xyz, energy_result_t*->energy_result))3, evaluate_energy_overloads()).staticmethod("evaluate_energy")
+
+        //.def("evaluate_energy", &Optimizer::evaluate_energy,evaluate_energy_overloads(args("new_xyz","Lig2"))).staticmethod("evaluate_energy")
+        //.def("evaluate_energy", &Optimizer::evaluate_energy,evaluate_energy_overloads(args("energy_result","new_xyz","Lig2"))).staticmethod("evaluate_energy")
+
+      //  .def("evaluate_energy", (double(Optimizer::*)(Mol2*, vector<vector<double> >))0, overloads("Mol2","vector<vector<double> >")).staticmethod("evaluate_energy")
+
+
 
         .def("objective_energy_function", & Optimizer::objective_energy_function)
         .def("objective_overlay_function", & Optimizer::objective_overlay_function)
@@ -1544,6 +1558,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
         .def("minimize_energy_nlopt_cobyla", & Optimizer::minimize_energy_nlopt_cobyla)
         .def("minimize_energy_nlopt_lbfgs", & Optimizer::minimize_energy_nlopt_lbfgs)
         .def("minimize_energy_nlopt_ln_auglag", & Optimizer::minimize_energy_nlopt_ln_auglag)
+
         .def("minimize_energy_nlopt_ld_auglag", & Optimizer::minimize_energy_nlopt_ld_auglag)
         .def("minimize_energy_nlopt_mma", & Optimizer::minimize_energy_nlopt_mma)
         .def("minimize_energy_nlopt_subplex", & Optimizer::minimize_energy_nlopt_subplex)
@@ -1587,6 +1602,8 @@ BOOST_PYTHON_MODULE(pyOptimizer)
         class_<Optimizer::align_t>("align_t")
             .def_readwrite("ref_xyz", & Optimizer::align_t::ref_xyz)
             .def_readwrite("current_xyz", & Optimizer::align_t::current_xyz)
-        ;
+
+       ;
 
 }
+

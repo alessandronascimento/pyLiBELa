@@ -18,7 +18,6 @@
 #include"pyCOORD_MC.h"
 #include"pyGaussian.h"
 #include "pyWRITER.h"
-
 #include<gsl/gsl_rng.h>
 #include<time.h>
 #include <memory>
@@ -67,7 +66,7 @@ public:
     static double distance(vector<double> atom1, vector<double> atom2);
     static double distance_squared(vector<double> atom1, vector<double> atom2);
 
-	static double evaluate_energy(Mol2* Lig2, vector<vector<double> > new_xyz);
+    static double evaluate_energy(Mol2* Lig2, vector<vector<double> > new_xyz);
     static void evaluate_energy(Mol2* Lig2, vector<vector<double> > new_xyz, energy_result_t* energy_result);
 
 	static double objective_energy_function(const vector<double> &x, vector<double> &grad, void *data);
