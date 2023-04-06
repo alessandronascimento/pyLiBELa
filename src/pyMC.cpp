@@ -1331,7 +1331,6 @@ void MC::take_step_full_flex(PARSER* Input, Mol2* Lig, step_t* step){
 }
 
 
-/*
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
@@ -1340,8 +1339,8 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(pyMC)
 {
 
-    void (MC::*r1)(Mol2 *Rec, Mol2* Reflig , Mol2* Lig, vector<vector<double> > xyz, PARSER* Input, double T) =&MC::run;
-    void (MC::*r2)(Grid* Grids, Mol2* RefLig, Mol2* Lig, vector<vector<double> > xyz, PARSER* Input, double T) =&MC::run;
+    void (MC::*r1)(Mol2*, Mol2*, Mol2*, vector<vector<double> >, PARSER*, double) =&MC::run;
+    void (MC::*r2)(Grid*, Mol2*, Mol2*, vector<vector<double> >, PARSER*, double) =&MC::run;
 
     class_<MC>("MC", init<WRITER*>())
         .def(init<Mol2*, PARSER*, WRITER*>())
@@ -1408,4 +1407,3 @@ BOOST_PYTHON_MODULE(pyMC)
         .def_readwrite("internal_energy", & MC::step_t::internal_energy)
     ;
 }
-*/

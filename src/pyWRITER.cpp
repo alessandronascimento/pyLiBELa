@@ -720,14 +720,14 @@ BOOST_PYTHON_MODULE(pyWRITER)
 
 
 
-    void    (WRITER::*wpdb_1)(vector<vector<double> >xyz, int N, vector<string> atomnames, double energy, double temp, string outname)  = &WRITER::write_pdb;
-    void    (WRITER::*wpdb_2)(Mol2 *Cmol, vector<vector<double> >xyz, double energy, double rmsd, string outname)   = &WRITER::write_pdb;
+    void    (WRITER::*wpdb_1)(vector<vector<double> >, int, vector<string>, double, double, string)  = &WRITER::write_pdb;
+    void    (WRITER::*wpdb_2)(Mol2*, vector<vector<double> >, double, double, string)   = &WRITER::write_pdb;
 
 
-    void    (WRITER::*wmol2_1)(Mol2* Cmol, vector<vector<double> >xyz, double energy, double rmsd, string outname)  = &WRITER::writeMol2;
-    void    (WRITER::*wmol2_2)(Mol2* Cmol, vector<vector<double> >xyz, double energy, double rmsd) = &WRITER::writeMol2;
-    void    (WRITER::*wmol2_3)(Mol2* Cmol, vector<vector<double> >xyz, energy_result_t* result, double rmsd) = &WRITER::writeMol2;
-    void    (WRITER::*wmol2_4)(Mol2* Cmol, vector<vector<double> >xyz, energy_result_t* result, double rmsd, string outname)  = &WRITER::writeMol2;
+    void    (WRITER::*wmol2_1)(Mol2*, vector<vector<double> >, double, double, string)  = &WRITER::writeMol2;
+    void    (WRITER::*wmol2_2)(Mol2*, vector<vector<double> >, double, double) = &WRITER::writeMol2;
+    void    (WRITER::*wmol2_3)(Mol2*, vector<vector<double> >, energy_result_t*, double) = &WRITER::writeMol2;
+    void    (WRITER::*wmol2_4)(Mol2*, vector<vector<double> >, energy_result_t*, double, string)  = &WRITER::writeMol2;
 
 
 

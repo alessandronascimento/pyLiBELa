@@ -1,7 +1,8 @@
-#include "FullSearch.h"
+#include "pyFullSearch.h"
 
 FullSearch::FullSearch(PARSER* _Input, Mol2* _Lig, WRITER* _Writer)
 {
+    info = new char[98];
     this->Input = _Input;
     this->Lig = _Lig;
     this->Writer = _Writer;
@@ -51,6 +52,7 @@ FullSearch::FullSearch(PARSER* _Input, Mol2* _Lig, WRITER* _Writer)
 
 FullSearch::FullSearch(PARSER* _Input, Mol2* _Lig, WRITER* _Writer, Grid* _Grids)
 {
+    info = new char[98];
     this->Input = _Input;
     this->Lig = _Lig;
     this->Writer = _Writer;
@@ -208,3 +210,40 @@ double FullSearch::do_search(void){
     delete Coords;
 }
 
+/*
+
+#include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+using namespace boost::python;
+
+
+BOOST_PYTHON_MODULE(pyFullSearch)
+{
+
+    class_<FullSearch>("FullSearch", init<PARSER*, Mol2*, WRITER*>())
+        .def(init<PARSER*, Mol2*, WRITER*, Grid*>())
+        .def_readwrite("Input", & FullSearch::Input)
+        .def_readwrite("RefLig", & FullSearch::RefLig)
+        .def_readwrite("Lig", & FullSearch::Lig)
+        .def_readwrite("Conf", & FullSearch::Conf)
+        .def_readwrite("Writer", & FullSearch::Writer)
+        .def_readwrite("mol", & FullSearch::mol)
+        .def_readwrite("OBff", & FullSearch::OBff)
+        .def_readwrite("RotorList", & FullSearch::RotorList)
+        .def_readwrite("RotorIterator", & FullSearch::RotorIterator)
+        .def_readwrite("Rotor", & FullSearch::Rotor)
+        .def_readwrite("info", & FullSearch::info)
+        .def_readwrite("Grids", & FullSearch::Grids)
+        .def_readwrite("atoms_in_dihedrals", & FullSearch::atoms_in_dihedrals)
+        .def_readwrite("myxyz", & FullSearch::myxyz)
+
+        .def("GetMol", & FullSearch::GetMol)
+        .def("copy_to_obmol", & FullSearch::copy_to_obmol)
+        .def("copy_from_obmol", & FullSearch::copy_from_obmol)
+        .def("do_search", & FullSearch::do_search)
+
+    ;
+
+}
+
+*/

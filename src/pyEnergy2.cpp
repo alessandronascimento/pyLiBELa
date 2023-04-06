@@ -1307,32 +1307,32 @@ BOOST_PYTHON_MODULE(pyEnergy2)
     double (Energy2::*ces1)(Mol2*, Mol2*, vector<vector<double> >) = &Energy2::compute_energy_softcore;
     double (Energy2::*ces2)(Mol2*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_energy_softcore;
 
-    double (Energy2::*cehs1)(Mol2 *Rec, Mol2 *Lig, vector<vector<double> > lig_xyz) = &Energy2::compute_energy_hardcore_solvation;
-    double (Energy2::*cehs2)(Mol2* Rec, Mol2* Lig, vector<vector<double> > lig_xyz, energy_result_t* energy_result) = &Energy2::compute_energy_hardcore_solvation;
+    double (Energy2::*cehs1)(Mol2*, Mol2*, vector<vector<double> >) = &Energy2::compute_energy_hardcore_solvation;
+    double (Energy2::*cehs2)(Mol2*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_energy_hardcore_solvation;
 
-    double (Energy2::*ceh1)(Mol2 *Rec, Mol2 *Lig, vector<vector<double> > lig_xyz) = &Energy2::compute_energy_hardcore;
-    double (Energy2::*ceh2)(Mol2* Rec, Mol2* Lig, vector<vector<double> > lig_xyz, energy_result_t* energy_result) = &Energy2::compute_energy_hardcore;
+    double (Energy2::*ceh1)(Mol2*, Mol2*, vector<vector<double> >) = &Energy2::compute_energy_hardcore;
+    double (Energy2::*ceh2)(Mol2*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_energy_hardcore;
 
-    double (Energy2::*cefghs1)(Grid* Grids, Mol2* Lig, vector<vector<double> >xyz) = &Energy2::compute_ene_from_grids_hardcore_solvation;
-    double (Energy2::*cefghs2)(Grid* Grids, Mol2* Lig, vector<vector<double> > xyz, energy_result_t* energy_result) = &Energy2::compute_ene_from_grids_hardcore_solvation;
+    double (Energy2::*cefghs1)(Grid*, Mol2*, vector<vector<double> >) = &Energy2::compute_ene_from_grids_hardcore_solvation;
+    double (Energy2::*cefghs2)(Grid*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_ene_from_grids_hardcore_solvation;
 
-    double (Energy2::*cefgh1)(Grid* Grids, Mol2* Lig, vector<vector<double> > xyz) = &Energy2::compute_ene_from_grids_hardcore;
-    double (Energy2::*cefgh2)(Grid* Grids, Mol2* Lig, vector<vector<double> > xyz, energy_result_t* energy_result) = &Energy2::compute_ene_from_grids_hardcore;
+    double (Energy2::*cefgh1)(Grid*, Mol2*, vector<vector<double> >) = &Energy2::compute_ene_from_grids_hardcore;
+    double (Energy2::*cefgh2)(Grid*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_ene_from_grids_hardcore;
 
-    double (Energy2::*cefgss1)(Grid* Grids, Mol2* Lig, vector<vector<double> > xyz) = &Energy2::compute_ene_from_grids_softcore_solvation;
-    double (Energy2::*cefgss2)(Grid* Grids, Mol2* Lig, vector<vector<double> > xyz, energy_result_t* energy_result) = &Energy2::compute_ene_from_grids_softcore_solvation;
+    double (Energy2::*cefgss1)(Grid*, Mol2*, vector<vector<double> >) = &Energy2::compute_ene_from_grids_softcore_solvation;
+    double (Energy2::*cefgss2)(Grid*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_ene_from_grids_softcore_solvation;
 
-    double (Energy2::*cefgs1)(Grid* Grids, Mol2* Lig, vector<vector<double> > xyz) = &Energy2::compute_ene_from_grids_softcore;
-    double (Energy2::*cefgs2)(Grid* Grids, Mol2* Lig, vector<vector<double> > xyz, energy_result_t* energy_result) = &Energy2::compute_ene_from_grids_softcore;
+    double (Energy2::*cefgs1)(Grid*, Mol2*, vector<vector<double> >) = &Energy2::compute_ene_from_grids_softcore;
+    double (Energy2::*cefgs2)(Grid*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_ene_from_grids_softcore;
 
-    double (Energy2::*ce1)(Mol2* Rec,   Mol2* Lig, vector<vector<double> >lig_xyz) = &Energy2::compute_ene;
-    double (Energy2::*ce2)(Grid *Grids, Mol2* Lig, vector<vector<double> >lig_xyz) = &Energy2::compute_ene;
-    double (Energy2::*ce3)(Grid* Grids, Mol2* Lig, vector<vector<double> > lig_xyz, energy_result_t* energy_result) = &Energy2::compute_ene;
-    double (Energy2::*ce4)(Mol2 *Rec, Mol2 *Lig, vector<vector<double> > lig_xyz, energy_result_t* energy_result) = &Energy2::compute_ene;
+    double (Energy2::*ce1)(Mol2*, Mol2*, vector<vector<double> >) = &Energy2::compute_ene;
+    double (Energy2::*ce2)(Grid*, Mol2*, vector<vector<double> >) = &Energy2::compute_ene;
+    double (Energy2::*ce3)(Grid*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_ene;
+    double (Energy2::*ce4)(Mol2*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_ene;
 
 
-    double (Energy2::*ti1)(vector<vector<vector<double> > > grid, double x, double y, double z, int x0, int y0, int z0, int x1, int y1, int z1) = &Energy2::trilinear_interpolation;
-    void (Energy2::*ti2)(Grid* Grids, double x, double y, double z, int x0, int y0, int z0, int x1, int y1, int z1, Energy2::GridInterpol* GI) = &Energy2::trilinear_interpolation;
+    double (Energy2::*ti1)(vector<vector<vector<double> > >, double, double, double, int, int, int, int, int, int) = &Energy2::trilinear_interpolation;
+    void (Energy2::*ti2)(Grid*, double, double, double, int, int, int, int, int, int, Energy2::GridInterpol*) = &Energy2::trilinear_interpolation;
 
 
 

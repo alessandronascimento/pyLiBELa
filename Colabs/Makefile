@@ -146,6 +146,8 @@ SA: Mol2 Grid Energy2 COORD_MC PARSER
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pySA.h
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pySA.cpp
 	$(CC) $(CC_FLAGS) pySA.cpp -o pySA.so $(LD_FLAGS)
+	$(CC) $(CC_FLAGS) pyLiBELa/src/pyMC.cpp -o obj/pyMC.so $(LD_FLAGS)
+	$(CC) $(CC_FLAGS) pyCOORD_MC.cpp pyMC.cpp -o pyMC.so $(LD_FLAGS)
 	@echo ' '
 
 MC: PARSER Grid Mol2 COORD_MC Energy2 Optimizer WRITER McEntropy iMcLiBELa 

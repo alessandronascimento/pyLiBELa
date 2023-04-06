@@ -243,15 +243,15 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pyGaussian)
 {
-    double (Gaussian::*cs1)(Mol2* RefMol, Mol2* CompMol) = &Gaussian::compute_si;
-    double (Gaussian::*cs2)(Mol2* RefMol, Mol2* CompMol, vector<vector<double> > xyz)= &Gaussian::compute_si;
+    double (Gaussian::*cs1)(Mol2*, Mol2*) = &Gaussian::compute_si;
+    double (Gaussian::*cs2)(Mol2*, Mol2*, vector<vector<double> >)= &Gaussian::compute_si;
 
-    double (Gaussian::*csd1)(Mol2* RefMol, Mol2* CompMol) = &Gaussian::compute_shape_density;
-    double (Gaussian::*csd2)(Mol2* RefMol, Mol2* CompMol, vector<vector<double> > xyz) = &Gaussian::compute_shape_density;
-    double (Gaussian::*csd3)(Mol2* CompMol, vector<vector<double> > xyz) = &Gaussian::compute_shape_density;
+    double (Gaussian::*csd1)(Mol2*, Mol2*) = &Gaussian::compute_shape_density;
+    double (Gaussian::*csd2)(Mol2*, Mol2*, vector<vector<double> >) = &Gaussian::compute_shape_density;
+    double (Gaussian::*csd3)(Mol2*, vector<vector<double> >) = &Gaussian::compute_shape_density;
 
-    double (Gaussian::*csacd1)(PARSER *Input, Mol2* RefMol, Mol2* CompMol, vector<vector<double> > xyz) = &Gaussian::compute_shape_and_charge_density;
-    double (Gaussian::*csacd2)(PARSER *Input, Mol2* RefMol, Mol2* CompMol, vector<vector<double> > xyz, vector<vector<double> > cxyz) = &Gaussian::compute_shape_and_charge_density;
+    double (Gaussian::*csacd1)(PARSER*, Mol2*, Mol2*, vector<vector<double> >) = &Gaussian::compute_shape_and_charge_density;
+    double (Gaussian::*csacd2)(PARSER*, Mol2*, Mol2*, vector<vector<double> >, vector<vector<double> >) = &Gaussian::compute_shape_and_charge_density;
 
     class_<Gaussian>("Gaussian", init<>())
         .def(init<Mol2*, Mol2*, double*>())

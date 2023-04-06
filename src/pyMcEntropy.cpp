@@ -247,8 +247,8 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(pyMcEntropy)
 {
 
-    void (McEntropy::*gr1)(McEntropy::entropy_t* entropy, McEntropy::entropy_t *max_entropy, int count) =&McEntropy::get_results;
-    void (McEntropy::*gr2)(McEntropy::entropy_t* entropy, int count) =&McEntropy::get_results;
+    void (McEntropy::*gr1)(McEntropy::entropy_t*, McEntropy::entropy_t*, int) =&McEntropy::get_results;
+    void (McEntropy::*gr2)(McEntropy::entropy_t*, int) =&McEntropy::get_results;
 
 
     class_<McEntropy>("McEntropy", init<PARSER*, COORD_MC*, vector<double>, int >())

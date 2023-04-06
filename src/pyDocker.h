@@ -16,7 +16,7 @@
 #include <vector>
 #include <string>
 #include <string.h>
-#include "Grid.h"
+#include "pyGrid.h"
 
 #ifdef HAS_GUI
 #include "GUI/QtWriter.h"
@@ -30,7 +30,7 @@ public:
 	//! Objective function for molecular overlay
 	double fo;
 	//! Info for printing
-    char* info//[98];
+    char* info;//[98];
 	//!
 	double best_ene;
 	//!

@@ -5,13 +5,13 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
-#include "Mol2.h"
-#include "PARSER.h"
-#include "Conformer.h"
-#include "WRITER.h"
-#include "COORD_MC.h"
-#include "Grid.h"
-#include "Energy2.h"
+#include "pyMol2.h"
+#include "pyPARSER.h"
+#include "pyConformer.h"
+#include "pyWRITER.h"
+#include "pyCOORD_MC.h"
+#include "pyGrid.h"
+#include "pyEnergy2.h"
 #include <openbabel/mol.h>
 #include <openbabel/obconversion.h>
 #include <openbabel/rotor.h>
@@ -34,7 +34,7 @@ public:
     OBRotorList RotorList;
     OBRotorIterator RotorIterator;
     OBRotor *Rotor;
-    char info[98];
+    char info;//[98];
     Grid* Grids;
     vector<vector<int> > atoms_in_dihedrals;
     double* myxyz;

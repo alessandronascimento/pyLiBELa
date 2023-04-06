@@ -89,8 +89,8 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(pyRAND)
 {
 
-    void (RAND::*r1)(double cushion, double rotation_step, Mol2 *CRec, Mol2 *CLig) = &RAND::random;
-    void (RAND::*r2)( double cushion, double rotation_step)= &RAND::random;
+    void (RAND::*r1)(double, double, Mol2*, Mol2*) = &RAND::random;
+    void (RAND::*r2)(double, double)= &RAND::random;
 
 
     class_<RAND>("RAND", init<>())

@@ -8,6 +8,8 @@
 #include "pyDocker.h"
 
 Docker::Docker(WRITER* _Writer){
+    info = new char[98];
+
     this->Writer = _Writer;
 }
 
@@ -124,7 +126,7 @@ void Docker::run(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double> com, PARSER*
                         opt_result2->energy_result->hb_donor+opt_result2->energy_result->hb_acceptor, opt_result2->energy_result->total, 0, overlay_status, opt_result2->optimization_status, si);
             }
             else{
-                sprintf(info, "%5d %-12.12s %-4.4s %-10.3e  %-8.3g %-8.3g %-8.3g %-8.2f %-8.3g %3d %2d %2d %.2f", counter, Lig->molname.c_str(), Lig->resnames[0].c_str(), overlay_fmax,
+                sprintf(info, "%5d %-12.12s %-4.4s %-10.3e  %-8.3g %-8.3g %-8.3g %-8.2f %-8.3g %3d %2d %2f %.2f", counter, Lig->molname.c_str(), Lig->resnames[0].c_str(), overlay_fmax,
                         0.0, 0.0, 0.0, 0.0, 0.0, -1, overlay_status, 0.0, si);
             }
 
@@ -261,7 +263,7 @@ void Docker::run(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double> com, PARSER*
                         opt_result2->energy_result->hb_donor+opt_result2->energy_result->hb_acceptor, opt_result2->energy_result->total, 0, overlay_status, opt_result2->optimization_status, si);
             }
             else{
-                sprintf(info, "%5d %-12.12s %-4.4s %-10.3e  %-8.3g %-8.3g %-8.3g %-8.2f %-8.3g %3d %2d %2d %.2f", counter, Lig->molname.c_str(), Lig->resnames[0].c_str(), overlay_fmax,
+                sprintf(info, "%5d %-12.12s %-4.4s %-10.3e  %-8.3g %-8.3g %-8.3g %-8.2f %-8.3g %3d %2d %2f %.2f", counter, Lig->molname.c_str(), Lig->resnames[0].c_str(), overlay_fmax,
                         0.0, 0.0, 0.0, 0.0, 0.0, -1, overlay_status, 0.0, si);
             }
             this->print_info(info);
@@ -293,6 +295,7 @@ void Docker::run(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double> com, PARSER*
 }
 
 Docker::~Docker() {
+    delete info;
 }
 
 void  Docker::Dock_conformers(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double> com, PARSER* Input, unsigned counter){
@@ -1597,3 +1600,61 @@ void Docker::write_mol2(Mol2* Lig, vector<vector<double> > new_xyz, energy_resul
     Writer->writeMol2(Lig, new_xyz, result, si);
 #endif
 }
+
+
+
+
+#include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+using namespace boost::python;
+
+
+BOOST_PYTHON_MODULE(pyDocker)
+{
+
+    void (Docker::*wm21)(Mol2*, vector<vector<double> >, double, double) =&Docker::write_mol2;
+    void (Docker::*wm22)(Mol2*, vector<vector<double> >, energy_result_t*, double) =&Docker::write_mol2;
+
+    void (Docker::*r1)(Mol2*, Mol2*, Mol2*, vector<double>, PARSER*, unsigned) =&Docker::run;
+    void (Docker::*r2)(Mol2*, Mol2*, Mol2*, vector<double>, PARSER*, Grid*, unsigned) =&Docker::run;
+
+    void (Docker::*Dc1)(Mol2*, Mol2*, Mol2*, vector<double>, PARSER*, unsigned) =&Docker::Dock_conformers;
+    void (Docker::*Dc2)(Mol2*, Mol2*, Mol2*, vector<double>, PARSER*, Grid*, unsigned) =&Docker::Dock_conformers;
+
+    bool (Docker::*me1)(PARSER*, Optimizer*, Mol2*, Mol2*, Optimizer::opt_result_t*) =&Docker::minimize_energy;
+    bool (Docker::*me2)(PARSER*, Optimizer*, Mol2*, Mol2*, Mol2*, Optimizer::opt_result_t*) =&Docker::minimize_energy;
+
+
+    class_<Docker>("Docker", init<WRITER*>())
+        .def_readwrite("f", & Docker::f)
+        .def_readwrite("fo", & Docker::fo)
+        .def_readwrite("info", & Docker::info)
+        .def_readwrite("best_ene", & Docker::best_ene)
+        .def_readwrite("best_conf", & Docker::best_conf)
+        .def_readwrite("Writer", & Docker::Writer)
+
+        .def("print_line", & Docker::print_line)
+        .def("print_info", & Docker::print_info)
+
+        .def("write_mol2", wm21)
+        .def("write_mol2", wm22)
+
+        .def("run", r1)
+        .def("run", r2)
+
+        .def("Dock_conformers", Dc1)
+        .def("Dock_conformers", Dc2)
+
+        .def_readwrite("new_coord", & Docker::new_coord)
+
+        .def("sort_vector", & Docker::sort_vector)
+        .def("sort_vector_inv", & Docker::sort_vector_inv)
+        .def("minimize_overlay", & Docker::minimize_overlay)
+
+        .def("minimize_energy", & me1)
+        .def("minimize_energy", & me2)
+
+    ;
+
+}
+
