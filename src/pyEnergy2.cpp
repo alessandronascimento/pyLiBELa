@@ -1305,7 +1305,7 @@ BOOST_PYTHON_MODULE(pyEnergy2)
     double (Energy2::*cess2)(Mol2*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_energy_softcore_solvation;
 
     double (Energy2::*ces1)(Mol2*, Mol2*, vector<vector<double> >) = &Energy2::compute_energy_softcore;
-    double (Energy2::*ces2)(Mol*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_energy_softcore;
+    double (Energy2::*ces2)(Mol2*, Mol2*, vector<vector<double> >, energy_result_t*) = &Energy2::compute_energy_softcore;
 
     double (Energy2::*cehs1)(Mol2 *Rec, Mol2 *Lig, vector<vector<double> > lig_xyz) = &Energy2::compute_energy_hardcore_solvation;
     double (Energy2::*cehs2)(Mol2* Rec, Mol2* Lig, vector<vector<double> > lig_xyz, energy_result_t* energy_result) = &Energy2::compute_energy_hardcore_solvation;
