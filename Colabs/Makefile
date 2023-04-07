@@ -52,11 +52,11 @@ $(PROJ_NAME): SOURCES $(CLASSES)
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
-	@ mkdir src
 	@ mv *.gz test/
-	@ mv *.h *.cpp src/
+
 
 SOURCES:
+	@ mkdir src ;
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
@@ -85,79 +85,78 @@ SOURCES:
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.h
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.cpp
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.cpp		
+	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.cpp
+	@ mv *.h *.cpp src/
 
 PARSER: 
-	@echo 'Building PARSER dinamic library.'
-	$(CC) $(CC_FLAGS) pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
+	@echo 'Building PARSER dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyPARSER.cpp -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
 Mol2: PARSER
-	@echo 'Building Mol2 dinamic library.'
-	$(CC) $(CC_FLAGS) pyMol2.cpp -o pyMol2.so $(LD_FLAGS)
+	@echo 'Building MOL2 dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyMol2.cpp -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
 
 WRITER: Mol2 PARSER
-	@echo 'Building WRITER dinamic library.'
-	$(CC) $(CC_FLAGS) pyWRITER.cpp -o pyWRITER.so $(LD_FLAGS)
+	@echo 'Building WRITER dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyWRITER.cpp -o pyWRITER.so $(LD_FLAGS)
 	@echo ' '
 
 Grid:   Mol2 PARSER WRITER
-	@echo 'Building Grid dinamic library.'
-	$(CC) $(CC_FLAGS) pyGrid.cpp -o pyGrid.so $(LD_FLAGS)
+	@echo 'Building GRID dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyGrid.cpp -o pyGrid.so $(LD_FLAGS)
 	@echo ' '
 
 COORD_MC: RAND Mol2
-	@echo 'Building COORD_MC dinamic library.'
-	$(CC) $(CC_FLAGS) pyCOORD_MC.cpp -o pyCOORD_MC.so $(LD_FLAGS)
+	@echo 'Building COORD_MC dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyCOORD_MC.cpp -o pyCOORD_MC.so $(LD_FLAGS)
 	@echo ' '
 
 FindHB: Mol2 PARSER COORD_MC
-	@echo 'Building FindHB dinamic library.'
-	$(CC) $(CC_FLAGS) pyFindHB.cpp -o pyFindHB.so $(LD_FLAGS)
+	@echo 'Building FIND_HB dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyFindHB.cpp -o pyFindHB.so $(LD_FLAGS)
 	@echo ' '
 
 Energy2: PARSER Mol2 Grid
-	@echo 'Building Energy2 dinamic library.'
-	$(CC) $(CC_FLAGS) pyEnergy2.cpp -o pyEnergy2.so $(LD_FLAGS)
+	@echo 'Building ENERGY2 dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyEnergy2.cpp -o pyEnergy2.so $(LD_FLAGS)
 	@echo ' '
 
 Conformer: PARSER Mol2
-	@echo 'Building Conformer dinamic library.'
-	$(CC) $(CC_FLAGS) pyConformer.cpp -o pyConformer.so $(LD_FLAGS)
+	@echo 'Building CONFORMER dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyConformer.cpp -o pyConformer.so $(LD_FLAGS)
 	@echo ' '
 
 RAND: PARSER Mol2
-	@echo 'Building RAND dinamic library.'
-	$(CC) $(CC_FLAGS) pyRAND.cpp -o pyRAND.so $(LD_FLAGS)
+	@echo 'Building RAND dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyRAND.cpp -o pyRAND.so $(LD_FLAGS)
 	@echo ' '
 
 Gaussian: Mol2 PARSER
-	@echo 'Building Gaussian dinamic library.'
-	$(CC) $(CC_FLAGS) pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
+	@echo 'Building GAUSSIAN dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyGaussian.cpp -o pyGaussian.so $(LD_FLAGS)
 	@echo ' '
 
 McEntropy: PARSER Mol2 COORD_MC
-	@echo 'Building McEntropy dinamic library.'
-	$(CC) $(CC_FLAGS) pyMcEntropy.cpp -o pyMcEntropy.so $(LD_FLAGS)
+	@echo 'Building MCENTROPY dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyMcEntropy.cpp -o pyMcEntropy.so $(LD_FLAGS)
 	@echo ' '
 
 SA: Mol2 Grid Energy2 COORD_MC PARSER
-	@echo 'Building SA dinamic library.'
-	$(CC) $(CC_FLAGS) pySA.cpp -o pySA.so $(LD_FLAGS)
+	@echo 'Building SA dynamic library.'
+	$(CC) $(CC_FLAGS) src/pySA.cpp -o pySA.so $(LD_FLAGS)
 	@echo ' '
 
 MC: PARSER Grid Mol2 COORD_MC Energy2 WRITER McEntropy 
-	@echo 'Building MC dinamic library.'
-	$(CC) $(CC_FLAGS) pyMC.cpp -o pyMC.so $(LD_FLAGS)
-
+	@echo 'Building MC dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyMC.cpp -o pyMC.so $(LD_FLAGS)
 	@echo ' '
 
 Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
-	$(CC) $(CC_FLAGS) pyOptimizer.cpp -o pyOptimizer.so $(LD_FLAGS)
-
+	@echo 'Building OPTIMIZER dynamic library.'
+	$(CC) $(CC_FLAGS) src/pyOptimizer.cpp -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
-
 
 clean:
 	@ $(RM) *.so src/*.h src/*.cpp $(PROJ_NAME) *~
