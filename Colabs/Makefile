@@ -14,13 +14,15 @@ CLASSES= PARSER    \
 	 Gaussian  \
 	 McEntropy \
 	 SA	   \
-	 MC	     
+	 MC	   \
+	 Optimizer
 
 #Compiler
 CC=g++
 
 #Flags for compiler
 CC_FLAGS=-fPIC                       \
+         -O3
 	 -shared                     \
 	 -I/usr/include/python3.9   \
 	 -I/usr/include/openbabel3   \
@@ -151,6 +153,11 @@ MC: PARSER Grid Mol2 COORD_MC Energy2 Optimizer WRITER McEntropy iMcLiBELa
 
 Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
 	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.h
+	@ wget https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.cpp
+	$(CC) $(CC_FLAGS) pyOptimizer.cpp -o pyOptimizer.so $(LD_FLAGS)
+
+	@echo ' '
+
 
 clean:
 	@ $(RM) *.so src/*.h src/*.cpp $(PROJ_NAME) *~
