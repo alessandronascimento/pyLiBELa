@@ -1536,21 +1536,9 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 
         // .def("evaluate_energy", &Optimizer::evaluate_energy,evaluate_energy_overloads( Mol2*, vector<vector<double> >  ).staticmethod("evaluate_energy")
         .def("evaluate_energy", ee1)
-        .staticmethod("evaluate_energy")
         .def("evaluate_energy", ee2)
-        .staticmethod("evaluate_energy")
-//         .def("evaluate_energy", (double(Optimizer::*)(Mol2*, vector<vector<double> >))&Optimizer::evaluate_energy) //.staticmethod("evaluate_energy")
-//         .def("evaluate_energy", (void  (Optimizer::*)(Mol2*, vector<vector<double> >, energy_result_t*)) &Optimizer::evaluate_energy).staticmethod("evaluate_energy")
-
-//        .def("evaluate_energy", (double(*)(Mol2*->Lig2, vector<vector<double> >->new_xyz))2, evaluate_energy_overloads()).staticmethod("evaluate_energy")
-//        .def("evaluate_energy", (void(*)(Mol2*->Lig2, vector<vector<double> >->new_xyz, energy_result_t*->energy_result))3, evaluate_energy_overloads()).staticmethod("evaluate_energy")
-
-        //.def("evaluate_energy", &Optimizer::evaluate_energy,evaluate_energy_overloads(args("new_xyz","Lig2"))).staticmethod("evaluate_energy")
-        //.def("evaluate_energy", &Optimizer::evaluate_energy,evaluate_energy_overloads(args("energy_result","new_xyz","Lig2"))).staticmethod("evaluate_energy")
-
-      //  .def("evaluate_energy", (double(Optimizer::*)(Mol2*, vector<vector<double> >))0, overloads("Mol2","vector<vector<double> >")).staticmethod("evaluate_energy")
-
-
+        .def("evaluate_energy", ee1).staticmethod("evaluate_energy")
+        .def("evaluate_energy", ee2).staticmethod("evaluate_energy")
 
         .def("objective_energy_function", & Optimizer::objective_energy_function)
         .def("objective_overlay_function", & Optimizer::objective_overlay_function)
