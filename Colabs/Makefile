@@ -147,7 +147,7 @@ SA: Mol2 Grid Energy2 COORD_MC PARSER
 	$(CC) $(CC_FLAGS) pySA.cpp -o pySA.so $(LD_FLAGS)
 	@echo ' '
 
-MC: PARSER Grid Mol2 COORD_MC Energy2 Optimizer WRITER McEntropy 
+MC: PARSER Grid Mol2 COORD_MC Energy2 WRITER McEntropy 
 	@echo 'Building MC dinamic library.'
 	$(CC) $(CC_FLAGS) pyMC.cpp -o pyMC.so $(LD_FLAGS)
 
