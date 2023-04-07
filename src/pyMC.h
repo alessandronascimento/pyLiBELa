@@ -3,8 +3,8 @@
 
 #include "pyPARSER.h"
 #include "pyGrid.h"
-#include "pyMol2.h"
-#include "pyCOORD_MC.h"
+//#include "pyMol2.h"
+//#include "pyCOORD_MC.h"
 #include "pyEnergy2.h"
 #include "pyOptimizer.h"
 #include "pyWRITER.h"
