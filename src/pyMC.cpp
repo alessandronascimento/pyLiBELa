@@ -1,4 +1,5 @@
 #include "pyMC.h"
+#include "pyCOORD_MC.cpp"
 
 
 using namespace OpenBabel;
