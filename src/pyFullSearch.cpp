@@ -210,7 +210,7 @@ double FullSearch::do_search(void){
     delete Coords;
 }
 
-/*
+
 
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -246,4 +246,4 @@ BOOST_PYTHON_MODULE(pyFullSearch)
 
 }
 
-*/
+

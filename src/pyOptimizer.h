@@ -67,7 +67,7 @@ public:
     static double distance_squared(vector<double> atom1, vector<double> atom2);
 
     static double evaluate_energy(Mol2* Lig2, vector<vector<double> > new_xyz);
-    static void evaluate_energy(Mol2* Lig2, vector<vector<double> > new_xyz, energy_result_t* energy_result);
+    static void evaluate_energy2(Mol2* Lig2, vector<vector<double> > new_xyz, energy_result_t* energy_result);
 
 	static double objective_energy_function(const vector<double> &x, vector<double> &grad, void *data);
 	static double objective_overlay_function(const vector<double> &x, vector<double> &grad, void *data);

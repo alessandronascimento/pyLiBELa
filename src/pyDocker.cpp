@@ -1651,8 +1651,8 @@ BOOST_PYTHON_MODULE(pyDocker)
         .def("sort_vector_inv", & Docker::sort_vector_inv)
         .def("minimize_overlay", & Docker::minimize_overlay)
 
-        .def("minimize_energy", & me1)
-        .def("minimize_energy", & me2)
+        .def("minimize_energy", me1)
+        .def("minimize_energy", me2)
 
     ;
 

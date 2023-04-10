@@ -72,7 +72,7 @@ double Optimizer::evaluate_energy(Mol2* Lig2, vector<vector<double> > new_xyz){
     return(energy);
 }
 
-void Optimizer::evaluate_energy(Mol2* Lig2, vector<vector<double> > new_xyz, energy_result_t* energy_result){
+void Optimizer::evaluate_energy2(Mol2* Lig2, vector<vector<double> > new_xyz, energy_result_t* energy_result){
     Energy2* Ene = new Energy2(Parser);
     if (Parser->use_grids){
         Ene->compute_ene(Grids, Lig2, new_xyz, energy_result);
@@ -271,7 +271,7 @@ void  Optimizer::minimize_energy_nlopt_cobyla(Mol2* Lig2, opt_result_t* opt_resu
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
     delete opt;
 
     opt_result->f_min = f_minimum;
@@ -315,7 +315,7 @@ void  Optimizer::minimize_energy_nlopt_lbfgs(Mol2* Lig2, opt_result_t* opt_resul
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
     delete opt;
 
     opt_result->f_min = f_minimum;
@@ -365,7 +365,7 @@ void  Optimizer::minimize_energy_nlopt_ln_auglag(Mol2* Lig2, opt_result_t* opt_r
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
     delete opt;
 
     opt_result->f_min = f_minimum;
@@ -409,7 +409,7 @@ void Optimizer::minimize_energy_nlopt_ld_auglag(Mol2* Lig2, opt_result_t* opt_re
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
     delete opt;
 
     opt_result->f_min = f_minimum;
@@ -454,7 +454,7 @@ void  Optimizer::minimize_energy_nlopt_mma(Mol2* Lig2, opt_result_t* opt_result)
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
 
     delete opt;
 
@@ -500,7 +500,7 @@ void Optimizer::minimize_energy_nlopt_subplex(Mol2* Lig2, opt_result_t* opt_resu
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
 
     delete opt;
 
@@ -546,7 +546,7 @@ void Optimizer::minimize_energy_nlopt_simplex(Mol2* Lig2, opt_result_t* opt_resu
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
 
     delete opt;
 
@@ -592,7 +592,7 @@ void Optimizer::minimize_energy_nlopt_crs(Mol2* Lig2, opt_result_t* opt_result){
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
 
     delete opt;
 
@@ -670,7 +670,7 @@ void Optimizer::minimize_energy_nlopt_direct(Mol2* Lig2, opt_result_t* opt_resul
     f_minimum=0.00;
     nres = opt2->optimize(x2,f_minimum);
     xyz = Optimizer::update_coords(x2, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
 
     if (f_minimum > 9999.9) {
         opt_result->f_min = 9999.9;
@@ -722,7 +722,7 @@ void Optimizer::minimize_energy_nlopt_direct_only(Mol2* Lig2, opt_result_t* opt_
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
 
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
     opt_result->f_min = f_minimum;
     opt_result->optimization_status = nres;
     opt_result->optimized_xyz = xyz;
@@ -764,7 +764,7 @@ void Optimizer::minimize_energy_nlopt_stogo(Mol2* Lig2, opt_result_t* opt_result
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
 
     delete opt;
 
@@ -810,7 +810,7 @@ void Optimizer::minimize_energy_nlopt_isres(Mol2* Lig2, opt_result_t* opt_result
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
 
     delete opt;
 
@@ -856,7 +856,7 @@ void Optimizer::minimize_energy_nlopt_esch(Mol2* Lig2, opt_result_t* opt_result)
     double f_minimum=0.00;
     nlopt::result nres = opt->optimize(x,f_minimum);
     vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-    Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+    Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
 
     delete opt;
 
@@ -1287,7 +1287,7 @@ void Optimizer::Simulated_Annealing(Mol2* Lig, opt_result_t* opt_result){
     SA* Anneal = new SA();
     new_xyz = Anneal->optimize(Lig, Parser, Grids, r);
     delete Anneal;
-    evaluate_energy(Lig, new_xyz, opt_result->energy_result);
+    evaluate_energy2(Lig, new_xyz, opt_result->energy_result);
 
     opt_result->f_min = opt_result->energy_result->total;
     opt_result->optimized_xyz = new_xyz;
@@ -1342,7 +1342,7 @@ void Optimizer::minimize_energy_adaptative(Mol2* Lig2, opt_result_t* opt_result)
         double f_minimum=0.00;
         nlopt::result nres = opt->optimize(x,f_minimum);
         vector<vector<double> > xyz = Optimizer::update_coords(x, Lig2);
-        Optimizer::evaluate_energy(Lig2, xyz, opt_result->energy_result);
+        Optimizer::evaluate_energy2(Lig2, xyz, opt_result->energy_result);
         delete opt;
 
         opt_result->f_min = f_minimum;
@@ -1504,17 +1504,14 @@ void Optimizer::pre_align(Mol2* Lig2, opt_result_t* opt_result){
     opt_result->optimized_xyz = xyz;
 }
 
-
+#define BOOST_PYTHON_STATIC_LIB
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
 
-//BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(overloads, Optimizer::evaluate_energy, 1, 3);
 
 BOOST_PYTHON_MODULE(pyOptimizer)
 { 
-    double (Optimizer::*ee1)(Mol2*, vector<vector<double> >) = &Optimizer::evaluate_energy;
-    void   (Optimizer::*ee2)(Mol2*, vector<vector<double> >, energy_result_t*) = &Optimizer::evaluate_energy;
 
     class_< vector< vector<double> > >("vectorvectorDouble")
             .def(vector_indexing_suite< vector< vector<double> >  >())
@@ -1533,46 +1530,42 @@ BOOST_PYTHON_MODULE(pyOptimizer)
         .def("distance", & Optimizer::distance).staticmethod("distance")
         .def("distance_squared", & Optimizer::distance_squared).staticmethod("distance_squared")
 
+        .def("evaluate_energy", & Optimizer::evaluate_energy).staticmethod("evaluate_energy")
+        .def("evaluate_energy2", & Optimizer::evaluate_energy2).staticmethod("evaluate_energy2")
 
-        // .def("evaluate_energy", &Optimizer::evaluate_energy,evaluate_energy_overloads( Mol2*, vector<vector<double> >  ).staticmethod("evaluate_energy")
-        .def("evaluate_energy", ee1)
-        .def("evaluate_energy", ee2)
-        .def("evaluate_energy", ee1).staticmethod("evaluate_energy")
-        .def("evaluate_energy", ee2).staticmethod("evaluate_energy")
+        .def("objective_energy_function", & Optimizer::objective_energy_function).staticmethod("objective_energy_function")
+        .def("objective_overlay_function", & Optimizer::objective_overlay_function).staticmethod("objective_overlay_function")
+        .def("objective_prealign_function", & Optimizer::objective_prealign_function).staticmethod("objective_prealign_function")
+        .def("superpose_function", & Optimizer::superpose_function).staticmethod("superpose_function")
 
-        .def("objective_energy_function", & Optimizer::objective_energy_function)
-        .def("objective_overlay_function", & Optimizer::objective_overlay_function)
-        .def("objective_prealign_function", & Optimizer::objective_prealign_function)
-        .def("superpose_function", & Optimizer::superpose_function)
+        .def("minimize_energy_nlopt_cobyla", & Optimizer::minimize_energy_nlopt_cobyla).staticmethod("minimize_energy_nlopt_cobyla")
+        .def("minimize_energy_nlopt_lbfgs", & Optimizer::minimize_energy_nlopt_lbfgs).staticmethod("minimize_energy_nlopt_lbfgs")
+        .def("minimize_energy_nlopt_ln_auglag", & Optimizer::minimize_energy_nlopt_ln_auglag).staticmethod("minimize_energy_nlopt_ln_auglag")
 
-        .def("minimize_energy_nlopt_cobyla", & Optimizer::minimize_energy_nlopt_cobyla)
-        .def("minimize_energy_nlopt_lbfgs", & Optimizer::minimize_energy_nlopt_lbfgs)
-        .def("minimize_energy_nlopt_ln_auglag", & Optimizer::minimize_energy_nlopt_ln_auglag)
+        .def("minimize_energy_nlopt_ld_auglag", & Optimizer::minimize_energy_nlopt_ld_auglag).staticmethod("minimize_energy_nlopt_ld_auglag")
+        .def("minimize_energy_nlopt_mma", & Optimizer::minimize_energy_nlopt_mma).staticmethod("minimize_energy_nlopt_mma")
+        .def("minimize_energy_nlopt_subplex", & Optimizer::minimize_energy_nlopt_subplex).staticmethod("minimize_energy_nlopt_subplex")
+        .def("minimize_energy_nlopt_simplex", & Optimizer::minimize_energy_nlopt_simplex).staticmethod("minimize_energy_nlopt_simplex")
+        .def("minimize_energy_nlopt_crs", & Optimizer::minimize_energy_nlopt_crs).staticmethod("minimize_energy_nlopt_crs")
+        .def("minimize_energy_nlopt_direct", & Optimizer::minimize_energy_nlopt_direct).staticmethod("minimize_energy_nlopt_direct")
+        .def("minimize_energy_nlopt_direct_only", & Optimizer::minimize_energy_nlopt_direct_only).staticmethod("minimize_energy_nlopt_direct_only")
+        .def("minimize_energy_nlopt_stogo", & Optimizer::minimize_energy_nlopt_stogo).staticmethod("minimize_energy_nlopt_stogo")
+        .def("minimize_energy_nlopt_isres", & Optimizer::minimize_energy_nlopt_isres).staticmethod("minimize_energy_nlopt_isres")
+        .def("minimize_energy_nlopt_esch", & Optimizer::minimize_energy_nlopt_esch).staticmethod("minimize_energy_nlopt_esch")
+        .def("minimize_energy_adaptative", & Optimizer::minimize_energy_adaptative).staticmethod("minimize_energy_nlopt_adaptive")
 
-        .def("minimize_energy_nlopt_ld_auglag", & Optimizer::minimize_energy_nlopt_ld_auglag)
-        .def("minimize_energy_nlopt_mma", & Optimizer::minimize_energy_nlopt_mma)
-        .def("minimize_energy_nlopt_subplex", & Optimizer::minimize_energy_nlopt_subplex)
-        .def("minimize_energy_nlopt_simplex", & Optimizer::minimize_energy_nlopt_simplex)
-        .def("minimize_energy_nlopt_crs", & Optimizer::minimize_energy_nlopt_crs)
-        .def("minimize_energy_nlopt_direct", & Optimizer::minimize_energy_nlopt_direct)
-        .def("minimize_energy_nlopt_direct_only", & Optimizer::minimize_energy_nlopt_direct_only)
-        .def("minimize_energy_nlopt_stogo", & Optimizer::minimize_energy_nlopt_stogo)
-        .def("minimize_energy_nlopt_isres", & Optimizer::minimize_energy_nlopt_isres)
-        .def("minimize_energy_nlopt_esch", & Optimizer::minimize_energy_nlopt_esch)
-        .def("minimize_energy_adaptative", & Optimizer::minimize_energy_adaptative)
+        .def("minimize_overlay_nlopt_cobyla", & Optimizer::minimize_overlay_nlopt_cobyla).staticmethod("minimize_energy_nlopt_cobyla")
+        .def("minimize_overlay_nlopt_subplex", & Optimizer::minimize_overlay_nlopt_subplex).staticmethod("minimize_energy_nlopt_subplex")
+        .def("minimize_overlay_nlopt_lbfgs", & Optimizer::minimize_overlay_nlopt_lbfgs).staticmethod("minimize_energy_nlopt_lbfgs")
+        .def("minimize_overlay_nlopt_ln_auglag", & Optimizer::minimize_overlay_nlopt_ln_auglag).staticmethod("minimize_energy_nlopt_ln_auglag")
+        .def("minimize_overlay_nlopt_ld_auglag", & Optimizer::minimize_overlay_nlopt_ld_auglag).staticmethod("minimize_energy_nlopt_ld_auglag")
+        .def("minimize_overlay_nlopt_mma", & Optimizer::minimize_overlay_nlopt_mma).staticmethod("minimize_energy_nlopt_mma")
+        .def("minimize_overlay_nlopt_crs", & Optimizer::minimize_overlay_nlopt_crs).staticmethod("minimize_energy_nlopt_crs")
+        .def("minimize_overlay_nlopt_direct", & Optimizer::minimize_overlay_nlopt_direct).staticmethod("minimize_energy_nlopt_direct")
 
-        .def("minimize_overlay_nlopt_cobyla", & Optimizer::minimize_overlay_nlopt_cobyla)
-        .def("minimize_overlay_nlopt_subplex", & Optimizer::minimize_overlay_nlopt_subplex)
-        .def("minimize_overlay_nlopt_lbfgs", & Optimizer::minimize_overlay_nlopt_lbfgs)
-        .def("minimize_overlay_nlopt_ln_auglag", & Optimizer::minimize_overlay_nlopt_ln_auglag)
-        .def("minimize_overlay_nlopt_ld_auglag", & Optimizer::minimize_overlay_nlopt_ld_auglag)
-        .def("minimize_overlay_nlopt_mma", & Optimizer::minimize_overlay_nlopt_mma)
-        .def("minimize_overlay_nlopt_crs", & Optimizer::minimize_overlay_nlopt_crs)
-        .def("minimize_overlay_nlopt_direct", & Optimizer::minimize_overlay_nlopt_direct)
+        .def("minimize_alignment_nlopt_simplex", & Optimizer::minimize_alignment_nlopt_simplex).staticmethod("minimize_alignment_nlopt_simplex")
 
-        .def("minimize_alignment_nlopt_simplex", & Optimizer::minimize_alignment_nlopt_simplex)
-
-        .def("pre_align", & Optimizer::pre_align)
+        .def("pre_align", & Optimizer::pre_align).staticmethod("pre_align")
         ;
 
         class_<Optimizer::opt_result_t>("opt_result_t")
