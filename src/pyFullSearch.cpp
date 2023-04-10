@@ -40,7 +40,7 @@ FullSearch::FullSearch(PARSER* _Input, Mol2* _Lig, WRITER* _Writer)
 
 
     vector<int> tmp(4);
-    sprintf(info, "Found %d rotatable bonds in ligand %s.", RotorList.Size(), Lig->molname.c_str());
+    sprintf(info, "Found %lu rotatable bonds in ligand %s.", RotorList.Size(), Lig->molname.c_str());
     Writer->print_info(info);
     Writer->print_line();
     for (unsigned i = 0; i < RotorList.Size(); ++i, Rotor = RotorList.NextRotor(RotorIterator)) {
@@ -91,7 +91,7 @@ FullSearch::FullSearch(PARSER* _Input, Mol2* _Lig, WRITER* _Writer, Grid* _Grids
 
 
     vector<int> tmp(4);
-    sprintf(info, "Found %d rotatable bonds in ligand %s.", RotorList.Size(), Lig->molname.c_str());
+    sprintf(info, "Found %lu rotatable bonds in ligand %s.", RotorList.Size(), Lig->molname.c_str());
     Writer->print_info(info);
     Writer->print_line();
     for (unsigned i = 0; i < RotorList.Size(); ++i, Rotor = RotorList.NextRotor(RotorIterator)) {
@@ -208,6 +208,7 @@ double FullSearch::do_search(void){
 
     delete Energy;
     delete Coords;
+
 }
 
 

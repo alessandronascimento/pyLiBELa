@@ -34,7 +34,7 @@ public:
     OBRotorList RotorList;
     OBRotorIterator RotorIterator;
     OBRotor *Rotor;
-    char info;//[98];
+    char* info;//[98];
     Grid* Grids;
     vector<vector<int> > atoms_in_dihedrals;
     double* myxyz;
