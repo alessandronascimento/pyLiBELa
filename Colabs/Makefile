@@ -55,7 +55,7 @@ RM = rm -rf
 
 all: FILES $(PROJ_NAME)
 
-$(PROJ_NAME): $(OBJ) $(CLASSES)
+$(PROJ_NAME): $(CLASSES)
 	
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
@@ -100,12 +100,12 @@ FILES:
 	$(CC) -o $@ $< $(CC_FLAGS)
 
 
-PARSER:
+PARSER: obj/pyPARSER.o
 	@echo 'Building PARSER dynamic library.'
 	$(CC) $(CC_FLAGS) obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
-Mol2: PARSER
+Mol2: pyMol2.o PARSER
 	@echo 'Building MOL2 dynamic library.'
 	$(CC) $(CC_FLAGS) obj/pyMol2.o -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
