@@ -100,7 +100,7 @@ FILES:
 	$(CC) -o $@ $< $(CC_FLAGS)
 
 
-PARSER: obj/pyPARSER.o
+PARSER: pyPARSER.o
 	@echo 'Building PARSER dynamic library.'
 	$(CC) $(CC_FLAGS) obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
