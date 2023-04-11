@@ -64,7 +64,6 @@ $(PROJ_NAME):FILES $(OBJ) $(CLASSES)
 	@ echo ' '
 
 FILES:
-	@ mkdir src ;
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
