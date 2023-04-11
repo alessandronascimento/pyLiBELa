@@ -104,7 +104,7 @@ PARSER: $(OBJ)
 	$(CC) $(CC_FLAGS) obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
-Mol2: pyMol2.o PARSER
+Mol2:   PARSER
 	@echo 'Building MOL2 dynamic library.'
 	$(CC) $(CC_FLAGS) obj/pyMol2.o obj/pyPARSER.o -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
