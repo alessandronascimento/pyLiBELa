@@ -53,7 +53,7 @@ RM = rm -rf
 
 all: FILES $(PROJ_NAME)
 
-$(PROJ_NAME): PARSER $(CLASSES)
+$(PROJ_NAME): $(CLASSES) PARSER
 	
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
@@ -91,6 +91,7 @@ FILES:
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.cpp
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.h
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.cpp
+	@ echo 'Downloaded files'
 	@ mv *.h *.cpp src/
 
 PARSER: $(OBJ)
@@ -110,7 +111,7 @@ WRITER: Mol2 PARSER
 
 Grid:   Mol2 PARSER WRITER
 	@echo 'Building GRID dynamic library.'
-	$(CC) $(CC_FLAGS) obj/pyGrid.o obj/py-o pyGrid.so $(LD_FLAGS)
+	$(CC) $(CC_FLAGS) obj/pyGrid.o obj/pyMol2.o obj/pyPARSER.o obj/pyWRITER.o -o pyGrid.so $(LD_FLAGS)
 	@echo ' '
 
 COORD_MC: RAND Mol2
