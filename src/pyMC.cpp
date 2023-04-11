@@ -1,5 +1,7 @@
 #include "pyMC.h"
+#include "pyMcEntropy.cpp"
 #include "pyCOORD_MC.cpp"
+
 
 
 using namespace OpenBabel;

@@ -6,6 +6,7 @@
  */
 
 #include "pyOptimizer.h"
+//#include "pyMol2.cpp"
 
 Optimizer::Optimizer(Mol2* _Rec, Mol2* _RefLig, PARSER* _Parser) {
     this->RefLig = _RefLig;

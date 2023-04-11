@@ -44,7 +44,7 @@ public:
     OBMol GetMol(const std::string &molfile);
     void copy_to_obmol(vector<vector<double> > vec_xyz);
     vector<vector<double> > copy_from_obmol(OBMol mymol);
-    double do_search(void);
+    void do_search(void);
 };
 
 #endif // FULLSEARCH_H

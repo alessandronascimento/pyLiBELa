@@ -151,7 +151,7 @@ void FullSearch::copy_to_obmol(vector<vector<double> > vec_xyz){
 }
 
 
-double FullSearch::do_search(void){
+void FullSearch::do_search(void){
     COORD_MC* Coords = new COORD_MC;
     vector<double> com = Coords->compute_com(Lig->xyz, Lig);
     vector<vector<double> > new_xyz;
