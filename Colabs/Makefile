@@ -24,7 +24,6 @@ SOURCE=$(wildcard ./src/*.cpp)
 #Objects
 OBJ=$(subst .cpp,.o, $(subst src,obj,$(SOURCE)))
 
-
 #Compiler
 CC=g++
 
@@ -100,19 +99,19 @@ FILES:
 	$(CC) -o $@ $< $(CC_FLAGS)
 
 
-PARSER: pyPARSER.o
+PARSER: $(OBJ)
 	@echo 'Building PARSER dynamic library.'
 	$(CC) $(CC_FLAGS) obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
 Mol2: pyMol2.o PARSER
 	@echo 'Building MOL2 dynamic library.'
-	$(CC) $(CC_FLAGS) obj/pyMol2.o -o pyMol2.so $(LD_FLAGS)
+	$(CC) $(CC_FLAGS) obj/pyMol2.o obj/pyPARSER.o -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
 
 WRITER: Mol2 PARSER
 	@echo 'Building WRITER dynamic library.'
-	$(CC) $(CC_FLAGS) obj/pyWRITER.o -o pyWRITER.so $(LD_FLAGS)
+	$(CC) $(CC_FLAGS) obj/pyWRITER.o obj/pyMol2.o obj/pyPARSER.o -o pyWRITER.so $(LD_FLAGS)
 	@echo ' '
 
 Grid:   Mol2 PARSER WRITER
