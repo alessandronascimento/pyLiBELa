@@ -93,11 +93,6 @@ FILES:
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.cpp
 	@ mv *.h *.cpp src/
 
-
-./obj/%.o: ./src/%.cpp
-	$(CC) -o $@ $< $(CC_FLAGS)
-
-
 PARSER: $(OBJ)
 	@echo 'Building PARSER dynamic library.'
 	$(CC) $(CC_FLAGS) obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
@@ -115,7 +110,7 @@ WRITER: Mol2 PARSER
 
 Grid:   Mol2 PARSER WRITER
 	@echo 'Building GRID dynamic library.'
-	$(CC) $(CC_FLAGS) obj/pyGrid.o -o pyGrid.so $(LD_FLAGS)
+	$(CC) $(CC_FLAGS) obj/pyGrid.o obj/py-o pyGrid.so $(LD_FLAGS)
 	@echo ' '
 
 COORD_MC: RAND Mol2
@@ -167,6 +162,9 @@ Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
 	@echo 'Building OPTIMIZER dynamic library.'
 	$(CC) $(CC_FLAGS) obj/pyOptimizer.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
+
+./obj/%.o: ./src/%.cpp
+	$(CC) -o $@ $< $(CC_FLAGS)
 
 clean:
 	@ $(RM) *.o src/*.h src/*.cpp $(PROJ_NAME) *~
