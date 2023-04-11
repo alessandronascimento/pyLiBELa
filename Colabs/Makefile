@@ -51,7 +51,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: FILES $(PROJ_NAME)
+all: $(PROJ_NAME) FILES
 
 $(PROJ_NAME): $(CLASSES) PARSER
 	
@@ -96,7 +96,7 @@ FILES:
 
 PARSER: $(OBJ)
 	@echo 'Building PARSER dynamic library.'
-	$(CC) $(CC_FLAGS) obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
+	$(CC) -shared  $(CC_FLAGS) obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
 Mol2:   PARSER
