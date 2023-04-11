@@ -53,9 +53,9 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: $(PROJ_NAME)
+all: FILES $(PROJ_NAME)
 
-$(PROJ_NAME):FILES $(OBJ) $(CLASSES)
+$(PROJ_NAME): $(OBJ) $(CLASSES)
 	
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
