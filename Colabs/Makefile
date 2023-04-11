@@ -3,8 +3,7 @@ PROJ_NAME=pyLiBELa
 
 #Classes
 
-CLASSES= PARSER    \
-	 Mol2      \
+CLASSES= Mol2      \
 	 WRITER    \
 	 Grid      \
 	 COORD_MC  \
@@ -54,7 +53,7 @@ RM = rm -rf
 
 all: FILES $(PROJ_NAME)
 
-$(PROJ_NAME): $(CLASSES)
+$(PROJ_NAME): PARSER $(CLASSES)
 	
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
@@ -108,7 +107,7 @@ Mol2:   PARSER
 	@echo 'Building MOL2 dynamic library.'
 	$(CC) $(CC_FLAGS) obj/pyMol2.o obj/pyPARSER.o -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
-
+	
 WRITER: Mol2 PARSER
 	@echo 'Building WRITER dynamic library.'
 	$(CC) $(CC_FLAGS) obj/pyWRITER.o obj/pyMol2.o obj/pyPARSER.o -o pyWRITER.so $(LD_FLAGS)
