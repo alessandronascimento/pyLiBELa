@@ -1,6 +1,6 @@
 #include "pyMC.h"
-#include "pyMcEntropy.cpp"
-#include "pyCOORD_MC.cpp"
+//#include "pyMcEntropy.cpp"
+//#include "pyCOORD_MC.cpp"
 
 
 

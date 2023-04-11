@@ -6,9 +6,8 @@
  */
 
 #include "pySA.h"
-#include "pyCOORD_MC.cpp"
-//#include "pyGrid.cpp"
-//#include "pyEnergy2.cpp"
+//#include "pyCOORD_MC.cpp"
+
 
 SA::SA() {
 }

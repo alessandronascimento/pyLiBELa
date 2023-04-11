@@ -1,6 +1,5 @@
 #include "pyFindHB.h"
-#include "pyCOORD_MC.cpp"
-
+//#include "pyCOORD_MC.cpp"
 
 using namespace std;
 using namespace OpenBabel;

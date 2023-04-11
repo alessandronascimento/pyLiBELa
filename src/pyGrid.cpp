@@ -6,7 +6,7 @@
  */
 
 #include "pyGrid.h"
-#include "pyWRITER.cpp"
+//#include "pyWRITER.cpp"
 
 #define MAX_ALJ 100.0
 #define MAX_BLJ 50.0
