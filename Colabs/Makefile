@@ -4,7 +4,8 @@ PROJ_NAME=pyLiBELa
 
 #Classes
 
-CLASSES= Mol2      \
+CLASSES= PARSER    \
+	 Mol2      \
 	 WRITER    \
 	 Grid      \
 	 COORD_MC  \
@@ -52,7 +53,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: $(CLASSES) FILES $(OBJ)
+all: OBJECTS FILES $(CLASSES)
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
@@ -90,9 +91,10 @@ FILES:
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.h
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.cpp
 	@ echo 'Downloaded files'
+	@ mkdir src 
 	@ mv *.h *.cpp src/
 
-PARSER: ./obj/pyPARSER.o
+PARSER: 
 	@echo 'Building PARSER dynamic library.'
 	$(CC) -shared obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
@@ -162,10 +164,18 @@ Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
 	$(CC) $(CC_FLAGS) obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGausian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
 
+OBJECTS: $(OBJ)
+	@mkdir obj
+	@echo 'Building .o'
+	@mv *.o obj/
+
 ./obj/%.o: ./src/%.cpp
-	$(CC) -o $@ $< $(CC_FLAGS)
+	@$(CC) -o $@ $< $(CC_FLAGS)
 
 clean:
-	@ $(RM) *.o src/*.h src/*.cpp $(PROJ_NAME) *~
+	@ $(RM) obj/*.o src/*.h src/*.cpp $(PROJ_NAME) *~
+	@ rmdir obj
+	@ rmdir src 
+
 
 .PHONY: all clean
