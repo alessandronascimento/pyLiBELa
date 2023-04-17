@@ -1,3 +1,4 @@
+#Updated version
 #Name of the project
 PROJ_NAME=pyLiBELa
 
