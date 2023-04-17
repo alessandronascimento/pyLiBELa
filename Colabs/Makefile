@@ -169,7 +169,7 @@ OBJECTS: $(OBJ)
 	@echo 'Building .o'
 	@mv *.o obj/
 
-./obj/%.o: ./src/%.cpp
+%.o: ./src/%.cpp
 	@$(CC) -o $@ $< $(CC_FLAGS)
 
 clean:
