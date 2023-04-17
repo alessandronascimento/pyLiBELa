@@ -171,7 +171,7 @@ OBJECTS: $(OBJ)
 
 LINKAGE: $(CLASSES)
 	@echo 'Classes are linked!'
-	@echo 'bla'
+	@echo ''
 
 %.o: ./src/%.cpp
 	@$(CC) -o $@ $< $(CC_FLAGS)
