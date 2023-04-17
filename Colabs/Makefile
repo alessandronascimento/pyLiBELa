@@ -23,7 +23,7 @@ CLASSES= PARSER    \
 SOURCE=$(wildcard ./src/*.cpp)
 
 #Objects
-OBJ=$(subst .cpp,.o, $(subst src,obj,$(SOURCE)))
+OBJ=$(subst .cpp,.o, $(subst src,.,$(SOURCE)))
 
 #Compiler
 CC=g++
