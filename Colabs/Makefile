@@ -53,7 +53,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: OBJECTS FILES $(CLASSES)
+all:
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
@@ -166,8 +166,12 @@ Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
 
 OBJECTS: $(OBJ)
 	@mkdir obj
-	@echo 'Building .o'
+	@echo 'Succesfully built .o's!'
 	@mv *.o obj/
+
+ALL_CLASSES: $(CLASS):
+	@echo 'Classes are linked!'
+
 
 %.o: ./src/%.cpp
 	@$(CC) -o $@ $< $(CC_FLAGS)
