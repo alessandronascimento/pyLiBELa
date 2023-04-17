@@ -92,7 +92,7 @@ FILES:
 	@ echo 'Downloaded files'
 	@ mv *.h *.cpp src/
 
-PARSER: obj/pyPARSER.o
+PARSER: $(OBJ)
 	@echo 'Building PARSER dynamic library.'
 	$(CC) -shared obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
