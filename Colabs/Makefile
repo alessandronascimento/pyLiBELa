@@ -159,14 +159,14 @@ MC: PARSER Grid Mol2 COORD_MC Energy2 WRITER McEntropy Optimizer
 	$(CC) $(CC_FLAGS) obj/pyMC.o obj/pyPARSER.o obj/pyGrid.o obj/pyMol2.o obj/pyCOORD_MC.o obj/pyEnergy2.o obj/pyWRITER.o obj/pyMcEntropy.o obj/pyOptimizer.o -o pyMC.so $(LD_FLAGS)
 	@echo ' '
 
-Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
+Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA #MC
 	@echo 'Building OPTIMIZER dynamic library.'
-	$(CC) $(CC_FLAGS) obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGausian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o -o pyOptimizer.so $(LD_FLAGS)
+	$(CC) $(CC_FLAGS) obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
 
 OBJECTS: $(OBJ)
 	@mkdir obj
-	@echo 'Succesfully built .o's!'
+	@echo 'Succesfully built .o files!'
 	@ mv *.o obj/
 
 LINKAGE: $(CLASSES)
