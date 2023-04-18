@@ -125,7 +125,7 @@ FindHB: Mol2 PARSER COORD_MC
 
 Energy2: PARSER Mol2 Grid
 	@echo 'Building ENERGY2 dynamic library.'
-	$(CC) -shared obj/pyEnergy2.o obj/pyPARSER.o obj/pyMol2.o obj/pyGrid.o -o pyEnergy2.so $(LD_FLAGS)
+	$(CC) -shared obj/pyEnergy2.o obj/pyPARSER.o obj/pyMol2.o obj/pyGrid.o obj/pyWRITER.o -o pyEnergy2.so $(LD_FLAGS)
 	@echo ' '
 
 Conformer: PARSER Mol2
@@ -150,15 +150,15 @@ McEntropy: PARSER Mol2 COORD_MC
 
 SA: Mol2 Grid Energy2 COORD_MC PARSER
 	@echo 'Building SA dynamic library.'
-	$(CC) -shared obj/pySA.o obj/pyMol2.o obj/pyGrid.o obj/pyEnergy2.o obj/pyCOORD_MC.o obj/pyPARSER.o -o pySA.so $(LD_FLAGS)
+	$(CC) -shared obj/pySA.o obj/pyMol2.o obj/pyGrid.o obj/pyEnergy2.o obj/pyCOORD_MC.o obj/pyWRITER.o obj/pyPARSER.o -o pySA.so $(LD_FLAGS)
 	@echo ' '
 
-MC: PARSER Grid Mol2 COORD_MC Energy2 WRITER McEntropy Optimizer 
+MC: PARSER Grid Mol2 COORD_MC Energy2 WRITER McEntropy #Optimizer 
 	@echo 'Building MC dynamic library.'
 	$(CC) -shared obj/pyMC.o obj/pyPARSER.o obj/pyGrid.o obj/pyMol2.o obj/pyCOORD_MC.o obj/pyEnergy2.o obj/pyWRITER.o obj/pyMcEntropy.o obj/pyOptimizer.o -o pyMC.so $(LD_FLAGS)
 	@echo ' '
 
-Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA #MC
+Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
 	@echo 'Building OPTIMIZER dynamic library.'
 	$(CC) -shared obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
