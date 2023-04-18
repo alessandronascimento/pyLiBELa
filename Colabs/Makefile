@@ -169,12 +169,12 @@ Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
 	$(CC) -shared obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
 
-Docker: Mol2, Optimizer, PARSER, WRITER, COORD_MC, Grid
+Docker: Mol2 Optimizer PARSER WRITER COORD_MC Grid
 	@echo 'Building DOCKER dynamic library.'
 	$(CC) -shared obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o -o pyDocker.so $(LD_FLAGS)
 	@echo ' '
 
-FullSearch: Mol2, PARSER, Conformer, WRITER, COORD_MC, Grid, Energy2
+FullSearch: Mol2 PARSER Conformer WRITER COORD_MC Grid Energy2
 	@echo 'Building FULLSEARCH dynamic library.'
 	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
 	@echo ' '
