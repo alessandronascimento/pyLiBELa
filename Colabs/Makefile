@@ -45,7 +45,10 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 	 -lz                         \
 	 -lopenbabel                 \
 	 -lgsl                       \
-	 -lnlopt_cxx
+	 -lnlopt_cxx                 \
+	 -lgsl                       \
+	 -lgslcblas                  \
+	 -lm 
 
 
 #Command to clean target
@@ -192,9 +195,6 @@ LINKAGE: $(CLASSES)
 	@$(CC) $< $(CC_FLAGS) -c
 
 clean:
-	@ $(RM) obj/*.o src/*.h src/*.cpp $(PROJ_NAME) *~
-	@ rmdir obj
-	@ rmdir src 
-
+	@ $(RM) obj src $(PROJ_NAME) *~
 
 .PHONY: all clean
