@@ -37,7 +37,8 @@ CC_FLAGS=-fPIC                       \
 	 -I/usr/include/openbabel3   \
 	 -I/usr/include/eigen3       \
 	 -DBUILD=0                   \
-	 -DHAVE_EIGEN
+	 -DHAVE_EIGEN                \
+	 -Wunused-result
 	 
 #Linkage
 LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
