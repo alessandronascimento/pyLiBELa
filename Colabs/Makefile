@@ -174,7 +174,7 @@ LINKAGE: $(CLASSES)
 	@echo ''
 
 %.o: ./src/%.cpp
-	@$(CC) -o $@ $< $(CC_FLAGS)
+	@$(CC) $< $(CC_FLAGS) -o $@ 
 
 clean:
 	@ $(RM) obj/*.o src/*.h src/*.cpp $(PROJ_NAME) *~
