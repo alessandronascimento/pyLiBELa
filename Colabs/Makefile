@@ -38,7 +38,7 @@ CC_FLAGS=-fPIC                       \
 	 -I/usr/include/eigen3       \
 	 -DBUILD=0                   \
 	 -DHAVE_EIGEN                \
-	 -Wno-unused
+	 -Wunused-value
 	 
 #Linkage
 LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
