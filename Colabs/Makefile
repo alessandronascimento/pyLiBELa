@@ -17,7 +17,9 @@ CLASSES= PARSER    \
 	 McEntropy \
 	 SA	   \
 	 MC	   \
-	 Optimizer
+	 Optimizer \
+	 Docker    \
+	 FullSearch
 
 #Sources
 SOURCE=$(wildcard ./src/*.cpp)
@@ -89,6 +91,10 @@ FILES:
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.cpp
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.h
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.cpp
+	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyDocker.h
+	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyDocker.cpp
+	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFullSearch.h
+	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFullSearch.cpp
 	@ echo 'Downloaded files'
 	@ mkdir src 
 	@ mv *.h *.cpp src/
@@ -163,6 +169,16 @@ Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA MC
 	$(CC) -shared obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
 
+Docker: Mol2, Optimizer, PARSER, WRITER, COORD_MC, Grid
+	@echo 'Building DOCKER dynamic library.'
+	$(CC) -shared obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o -o pyDocker.so $(LD_FLAGS)
+	@echo ' '
+
+FullSearch: Mol2, PARSER, Conformer, WRITER, COORD_MC, Grid, Energy2
+	@echo 'Building FULLSEARCH dynamic library.'
+	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
+	@echo ' '
+	
 OBJECTS: $(OBJ)
 	@ mkdir obj
 	@ mv *.o obj/
