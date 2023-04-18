@@ -1519,7 +1519,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 
     class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
         .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
-        .def_readwrite("Rec", & Optimizer::Rec)//.add_static_property("", &getBaseName)
+        .def_readwrite("Rec", & Optimizer::Rec).staticmethod("Rec")
         .def_readwrite("RefLig", & Optimizer::RefLig)
         .def_readwrite("Parser", & Optimizer::Parser)
         .def_readwrite("Grids", & Optimizer::Grids)
