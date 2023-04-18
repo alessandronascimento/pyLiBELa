@@ -13,7 +13,7 @@
 #include<stdio.h>
 #include<time.h>
 #include<cstdlib>
-#include"pyMol2.cpp"
+#include"pyMol2.h"
 #include<gsl/gsl_rng.h>
 
 class RAND {
