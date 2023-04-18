@@ -193,7 +193,7 @@ LINKAGE: $(CLASSES)
 	@echo ''
 
 %.o: ./src/%.cpp
-	@$(CC) $< $(CC_FLAGS) -c
+	@$(CC) -c $(CC_FLAGS) $< 
 
 clean:
 	@ $(RM) obj src $(PROJ_NAME) *~
