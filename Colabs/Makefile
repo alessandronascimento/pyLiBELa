@@ -173,7 +173,7 @@ LINKAGE: $(CLASSES)
 	@echo ''
 
 %.o: ./src/%.cpp
-	@$(CC) $< $(CC_FLAGS) -o $@ -lboost_python38
+	@$(CC) $< $(CC_FLAGS) -o $@ $(LD_FLAGS)
 
 clean:
 	@ $(RM) obj/*.o src/*.h src/*.cpp $(PROJ_NAME) *~
