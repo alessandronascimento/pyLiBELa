@@ -1522,7 +1522,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
         .add_static_property("Rec",    make_getter(&Optimizer::Rec))
         .add_static_property("RefLig", make_getter(&Optimizer::RefLig))
         .add_static_property("Parser", make_getter(&Optimizer::Parser))
-        .add_static_property("Grids",  make_getter(&Optimizer::Grid))
+        .add_static_property("Grids",  make_getter(&Optimizer::Grids))
 
         .def("evaluate_rmsd", & Optimizer::evaluate_rmsd).staticmethod("evaluate_rmsd")
         .def("Simulated_Annealing", & Optimizer::Simulated_Annealing).staticmethod("Simulated_Annealing")
