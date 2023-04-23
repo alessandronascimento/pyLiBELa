@@ -30,7 +30,7 @@ using namespace std;
 class Optimizer {
 public:
 
-	Mol2* Rec;
+	static Mol2* Rec;
 	static Mol2* RefLig;
 	static PARSER* Parser;
 	static Grid* Grids;
