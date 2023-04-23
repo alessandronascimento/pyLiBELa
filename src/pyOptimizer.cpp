@@ -1504,6 +1504,11 @@ void Optimizer::pre_align(Mol2* Lig2, opt_result_t* opt_result){
     opt_result->optimized_xyz = xyz;
 }
 
+Mol2* Optimizer::get_Rec(){
+    return this->Rec;
+}
+
+
 #define BOOST_PYTHON_STATIC_LIB
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -1519,7 +1524,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 
     class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
         .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
-        .add_static_property("Rec", make_getter(Optimizer::Rec), make_setter(Optimizer::Rec))
+        .def("get_Rec", &Optimizer::get_Rec);
         .add_static_property("RefLig", make_getter(&Optimizer::RefLig), make_setter(&Optimizer::RefLig))
         .add_static_property("Parser", make_getter(&Optimizer::Parser), make_setter(&Optimizer::Parser))
         .add_static_property("Grids",  make_getter(&Optimizer::Grids), make_setter(&Optimizer::Grids))
