@@ -1524,7 +1524,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 
     class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
         .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
-        .def("get_Rec", &Optimizer::get_Rec);
+        .def("get_Rec", &Optimizer::get_Rec)
         .add_static_property("RefLig", make_getter(&Optimizer::RefLig), make_setter(&Optimizer::RefLig))
         .add_static_property("Parser", make_getter(&Optimizer::Parser), make_setter(&Optimizer::Parser))
         .add_static_property("Grids",  make_getter(&Optimizer::Grids), make_setter(&Optimizer::Grids))
