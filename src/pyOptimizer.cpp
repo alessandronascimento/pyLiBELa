@@ -1517,7 +1517,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pyOptimizer)
 { 
-
+    namespace python = boost::python
     class_< vector< vector<double> > >("vectorvectorDouble")
             .def(vector_indexing_suite< vector< vector<double> >  >())
         ;
