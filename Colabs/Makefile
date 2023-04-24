@@ -194,6 +194,7 @@ LINKAGE: $(CLASSES)
 
 %.o: ./src/%.cpp
 	@$(CC) -c $(CC_FLAGS) $< 
+	@mv *.o obj/
 
 clean:
 	@ $(RM) obj src $(PROJ_NAME) *~
