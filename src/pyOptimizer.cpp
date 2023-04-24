@@ -1521,23 +1521,13 @@ BOOST_PYTHON_MODULE(pyOptimizer)
     class_< vector< vector<double> > >("vectorvectorDouble")
             .def(vector_indexing_suite< vector< vector<double> >  >())
         ;
-
+    try{
     class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
         .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
         .def_readwrite("Rec", &Optimizer::Rec)
         .def_readwrite("RefLig", &Optimizer::RefLig)
         .def_readwrite("Parser", &Optimizer::Parser)
         .def_readwrite("Grids", &Optimizer::Grids)
-//        .add_static_property("Rec",
-//                  python::make_getter(&Optimizer::Rec),
-//                  python::make_setter(&Optimizer::Rec))
-//        .add_static_property("Rec", make_getter(Optimizer::Rec), make_setter(Optimizer::Rec))
-//        .add_static_property( "Rec", static_cast<Mol2*>( Optimizer::Rec), return_value_policy<reference_existing_object>() )       
-//        .add_static_property("get_Rec", &Optimizer::get_Rec, return_value_policy<reference_existing_object>())
-//        .add_static_property("RefLig", make_getter(&Optimizer::RefLig), make_setter(&Optimizer::RefLig))
-//        .add_static_property("Parser", make_getter(&Optimizer::Parser), make_setter(&Optimizer::Parser))
-//        .add_static_property("Grids",  make_getter(&Optimizer::Grids), make_setter(&Optimizer::Grids))
-
         .def("evaluate_rmsd", & Optimizer::evaluate_rmsd).staticmethod("evaluate_rmsd")
         .def("Simulated_Annealing", & Optimizer::Simulated_Annealing).staticmethod("Simulated_Annealing")
         .def("update_coords", & Optimizer::update_coords).staticmethod("update_coords")
@@ -1601,7 +1591,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
             .def_readwrite("current_xyz", & Optimizer::align_t::current_xyz)
 
        ;
-
-
+    } catch (const std::exception& e) {
+        handle_exception();
+    }
 }
-
