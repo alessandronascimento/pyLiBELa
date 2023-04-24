@@ -103,12 +103,12 @@ FILES:
 	@ mkdir src 
 	@ mv *.h *.cpp src/
 
-PARSER: 
+PARSER: pyPARSER.o
 	@echo 'Building PARSER dynamic library.'
 	$(CC) -shared obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
-Mol2:   PARSER
+Mol2:   PARSER pyMol2.o
 	@echo 'Building MOL2 dynamic library.'
 	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
