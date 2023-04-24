@@ -1504,11 +1504,6 @@ void Optimizer::pre_align(Mol2* Lig2, opt_result_t* opt_result){
     opt_result->optimized_xyz = xyz;
 }
 
-Mol2* Optimizer::get_Rec(){
-    return this->Rec;
-}
-
-
 #define BOOST_PYTHON_STATIC_LIB
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -1524,13 +1519,10 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 
     class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
         .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
-
-//        .add_static_property("Rec", make_getter(Optimizer::Rec), make_setter(Optimizer::Rec))
-//        .add_static_property( "Rec", static_cast<Mol2*>( Optimizer::Rec), return_value_policy<reference_existing_object>() )       
-//        .add_static_property("get_Rec", &Optimizer::get_Rec, return_value_policy<reference_existing_object>())
-//        .add_static_property("RefLig", make_getter(&Optimizer::RefLig), make_setter(&Optimizer::RefLig))
-//        .add_static_property("Parser", make_getter(&Optimizer::Parser), make_setter(&Optimizer::Parser))
-//        .add_static_property("Grids",  make_getter(&Optimizer::Grids), make_setter(&Optimizer::Grids))
+        .def_readwrite("Rec", & Optimizer::Rec)
+        .def_readwrite("RefLig", & Optimizer::RefLig)
+        .def_readwrite("Parser", & Optimizer::Parser)
+        .def_readwrite("Grids", & Optimizer::Grids)
 
         .def("evaluate_rmsd", & Optimizer::evaluate_rmsd).staticmethod("evaluate_rmsd")
         .def("Simulated_Annealing", & Optimizer::Simulated_Annealing).staticmethod("Simulated_Annealing")
