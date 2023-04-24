@@ -1514,82 +1514,85 @@ Mol2* Optimizer::get_Rec(){
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
 
-Py_Initialize();
 BOOST_PYTHON_MODULE(pyOptimizer)
 { 
-    namespace python = boost::python;
 
-    class_< vector< vector<double> > >("vectorvectorDouble")
-            .def(vector_indexing_suite< vector< vector<double> >  >())
-        ;
+//    class_< vector< vector<double> > >("vectorvectorDouble")
+//            .def(vector_indexing_suite< vector< vector<double> >  >())
+//        ;
+    try{
+        Py_Initialize();
+        class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
+            .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
+            .def_readwrite("Rec", &Optimizer::Rec)
+            .def_readwrite("RefLig", &Optimizer::RefLig)
+            .def_readwrite("Parser", &Optimizer::Parser)
+            .def_readwrite("Grids", &Optimizer::Grids)
+            .def("evaluate_rmsd", & Optimizer::evaluate_rmsd).staticmethod("evaluate_rmsd")
+            .def("Simulated_Annealing", & Optimizer::Simulated_Annealing).staticmethod("Simulated_Annealing")
+            .def("update_coords", & Optimizer::update_coords).staticmethod("update_coords")
+            .def("distance", & Optimizer::distance).staticmethod("distance")
+            .def("distance_squared", & Optimizer::distance_squared).staticmethod("distance_squared")
 
-    class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
-        .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
-        .def_readwrite("Rec", &Optimizer::Rec)
-        .def_readwrite("RefLig", &Optimizer::RefLig)
-        .def_readwrite("Parser", &Optimizer::Parser)
-        .def_readwrite("Grids", &Optimizer::Grids)
-        .def("evaluate_rmsd", & Optimizer::evaluate_rmsd).staticmethod("evaluate_rmsd")
-        .def("Simulated_Annealing", & Optimizer::Simulated_Annealing).staticmethod("Simulated_Annealing")
-        .def("update_coords", & Optimizer::update_coords).staticmethod("update_coords")
-        .def("distance", & Optimizer::distance).staticmethod("distance")
-        .def("distance_squared", & Optimizer::distance_squared).staticmethod("distance_squared")
+            .def("evaluate_energy", & Optimizer::evaluate_energy).staticmethod("evaluate_energy")
+            .def("evaluate_energy2", & Optimizer::evaluate_energy2).staticmethod("evaluate_energy2")
 
-        .def("evaluate_energy", & Optimizer::evaluate_energy).staticmethod("evaluate_energy")
-        .def("evaluate_energy2", & Optimizer::evaluate_energy2).staticmethod("evaluate_energy2")
+            .def("objective_energy_function", & Optimizer::objective_energy_function).staticmethod("objective_energy_function")
+            .def("objective_overlay_function", & Optimizer::objective_overlay_function).staticmethod("objective_overlay_function")
+            .def("objective_prealign_function", & Optimizer::objective_prealign_function).staticmethod("objective_prealign_function")
+            .def("superpose_function", & Optimizer::superpose_function).staticmethod("superpose_function")
 
-        .def("objective_energy_function", & Optimizer::objective_energy_function).staticmethod("objective_energy_function")
-        .def("objective_overlay_function", & Optimizer::objective_overlay_function).staticmethod("objective_overlay_function")
-        .def("objective_prealign_function", & Optimizer::objective_prealign_function).staticmethod("objective_prealign_function")
-        .def("superpose_function", & Optimizer::superpose_function).staticmethod("superpose_function")
+            .def("minimize_energy_nlopt_cobyla", & Optimizer::minimize_energy_nlopt_cobyla).staticmethod("minimize_energy_nlopt_cobyla")
+            .def("minimize_energy_nlopt_lbfgs", & Optimizer::minimize_energy_nlopt_lbfgs).staticmethod("minimize_energy_nlopt_lbfgs")
+            .def("minimize_energy_nlopt_ln_auglag", & Optimizer::minimize_energy_nlopt_ln_auglag).staticmethod("minimize_energy_nlopt_ln_auglag")
 
-        .def("minimize_energy_nlopt_cobyla", & Optimizer::minimize_energy_nlopt_cobyla).staticmethod("minimize_energy_nlopt_cobyla")
-        .def("minimize_energy_nlopt_lbfgs", & Optimizer::minimize_energy_nlopt_lbfgs).staticmethod("minimize_energy_nlopt_lbfgs")
-        .def("minimize_energy_nlopt_ln_auglag", & Optimizer::minimize_energy_nlopt_ln_auglag).staticmethod("minimize_energy_nlopt_ln_auglag")
+            .def("minimize_energy_nlopt_ld_auglag", & Optimizer::minimize_energy_nlopt_ld_auglag).staticmethod("minimize_energy_nlopt_ld_auglag")
+            .def("minimize_energy_nlopt_mma", & Optimizer::minimize_energy_nlopt_mma).staticmethod("minimize_energy_nlopt_mma")
+            .def("minimize_energy_nlopt_subplex", & Optimizer::minimize_energy_nlopt_subplex).staticmethod("minimize_energy_nlopt_subplex")
+            .def("minimize_energy_nlopt_simplex", & Optimizer::minimize_energy_nlopt_simplex).staticmethod("minimize_energy_nlopt_simplex")
+            .def("minimize_energy_nlopt_crs", & Optimizer::minimize_energy_nlopt_crs).staticmethod("minimize_energy_nlopt_crs")
+            .def("minimize_energy_nlopt_direct", & Optimizer::minimize_energy_nlopt_direct).staticmethod("minimize_energy_nlopt_direct")
+            .def("minimize_energy_nlopt_direct_only", & Optimizer::minimize_energy_nlopt_direct_only).staticmethod("minimize_energy_nlopt_direct_only")
+            .def("minimize_energy_nlopt_stogo", & Optimizer::minimize_energy_nlopt_stogo).staticmethod("minimize_energy_nlopt_stogo")
+            .def("minimize_energy_nlopt_isres", & Optimizer::minimize_energy_nlopt_isres).staticmethod("minimize_energy_nlopt_isres")
+            .def("minimize_energy_nlopt_esch", & Optimizer::minimize_energy_nlopt_esch).staticmethod("minimize_energy_nlopt_esch")
+            .def("minimize_energy_adaptative", & Optimizer::minimize_energy_adaptative).staticmethod("minimize_energy_nlopt_adaptive")
 
-        .def("minimize_energy_nlopt_ld_auglag", & Optimizer::minimize_energy_nlopt_ld_auglag).staticmethod("minimize_energy_nlopt_ld_auglag")
-        .def("minimize_energy_nlopt_mma", & Optimizer::minimize_energy_nlopt_mma).staticmethod("minimize_energy_nlopt_mma")
-        .def("minimize_energy_nlopt_subplex", & Optimizer::minimize_energy_nlopt_subplex).staticmethod("minimize_energy_nlopt_subplex")
-        .def("minimize_energy_nlopt_simplex", & Optimizer::minimize_energy_nlopt_simplex).staticmethod("minimize_energy_nlopt_simplex")
-        .def("minimize_energy_nlopt_crs", & Optimizer::minimize_energy_nlopt_crs).staticmethod("minimize_energy_nlopt_crs")
-        .def("minimize_energy_nlopt_direct", & Optimizer::minimize_energy_nlopt_direct).staticmethod("minimize_energy_nlopt_direct")
-        .def("minimize_energy_nlopt_direct_only", & Optimizer::minimize_energy_nlopt_direct_only).staticmethod("minimize_energy_nlopt_direct_only")
-        .def("minimize_energy_nlopt_stogo", & Optimizer::minimize_energy_nlopt_stogo).staticmethod("minimize_energy_nlopt_stogo")
-        .def("minimize_energy_nlopt_isres", & Optimizer::minimize_energy_nlopt_isres).staticmethod("minimize_energy_nlopt_isres")
-        .def("minimize_energy_nlopt_esch", & Optimizer::minimize_energy_nlopt_esch).staticmethod("minimize_energy_nlopt_esch")
-        .def("minimize_energy_adaptative", & Optimizer::minimize_energy_adaptative).staticmethod("minimize_energy_nlopt_adaptive")
+            .def("minimize_overlay_nlopt_cobyla", & Optimizer::minimize_overlay_nlopt_cobyla).staticmethod("minimize_energy_nlopt_cobyla")
+            .def("minimize_overlay_nlopt_subplex", & Optimizer::minimize_overlay_nlopt_subplex).staticmethod("minimize_energy_nlopt_subplex")
+            .def("minimize_overlay_nlopt_lbfgs", & Optimizer::minimize_overlay_nlopt_lbfgs).staticmethod("minimize_energy_nlopt_lbfgs")
+            .def("minimize_overlay_nlopt_ln_auglag", & Optimizer::minimize_overlay_nlopt_ln_auglag).staticmethod("minimize_energy_nlopt_ln_auglag")
+            .def("minimize_overlay_nlopt_ld_auglag", & Optimizer::minimize_overlay_nlopt_ld_auglag).staticmethod("minimize_energy_nlopt_ld_auglag")
+            .def("minimize_overlay_nlopt_mma", & Optimizer::minimize_overlay_nlopt_mma).staticmethod("minimize_energy_nlopt_mma")
+            .def("minimize_overlay_nlopt_crs", & Optimizer::minimize_overlay_nlopt_crs).staticmethod("minimize_energy_nlopt_crs")
+            .def("minimize_overlay_nlopt_direct", & Optimizer::minimize_overlay_nlopt_direct).staticmethod("minimize_energy_nlopt_direct")
 
-        .def("minimize_overlay_nlopt_cobyla", & Optimizer::minimize_overlay_nlopt_cobyla).staticmethod("minimize_energy_nlopt_cobyla")
-        .def("minimize_overlay_nlopt_subplex", & Optimizer::minimize_overlay_nlopt_subplex).staticmethod("minimize_energy_nlopt_subplex")
-        .def("minimize_overlay_nlopt_lbfgs", & Optimizer::minimize_overlay_nlopt_lbfgs).staticmethod("minimize_energy_nlopt_lbfgs")
-        .def("minimize_overlay_nlopt_ln_auglag", & Optimizer::minimize_overlay_nlopt_ln_auglag).staticmethod("minimize_energy_nlopt_ln_auglag")
-        .def("minimize_overlay_nlopt_ld_auglag", & Optimizer::minimize_overlay_nlopt_ld_auglag).staticmethod("minimize_energy_nlopt_ld_auglag")
-        .def("minimize_overlay_nlopt_mma", & Optimizer::minimize_overlay_nlopt_mma).staticmethod("minimize_energy_nlopt_mma")
-        .def("minimize_overlay_nlopt_crs", & Optimizer::minimize_overlay_nlopt_crs).staticmethod("minimize_energy_nlopt_crs")
-        .def("minimize_overlay_nlopt_direct", & Optimizer::minimize_overlay_nlopt_direct).staticmethod("minimize_energy_nlopt_direct")
+            .def("minimize_alignment_nlopt_simplex", & Optimizer::minimize_alignment_nlopt_simplex).staticmethod("minimize_alignment_nlopt_simplex")
 
-        .def("minimize_alignment_nlopt_simplex", & Optimizer::minimize_alignment_nlopt_simplex).staticmethod("minimize_alignment_nlopt_simplex")
+            .def("pre_align", & Optimizer::pre_align).staticmethod("pre_align")
+            ;
 
-        .def("pre_align", & Optimizer::pre_align).staticmethod("pre_align")
-        ;
+            class_<Optimizer::opt_result_t>("opt_result_t")
+                .def_readwrite("optimization_status", & Optimizer::opt_result_t::optimization_status)
+                .def_readwrite("f_min", & Optimizer::opt_result_t::f_min)
+                .def_readwrite("energy_result", & Optimizer::opt_result_t::energy_result)
+                .def_readwrite("optimized_xyz", & Optimizer::opt_result_t::optimized_xyz)
+            ;
 
-        class_<Optimizer::opt_result_t>("opt_result_t")
-            .def_readwrite("optimization_status", & Optimizer::opt_result_t::optimization_status)
-            .def_readwrite("f_min", & Optimizer::opt_result_t::f_min)
-            .def_readwrite("energy_result", & Optimizer::opt_result_t::energy_result)
-            .def_readwrite("optimized_xyz", & Optimizer::opt_result_t::optimized_xyz)
-        ;
+            class_<Optimizer::align_result_t>("align_result_t")
+                .def_readwrite("rmsd", & Optimizer::align_result_t::rmsd)
+                .def_readwrite("translation", & Optimizer::align_result_t::translation)
+                .def_readwrite("rotation", & Optimizer::align_result_t::rotation)
+                .def_readwrite("opt_status", & Optimizer::align_result_t::opt_status)
+            ;
 
-        class_<Optimizer::align_result_t>("align_result_t")
-            .def_readwrite("rmsd", & Optimizer::align_result_t::rmsd)
-            .def_readwrite("translation", & Optimizer::align_result_t::translation)
-            .def_readwrite("rotation", & Optimizer::align_result_t::rotation)
-            .def_readwrite("opt_status", & Optimizer::align_result_t::opt_status)
-        ;
+            class_<Optimizer::align_t>("align_t")
+                .def_readwrite("ref_xyz", & Optimizer::align_t::ref_xyz)
+                .def_readwrite("current_xyz", & Optimizer::align_t::current_xyz)
 
-        class_<Optimizer::align_t>("align_t")
-            .def_readwrite("ref_xyz", & Optimizer::align_t::ref_xyz)
-            .def_readwrite("current_xyz", & Optimizer::align_t::current_xyz)
+           ;
+    } catch (const std::exception& e) {
+        handle_exception();
+    }
 
-       ;
 }
