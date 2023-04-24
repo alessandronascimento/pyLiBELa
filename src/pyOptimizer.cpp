@@ -1596,7 +1596,14 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 
        ;
 
-       scope().attr("Rec") = Rec;
+        // criar um objeto Optimizer
+        Optimizer optimizer(mol2_1, mol2_2, parser, grids);
+
+        // acessar a propriedade Rec
+        std::vector<CoordXYZ> Rec = optimizer.Rec;
+
+        // modificar a propriedade Rec
+        optimizer.Rec = new_Rec;
 
 }
 
