@@ -30,10 +30,10 @@ using namespace std;
 class Optimizer {
 public:
 
-	static Mol2* Rec;
-	static Mol2* RefLig;
-	static PARSER* Parser;
-	static Grid* Grids;
+	static Mol2* Rec = nullptr;
+	static Mol2* RefLig = nullptr;
+	static PARSER* Parser = nullptr;
+	static Grid* Grids = nullptr;
 	
 	Mol2* get_Rec();
 
@@ -104,10 +104,5 @@ public:
 
     static void pre_align(Mol2* Lig2, opt_result_t* opt_result);
 };
-
-Mol2* Optimizer::Rec = nullptr;
-Mol2* Optimizer::RefLig = nullptr;
-PARSER* Optimizer::Parser = nullptr;
-Grid* Optimizer::Grids = nullptr;
 
 #endif /* OPTIMIZER_H_ */
