@@ -30,10 +30,10 @@ using namespace std;
 class Optimizer {
 public:
 
-	static constexpr Mol2* Rec = nullptr;
-	static constexpr Mol2* RefLig = nullptr;
-	static constexpr PARSER* Parser = nullptr;
-	static constexpr Grid* Grids = nullptr;
+	static Mol2* Rec;
+	static Mol2* RefLig;
+	static PARSER* Parser;
+	static Grid* Grids;
 	
 	Mol2* get_Rec();
 
