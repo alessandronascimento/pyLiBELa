@@ -163,7 +163,7 @@ SA: Mol2 Grid Energy2 COORD_MC PARSER pySA.o
 	$(CC) -shared obj/pySA.o obj/pyMol2.o obj/pyGrid.o obj/pyEnergy2.o obj/pyCOORD_MC.o obj/pyWRITER.o obj/pyPARSER.o -o pySA.so $(LD_FLAGS)
 	@echo ' '
 
-MC: PARSER Grid Mol2 COORD_MC Energy2 WRITER McEntropy pyMC.o #Optimizer 
+MC: PARSER Grid Mol2 COORD_MC Energy2 WRITER McEntropy Optimizer pyMC.o
 	@echo 'Building MC dynamic library.'
 	$(CC) -shared obj/pyMC.o obj/pyPARSER.o obj/pyGrid.o obj/pyMol2.o obj/pyCOORD_MC.o obj/pyEnergy2.o obj/pyWRITER.o obj/pyMcEntropy.o obj/pyOptimizer.o -o pyMC.so $(LD_FLAGS)
 	@echo ' '
