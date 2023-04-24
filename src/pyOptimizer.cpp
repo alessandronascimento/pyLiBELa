@@ -1509,7 +1509,7 @@ Mol2* Optimizer::get_Rec(){
 }
 
 
-#define BOOST_PYTHON_STATIC_LIB
+//#define BOOST_PYTHON_STATIC_LIB
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
@@ -1518,10 +1518,11 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(pyOptimizer)
 { 
     namespace python = boost::python;
+    Py_Initialize();
     class_< vector< vector<double> > >("vectorvectorDouble")
             .def(vector_indexing_suite< vector< vector<double> >  >())
         ;
-    try{
+
     class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
         .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
         .def_readwrite("Rec", &Optimizer::Rec)
@@ -1591,7 +1592,4 @@ BOOST_PYTHON_MODULE(pyOptimizer)
             .def_readwrite("current_xyz", & Optimizer::align_t::current_xyz)
 
        ;
-    } catch (const std::exception& e) {
-        handle_exception();
-    }
 }
