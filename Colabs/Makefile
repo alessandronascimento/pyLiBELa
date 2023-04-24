@@ -168,7 +168,7 @@ MC: PARSER Grid Mol2 COORD_MC Energy2 WRITER McEntropy pyOptimizer.o pyMC.o
 	$(CC) -shared obj/pyMC.o obj/pyPARSER.o obj/pyGrid.o obj/pyMol2.o obj/pyCOORD_MC.o obj/pyEnergy2.o obj/pyWRITER.o obj/pyMcEntropy.o obj/pyOptimizer.o -o pyMC.so $(LD_FLAGS)
 	@echo ' '
 
-Optimizer: Mol2 Energy2 PARSER COORD_MC Gaussian WRITER SA pyMC.o pyOptimizer.o
+Optimizer: pyMol2.o pyEnergy2.o pyPARSER.o pyCOORD_MC.o pyGaussian.o  pyWRITER.o pySA.o pyMC.o pyOptimizer.o
 	@echo 'Building OPTIMIZER dynamic library.'
 	$(CC) -shared obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
