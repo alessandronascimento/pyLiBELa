@@ -1524,7 +1524,9 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 
     class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
         .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
-        .def_readwrite("Rec", & Optimizer::Rec)
+        .add_static_property("Rec",
+                  python::make_getter(&Optimizer::Rec),
+                  python::make_setter(&Optimizer::Rec))
 //        .add_static_property("Rec", make_getter(Optimizer::Rec), make_setter(Optimizer::Rec))
 //        .add_static_property( "Rec", static_cast<Mol2*>( Optimizer::Rec), return_value_policy<reference_existing_object>() )       
 //        .add_static_property("get_Rec", &Optimizer::get_Rec, return_value_policy<reference_existing_object>())
@@ -1596,14 +1598,6 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 
        ;
 
-        // criar um objeto Optimizer
-        Optimizer optimizer(mol2_1, mol2_2, parser, grids);
-
-        // acessar a propriedade Rec
-        std::vector<CoordXYZ> Rec = optimizer.Rec;
-
-        // modificar a propriedade Rec
-        optimizer.Rec = new_Rec;
 
 }
 
