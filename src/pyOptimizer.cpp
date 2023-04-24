@@ -1514,11 +1514,11 @@ Mol2* Optimizer::get_Rec(){
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
 
-
+Py_Initialize();
 BOOST_PYTHON_MODULE(pyOptimizer)
 { 
     namespace python = boost::python;
-    Py_Initialize();
+
     class_< vector< vector<double> > >("vectorvectorDouble")
             .def(vector_indexing_suite< vector< vector<double> >  >())
         ;
