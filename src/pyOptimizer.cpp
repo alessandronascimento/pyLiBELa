@@ -1511,6 +1511,7 @@ Mol2* get_Rec(){
 //#define BOOST_PYTHON_STATIC_LIB
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/python/return_arg.hpp>
 using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pyOptimizer)
@@ -1522,7 +1523,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
         boost::python::class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
             .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
 //            .add_static_property("Rec", make_getter(Optimizer::Rec), make_setter(Optimizer::Rec))
-              .def("get_Rec", &get_Rec, return_internal_reference<>())
+              .def("get_Rec", &get_Rec, return_self<>())
 //            .def("set_ref_lig", &Optimizer::set_ref_lig)
 //            .def("set_parser", &Optimizer::set_parser)
 //            .def("set_grids", &Optimizer::set_grids)
