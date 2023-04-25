@@ -1524,6 +1524,11 @@ BOOST_PYTHON_MODULE(pyOptimizer)
         Py_Initialize();
         class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
             .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
+            .def("set_rec", &Optimizer::set_rec)
+            .def("set_ref_lig", &Optimizer::set_ref_lig)
+            .def("set_parser", &Optimizer::set_parser)
+            .def("set_grids", &Optimizer::set_grids)
+            .def("run", &Optimizer::run);
        //     .def_readwrite("Rec", &Optimizer::Rec)
        //     .def_readwrite("RefLig", &Optimizer::RefLig)
        //     .def_readwrite("Parser", &Optimizer::Parser)

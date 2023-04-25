@@ -103,6 +103,27 @@ public:
     static void minimize_alignment_nlopt_simplex(align_t* align_data, align_result_t* opt_result, vector<double> current_com);
 
     static void pre_align(Mol2* Lig2, opt_result_t* opt_result);
+
+    void set_rec(Mol2* rec) {
+            Rec = rec;
+        }
+
+    void set_ref_lig(Mol2* ref_lig) {
+            RefLig = ref_lig;
+        }
+
+    void set_parser(PARSER* parser) {
+            Parser = parser;
+        }
+
+    void set_grids(Grid* grids) {
+            Grids = grids;
+        }
+
+     void run() {
+            // some code to run optimization
+            cout << "Running optimization..." << endl;
+        }
 };
 
 Mol2* Optimizer::Rec = nullptr;
