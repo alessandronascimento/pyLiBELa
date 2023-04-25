@@ -34,9 +34,6 @@ public:
 	static Mol2* RefLig;
 	static PARSER* Parser;
 	static Grid* Grids;
-//    static WRITER* writer;
-
-	static Mol2* get_Rec();
 
     struct opt_result_t{
 		int optimization_status;
