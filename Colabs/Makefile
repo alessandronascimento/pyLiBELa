@@ -118,52 +118,52 @@ WRITER: pyMol2.o pyPARSER.o pyWRITER.o
 	$(CC) -shared obj/pyWRITER.o obj/pyMol2.o obj/pyPARSER.o -o pyWRITER.so $(LD_FLAGS)
 	@echo ' '
 
-Grid:   Mol2 PARSER WRITER pyGrid.o
+Grid:   pyMol2.o pyPARSER.o pyWRITER.o pyGrid.o
 	@echo 'Building GRID dynamic library.'
 	$(CC) -shared obj/pyGrid.o obj/pyMol2.o obj/pyPARSER.o obj/pyWRITER.o -o pyGrid.so $(LD_FLAGS)
 	@echo ' '
 
-COORD_MC: RAND Mol2 pyCOORD_MC.o
+COORD_MC: pyRAND.o pyMol2.o pyCOORD_MC.o
 	@echo 'Building COORD_MC dynamic library.'
 	$(CC) -shared obj/pyCOORD_MC.o obj/pyRAND.o obj/pyMol2.o -o pyCOORD_MC.so $(LD_FLAGS)
 	@echo ' '
 	
-FindHB: Mol2 PARSER COORD_MC pyFindHB.o
+FindHB: pyMol2.o pyPARSER.o pyCOORD_MC.o pyFindHB.o
 	@echo 'Building FIND_HB dynamic library.'
 	$(CC) -shared obj/pyFindHB.o obj/pyMol2.o obj/pyPARSER.o obj/pyCOORD_MC.o -o pyFindHB.so $(LD_FLAGS)
 	@echo ' '
 
-Energy2: PARSER Mol2 Grid pyEnergy2.o
+Energy2: pyPARSER.o pyMol2.o pyGrid.o pyEnergy2.o
 	@echo 'Building ENERGY2 dynamic library.'
 	$(CC) -shared obj/pyEnergy2.o obj/pyPARSER.o obj/pyMol2.o obj/pyGrid.o obj/pyWRITER.o -o pyEnergy2.so $(LD_FLAGS)
 	@echo ' '
 
-Conformer: PARSER Mol2 pyConformer.o
+Conformer: pyPARSER.o pyMol2.o pyConformer.o
 	@echo 'Building CONFORMER dynamic library.'
 	$(CC) -shared obj/pyConformer.o obj/pyPARSER.o obj/pyMol2.o -o pyConformer.so $(LD_FLAGS)
 	@echo ' '
 
-RAND: PARSER Mol2 pyRAND.o
+RAND: pyPARSER.o pyMol2.o pyRAND.o
 	@echo 'Building RAND dynamic library.'
 	$(CC) -shared obj/pyRAND.o obj/pyPARSER.o obj/pyMol2.o -o pyRAND.so $(LD_FLAGS)
 	@echo ' '
 
-Gaussian: Mol2 PARSER pyGaussian.o
+Gaussian: pyMol2.o pyPARSER.o pyGaussian.o
 	@echo 'Building GAUSSIAN dynamic library.'
 	$(CC) -shared obj/pyGaussian.o obj/pyMol2.o obj/pyPARSER.o -o pyGaussian.so $(LD_FLAGS)
 	@echo ' '
 
-McEntropy: PARSER Mol2 COORD_MC pyMcEntropy.o
+McEntropy: pyPARSER.o pyMol2.o pyCOORD_MC.o pyMcEntropy.o
 	@echo 'Building MCENTROPY dynamic library.'
 	$(CC) -shared obj/pyMcEntropy.o obj/pyPARSER.o obj/pyMol2.o obj/pyCOORD_MC.o -o pyMcEntropy.so $(LD_FLAGS)
 	@echo ' '
 
-SA: Mol2 Grid Energy2 COORD_MC PARSER pySA.o
+SA: pyMol2.o pyGrid.o pyEnergy2.o pyCOORD_MC.o pyPARSER.o pySA.o
 	@echo 'Building SA dynamic library.'
 	$(CC) -shared obj/pySA.o obj/pyMol2.o obj/pyGrid.o obj/pyEnergy2.o obj/pyCOORD_MC.o obj/pyWRITER.o obj/pyPARSER.o -o pySA.so $(LD_FLAGS)
 	@echo ' '
 
-MC: PARSER Grid Mol2 COORD_MC Energy2 WRITER McEntropy pyOptimizer.o pyMC.o
+MC: pyPARSER.o pyGrid.o pyMol2.o pyCOORD_MC.o pyEnergy2.o pyWRITER.o pyMcEntropy.o pyOptimizer.o pyMC.o
 	@echo 'Building MC dynamic library.'
 	$(CC) -shared obj/pyMC.o obj/pyPARSER.o obj/pyGrid.o obj/pyMol2.o obj/pyCOORD_MC.o obj/pyEnergy2.o obj/pyWRITER.o obj/pyMcEntropy.o obj/pyOptimizer.o -o pyMC.so $(LD_FLAGS)
 	@echo ' '
@@ -173,12 +173,12 @@ Optimizer: pyMol2.o pyEnergy2.o pyPARSER.o pyCOORD_MC.o pyGaussian.o  pyWRITER.o
 	$(CC) -shared obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyGrid.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
 
-Docker: Mol2 Optimizer PARSER WRITER COORD_MC Grid pyDocker.o
+Docker: pyMol2.o pyOptimizer.o pyPARSER.o pyWRITER.o pyCOORD_MC.o pyGrid.o pyDocker.o
 	@echo 'Building DOCKER dynamic library.'
 	$(CC) -shared obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o -o pyDocker.so $(LD_FLAGS)
 	@echo ' '
 
-FullSearch: Mol2 PARSER Conformer WRITER COORD_MC Grid Energy2 pyFullSearch.o
+FullSearch: pyMol2.o pyPARSER.o pyConformer.o pyWRITER.o pyCOORD_MC.o pyGrid.o pyEnergy2.o pyFullSearch.o
 	@echo 'Building FULLSEARCH dynamic library.'
 	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
 	@echo ' '
