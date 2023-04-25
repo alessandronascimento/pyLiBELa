@@ -1520,9 +1520,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 //    class_< vector< vector<double> > >("vectorvectorDouble")
 //            .def(vector_indexing_suite< vector< vector<double> >  >())
 //        ;
-    try{
-        Py_Initialize();
-        class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
+        boost::python::class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
             .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
             .def("set_rec", &Optimizer::set_rec)
             .def("set_ref_lig", &Optimizer::set_ref_lig)
@@ -1596,8 +1594,15 @@ BOOST_PYTHON_MODULE(pyOptimizer)
                 .def_readwrite("current_xyz", & Optimizer::align_t::current_xyz)
 
            ;
-    } catch (const std::exception& e) {
-        handle_exception();
-    }
+        try {
+                    // Initialize Optimizer module
+                    Optimizer::Rec = new Mol2();
+                    Optimizer::RefLig = new Mol2();
+                    Optimizer::Parser = new PARSER();
+                    Optimizer::Grids = new Grid();
 
+                } catch (std::exception const & e) {
+                    PyErr_SetString(PyExc_RuntimeError, e.what());
+                    return;
+                }
 }
