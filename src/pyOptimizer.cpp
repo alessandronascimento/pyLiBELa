@@ -1601,7 +1601,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
                     Optimizer::RefLig = new Mol2();
                     Optimizer::Parser = new PARSER();
                     Optimizer::Writer= new WRITER();
-                    Optimizer::Grids = new Grids(Parser,Writer);
+                    Optimizer::Grids = new Grid(Parser,Writer);
 
                 } catch (std::exception const & e) {
                     PyErr_SetString(PyExc_RuntimeError, e.what());
