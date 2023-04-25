@@ -36,7 +36,7 @@ public:
 	static Grid* Grids;
 //    static WRITER* writer;
 
-	Mol2* get_Rec();
+	static Mol2* get_Rec();
 
     struct opt_result_t{
 		int optimization_status;
