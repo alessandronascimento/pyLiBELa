@@ -1526,6 +1526,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
             .def("set_ref_lig", &Optimizer::set_ref_lig)
             .def("set_parser", &Optimizer::set_parser)
             .def("set_grids", &Optimizer::set_grids)
+            .def("set_wirter", &Optimizer::set_writer)
             .def("run", &Optimizer::run)
        //     .def_readwrite("Rec", &Optimizer::Rec)
        //     .def_readwrite("RefLig", &Optimizer::RefLig)
@@ -1599,7 +1600,8 @@ BOOST_PYTHON_MODULE(pyOptimizer)
                     Optimizer::Rec = new Mol2();
                     Optimizer::RefLig = new Mol2();
                     Optimizer::Parser = new PARSER();
-                    Optimizer::Grids = new Grid();
+                    Optimizer::Writer= new WRITER();
+                    Optimizer::Grids = new Grids(Parser,Writer);
 
                 } catch (std::exception const & e) {
                     PyErr_SetString(PyExc_RuntimeError, e.what());
