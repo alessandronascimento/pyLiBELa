@@ -1504,7 +1504,7 @@ void Optimizer::pre_align(Mol2* Lig2, opt_result_t* opt_result){
     opt_result->optimized_xyz = xyz;
 }
 
-Mol2* Optimizer::get_Rec(){
+static Mol2* Optimizer::get_Rec(){
     return this->Rec;
 }
 
@@ -1522,7 +1522,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 //        ;
         boost::python::class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
             .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
-            .def("set_rec", Optimizer::get_Rec)
+            .def("get_rec", Optimizer::get_Rec).staticmethod("get_rec")
 //            .def("set_ref_lig", &Optimizer::set_ref_lig)
 //            .def("set_parser", &Optimizer::set_parser)
 //            .def("set_grids", &Optimizer::set_grids)
