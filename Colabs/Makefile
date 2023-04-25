@@ -108,12 +108,12 @@ PARSER: pyPARSER.o
 	$(CC) -shared obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
-Mol2:   PARSER pyMol2.o
+Mol2:   pyPARSER.o pyMol2.o
 	@echo 'Building MOL2 dynamic library.'
 	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
 	
-WRITER: Mol2 PARSER pyWRITER.o
+WRITER: pyMol2.o pyPARSER.o pyWRITER.o
 	@echo 'Building WRITER dynamic library.'
 	$(CC) -shared obj/pyWRITER.o obj/pyMol2.o obj/pyPARSER.o -o pyWRITER.so $(LD_FLAGS)
 	@echo ' '
