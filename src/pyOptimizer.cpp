@@ -1505,7 +1505,7 @@ void Optimizer::pre_align(Mol2* Lig2, opt_result_t* opt_result){
 }
 
 static Mol2* Optimizer::get_Rec(){
-    return this->Rec;
+    return Optimizer::Rec;
 }
 
 
