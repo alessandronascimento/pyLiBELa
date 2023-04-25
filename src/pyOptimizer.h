@@ -34,7 +34,7 @@ public:
 	static Mol2* RefLig;
 	static PARSER* Parser;
 	static Grid* Grids;
-    static WRITER* writer;
+//    static WRITER* writer;
 
 	Mol2* get_Rec();
 
@@ -105,6 +105,7 @@ public:
 
     static void pre_align(Mol2* Lig2, opt_result_t* opt_result);
 
+/*	
     void set_rec(Mol2* rec) {
             Rec = rec;
         }
@@ -129,11 +130,13 @@ public:
             // some code to run optimization
             cout << "Running optimization..." << endl;
         }
+*/	
 };
-
+/*
 Mol2* Optimizer::Rec = nullptr;
 Mol2* Optimizer::RefLig = nullptr;
 PARSER* Optimizer::Parser = nullptr;
 Grid* Optimizer::Grids = nullptr;
 WRITER* Optimizer::Writer = nullptr;
+*/
 #endif /* OPTIMIZER_H_ */
