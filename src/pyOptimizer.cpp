@@ -1522,12 +1522,12 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 //        ;
         boost::python::class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
             .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
-            .def("set_rec", &Optimizer::set_rec)
-            .def("set_ref_lig", &Optimizer::set_ref_lig)
-            .def("set_parser", &Optimizer::set_parser)
-            .def("set_grids", &Optimizer::set_grids)
-            .def("set_wirter", &Optimizer::set_writer)
-            .def("run", &Optimizer::run)
+            .def("set_rec", Optimizer::get_Rec)
+//            .def("set_ref_lig", &Optimizer::set_ref_lig)
+//            .def("set_parser", &Optimizer::set_parser)
+//            .def("set_grids", &Optimizer::set_grids)
+//            .def("set_wirter", &Optimizer::set_writer)
+//            .def("run", &Optimizer::run)
        //     .def_readwrite("Rec", &Optimizer::Rec)
        //     .def_readwrite("RefLig", &Optimizer::RefLig)
        //     .def_readwrite("Parser", &Optimizer::Parser)
@@ -1595,6 +1595,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
                 .def_readwrite("current_xyz", & Optimizer::align_t::current_xyz)
 
            ;
+/*    
         try {
                     // Initialize Optimizer module
                     Optimizer::Rec = new Mol2();
@@ -1607,4 +1608,5 @@ BOOST_PYTHON_MODULE(pyOptimizer)
                     PyErr_SetString(PyExc_RuntimeError, e.what());
                     return;
                 }
+*/                
 }
