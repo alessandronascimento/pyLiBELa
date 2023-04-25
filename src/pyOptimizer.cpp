@@ -1504,11 +1504,6 @@ void Optimizer::pre_align(Mol2* Lig2, opt_result_t* opt_result){
     opt_result->optimized_xyz = xyz;
 }
 
-static Mol2* Optimizer::get_Rec(){
-    return Optimizer::Rec;
-}
-
-
 //#define BOOST_PYTHON_STATIC_LIB
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
