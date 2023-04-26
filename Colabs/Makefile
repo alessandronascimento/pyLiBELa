@@ -103,7 +103,7 @@ FILES:
 	@ mkdir src obj
 	@ mv *.h *.cpp src/
 
-PARSER: OBJECTS
+PARSER: $(OBJ)
 	@echo 'Building PARSER dynamic library.'
 	$(CC) -shared obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
@@ -184,8 +184,6 @@ FullSearch: OBJECTS
 	@echo ' '
 	
 OBJECTS: $(OBJ)
-	//@ mv *.o obj/
-	//@ echo 'Succesfully compiled .o files!'
 
 LINKAGE: $(CLASSES)
 	@echo 'Classes are linked!'
