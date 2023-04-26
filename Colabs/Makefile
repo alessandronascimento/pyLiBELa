@@ -103,82 +103,82 @@ FILES:
 	@ mkdir src 
 	@ mv *.h *.cpp src/
 
-PARSER: pyPARSER.o
+PARSER: OBJECTS
 	@echo 'Building PARSER dynamic library.'
 	$(CC) -shared obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
 
-Mol2:   pyPARSER.o pyMol2.o
+Mol2:   OBJECTS
 	@echo 'Building MOL2 dynamic library.'
 	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o -o pyMol2.so $(LD_FLAGS)
 	@echo ' '
 	
-WRITER: pyMol2.o pyPARSER.o pyWRITER.o
+WRITER: OBJECTS
 	@echo 'Building WRITER dynamic library.'
 	$(CC) -shared obj/pyWRITER.o obj/pyMol2.o obj/pyPARSER.o -o pyWRITER.so $(LD_FLAGS)
 	@echo ' '
 
-Grid:   pyMol2.o pyPARSER.o pyWRITER.o pyGrid.o
+Grid:   OBJECTS
 	@echo 'Building GRID dynamic library.'
 	$(CC) -shared obj/pyGrid.o obj/pyMol2.o obj/pyPARSER.o obj/pyWRITER.o -o pyGrid.so $(LD_FLAGS)
 	@echo ' '
 
-COORD_MC: pyRAND.o pyMol2.o pyCOORD_MC.o
+COORD_MC: OBJECTS
 	@echo 'Building COORD_MC dynamic library.'
 	$(CC) -shared obj/pyCOORD_MC.o obj/pyRAND.o obj/pyMol2.o -o pyCOORD_MC.so $(LD_FLAGS)
 	@echo ' '
 	
-FindHB: pyMol2.o pyPARSER.o pyCOORD_MC.o pyFindHB.o
+FindHB: OBJECTS
 	@echo 'Building FIND_HB dynamic library.'
 	$(CC) -shared obj/pyFindHB.o obj/pyMol2.o obj/pyPARSER.o obj/pyCOORD_MC.o -o pyFindHB.so $(LD_FLAGS)
 	@echo ' '
 
-Energy2: pyPARSER.o pyMol2.o pyGrid.o pyEnergy2.o
+Energy2: OBJECTS
 	@echo 'Building ENERGY2 dynamic library.'
 	$(CC) -shared obj/pyEnergy2.o obj/pyPARSER.o obj/pyMol2.o obj/pyGrid.o obj/pyWRITER.o -o pyEnergy2.so $(LD_FLAGS)
 	@echo ' '
 
-Conformer: pyPARSER.o pyMol2.o pyConformer.o
+Conformer: OBJECTS
 	@echo 'Building CONFORMER dynamic library.'
 	$(CC) -shared obj/pyConformer.o obj/pyPARSER.o obj/pyMol2.o -o pyConformer.so $(LD_FLAGS)
 	@echo ' '
 
-RAND: pyPARSER.o pyMol2.o pyRAND.o
+RAND: OBJECTS
 	@echo 'Building RAND dynamic library.'
 	$(CC) -shared obj/pyRAND.o obj/pyPARSER.o obj/pyMol2.o -o pyRAND.so $(LD_FLAGS)
 	@echo ' '
 
-Gaussian: pyMol2.o pyPARSER.o pyGaussian.o
+Gaussian: OBJECTS
 	@echo 'Building GAUSSIAN dynamic library.'
 	$(CC) -shared obj/pyGaussian.o obj/pyMol2.o obj/pyPARSER.o -o pyGaussian.so $(LD_FLAGS)
 	@echo ' '
 
-McEntropy: pyPARSER.o pyMol2.o pyCOORD_MC.o pyMcEntropy.o
+McEntropy: OBJECTS
 	@echo 'Building MCENTROPY dynamic library.'
 	$(CC) -shared obj/pyMcEntropy.o obj/pyPARSER.o obj/pyMol2.o obj/pyCOORD_MC.o -o pyMcEntropy.so $(LD_FLAGS)
 	@echo ' '
 
-SA: pyMol2.o pyGrid.o pyEnergy2.o pyCOORD_MC.o pyPARSER.o pySA.o
+SA: OBJECTS
 	@echo 'Building SA dynamic library.'
 	$(CC) -shared obj/pySA.o obj/pyMol2.o obj/pyGrid.o obj/pyEnergy2.o obj/pyCOORD_MC.o obj/pyWRITER.o obj/pyPARSER.o -o pySA.so $(LD_FLAGS)
 	@echo ' '
 
-MC: pyPARSER.o pyGrid.o pyMol2.o pyCOORD_MC.o pyEnergy2.o pyWRITER.o pyMcEntropy.o pyOptimizer.o pyMC.o
+MC: OBJECTS
 	@echo 'Building MC dynamic library.'
 	$(CC) -shared obj/pyMC.o obj/pyPARSER.o obj/pyGrid.o obj/pyMol2.o obj/pyCOORD_MC.o obj/pyEnergy2.o obj/pyWRITER.o obj/pyMcEntropy.o obj/pyOptimizer.o -o pyMC.so $(LD_FLAGS)
 	@echo ' '
 
-Optimizer: pyMol2.o pyEnergy2.o pyPARSER.o pyCOORD_MC.o pyGaussian.o  pyWRITER.o pySA.o pyGrid.o pyOptimizer.o
+Optimizer: OBJECTS
 	@echo 'Building OPTIMIZER dynamic library.'
 	$(CC) -shared obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyGrid.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
 
-Docker: pyMol2.o pyOptimizer.o pyPARSER.o pyWRITER.o pyCOORD_MC.o pyGrid.o pyDocker.o
+Docker: OBJECTS
 	@echo 'Building DOCKER dynamic library.'
 	$(CC) -shared obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o -o pyDocker.so $(LD_FLAGS)
 	@echo ' '
 
-FullSearch: pyMol2.o pyPARSER.o pyConformer.o pyWRITER.o pyCOORD_MC.o pyGrid.o pyEnergy2.o pyFullSearch.o
+FullSearch: OBJECTS
 	@echo 'Building FULLSEARCH dynamic library.'
 	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
 	@echo ' '
