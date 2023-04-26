@@ -26,7 +26,7 @@ SOURCE=$(wildcard ./src/*.cpp)
 
 #Objects
 #OBJ=$(subst .cpp,.o, $(subst src,.,$(SOURCE)))
-OBJ=$(SOURCES:.cpp=.o)
+OBJ=$(SOURCE:.cpp=.o)
 
 #Compiler
 CC=g++
