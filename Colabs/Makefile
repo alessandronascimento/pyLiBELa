@@ -60,7 +60,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: FILES $(OBJ) OBJECTS LINKAGE
+all: FILES OBJECTS LINKAGE
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
@@ -102,7 +102,7 @@ FILES:
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFullSearch.h
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFullSearch.cpp
 	@ echo 'Downloaded files'
-	@ mkdir src 
+	@ mkdir src obj
 #	@ mv *.h *.cpp src/
 #	@ mkdir obj
 
@@ -196,7 +196,7 @@ LINKAGE: $(CLASSES)
 	@echo ''
 
 # %.o: ./src/%.cpp
-.cpp.o:
+.cpp.o: $(SOURCE)
 	@ echo 'Compiling objects'
 	@$(CC) -c $(CC_FLAGS) $< 
 
