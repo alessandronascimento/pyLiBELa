@@ -191,7 +191,7 @@ LINKAGE: $(CLASSES)
 	@echo 'Classes are linked!'
 	@echo ''
 
- %.o: ./src/%.cpp
+ %.o: ./src/%.cpp FILES
 	@ echo 'Compiling objects'
 	@$(CC) -c $(CC_FLAGS) $< 
 
