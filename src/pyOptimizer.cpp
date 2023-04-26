@@ -8,6 +8,9 @@
 #include "pyOptimizer.h"
 
 Mol2* Optimizer::Rec = nullptr;
+Mol2* Optimizer::RefLig = nullptr;
+PARSER* Optimizer::Parser = nullptr;
+Grid* Optimizer::Grids = nullptr;
 
 Optimizer::Optimizer(Mol2* _Rec, Mol2* _RefLig, PARSER* _Parser) {
     this->RefLig = _RefLig;
@@ -1532,9 +1535,9 @@ BOOST_PYTHON_MODULE(pyOptimizer)
 //            .def("set_wirter", &Optimizer::set_writer)
 //            .def("run", &Optimizer::run)
        //     .def_readwrite("Rec", &Optimizer::Rec)
-       //     .def_readwrite("RefLig", &Optimizer::RefLig)
-       //     .def_readwrite("Parser", &Optimizer::Parser)
-       //     .def_readwrite("Grids", &Optimizer::Grids)
+            .def_readwrite("RefLig", &Optimizer::RefLig)
+            .def_readwrite("Parser", &Optimizer::Parser)
+            .def_readwrite("Grids", &Optimizer::Grids)
             .def("evaluate_rmsd", & Optimizer::evaluate_rmsd).staticmethod("evaluate_rmsd")
             .def("Simulated_Annealing", & Optimizer::Simulated_Annealing).staticmethod("Simulated_Annealing")
             .def("update_coords", & Optimizer::update_coords).staticmethod("update_coords")
