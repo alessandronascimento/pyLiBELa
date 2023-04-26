@@ -7,6 +7,8 @@
 
 #include "pyOptimizer.h"
 
+Mol2* Optimizer::Rec = nullptr;
+
 Optimizer::Optimizer(Mol2* _Rec, Mol2* _RefLig, PARSER* _Parser) {
     this->RefLig = _RefLig;
     this->Rec = _Rec;
