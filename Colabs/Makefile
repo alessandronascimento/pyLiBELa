@@ -58,7 +58,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: FILES OBJECTS LINKAGE
+all: FILES $(OBJ) OBJECTS LINKAGE
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
