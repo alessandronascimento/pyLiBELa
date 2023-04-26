@@ -102,8 +102,9 @@ FILES:
 	@ echo 'Downloaded files'
 	@ mkdir src 
 	@ mv *.h *.cpp src/
+	@ mkdir obj
 
-PARSER: OBJECTS
+PARSER: $(OBJ)
 	@echo 'Building PARSER dynamic library.'
 	$(CC) -shared obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
@@ -184,7 +185,6 @@ FullSearch: OBJECTS
 	@echo ' '
 	
 OBJECTS: $(OBJ)
-	@ mkdir obj
 	@ mv *.o obj/
 	@ echo 'Succesfully compiled .o files!'
 
@@ -194,7 +194,6 @@ LINKAGE: $(CLASSES)
 
 %.o: ./src/%.cpp
 	@$(CC) -c $(CC_FLAGS) $< 
-	@mv *.o obj/
 
 clean:
 	@ $(RM) obj src $(PROJ_NAME) *~
