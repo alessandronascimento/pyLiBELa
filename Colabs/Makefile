@@ -58,7 +58,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: FILES OBJECTS LINKAGE
+all: LINKAGE
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
@@ -184,8 +184,8 @@ FullSearch: OBJECTS
 	@echo ' '
 	
 OBJECTS: $(OBJ)
-	@ mv *.o obj/
-	@ echo 'Succesfully compiled .o files!'
+	//@ mv *.o obj/
+	//@ echo 'Succesfully compiled .o files!'
 
 LINKAGE: $(CLASSES)
 	@echo 'Classes are linked!'
@@ -194,6 +194,7 @@ LINKAGE: $(CLASSES)
  %.o: ./src/%.cpp FILES
 	@ echo 'Compiling objects'
 	@$(CC) -c $(CC_FLAGS) $< 
+	@mv *.o obj/
 
 clean:
 	@ $(RM) obj src $(PROJ_NAME) *~

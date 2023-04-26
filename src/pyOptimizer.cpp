@@ -1513,7 +1513,6 @@ Mol2* get_Rec(){
     return Optimizer::Rec;
 }
 
-//#define BOOST_PYTHON_STATIC_LIB
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/python/return_arg.hpp>
@@ -1521,20 +1520,9 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pyOptimizer)
 { 
-
-//    class_< vector< vector<double> > >("vectorvectorDouble")
-//            .def(vector_indexing_suite< vector< vector<double> >  >())
-//        ;
         boost::python::class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
             .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
-//            .add_static_property("Rec", make_getter(Optimizer::Rec), make_setter(Optimizer::Rec))
             .def("get_Rec", get_Rec, return_internal_reference<>())
-//            .def("set_ref_lig", &Optimizer::set_ref_lig)
-//            .def("set_parser", &Optimizer::set_parser)
-//            .def("set_grids", &Optimizer::set_grids)
-//            .def("set_wirter", &Optimizer::set_writer)
-//            .def("run", &Optimizer::run)
-       //     .def_readwrite("Rec", &Optimizer::Rec)
             .def_readwrite("RefLig", &Optimizer::RefLig)
             .def_readwrite("Parser", &Optimizer::Parser)
             .def_readwrite("Grids", &Optimizer::Grids)
@@ -1601,18 +1589,4 @@ BOOST_PYTHON_MODULE(pyOptimizer)
                 .def_readwrite("current_xyz", & Optimizer::align_t::current_xyz)
 
            ;
-/*    
-        try {
-                    // Initialize Optimizer module
-                    Optimizer::Rec = new Mol2();
-                    Optimizer::RefLig = new Mol2();
-                    Optimizer::Parser = new PARSER();
-                    Optimizer::Writer= new WRITER();
-                    Optimizer::Grids = new Grid(Parser,Writer);
-
-                } catch (std::exception const & e) {
-                    PyErr_SetString(PyExc_RuntimeError, e.what());
-                    return;
-                }
-*/                
 }
