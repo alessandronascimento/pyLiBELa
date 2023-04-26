@@ -186,7 +186,7 @@ FullSearch: pyMol2.o pyPARSER.o pyConformer.o pyWRITER.o pyCOORD_MC.o pyGrid.o p
 OBJECTS: $(OBJ)
 	@ mkdir obj
 	@ mv *.o obj/
-	@ echo 'Succesfully build .o files!'
+	@ echo 'Succesfully compiled .o files!'
 
 LINKAGE: $(CLASSES)
 	@echo 'Classes are linked!'
