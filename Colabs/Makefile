@@ -22,7 +22,8 @@ CLASSES= PARSER    \
 	 FullSearch
 
 #Sources
-SOURCE=$(wildcard ./src/*.cpp)
+#SOURCE=$(wildcard ./src/*.cpp)
+SOURCE=$(wildcard ./*.cpp)
 
 #Objects
 #OBJ=$(subst .cpp,.o, $(subst src,.,$(SOURCE)))
