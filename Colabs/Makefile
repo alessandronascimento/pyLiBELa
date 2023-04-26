@@ -22,12 +22,10 @@ CLASSES= PARSER    \
 	 FullSearch
 
 #Sources
-#SOURCE=$(wildcard ./src/*.cpp)
-SOURCE=$(wildcard ./*.cpp)
+SOURCE=$(wildcard ./src/*.cpp)
 
 #Objects
-#OBJ=$(subst .cpp,.o, $(subst src,.,$(SOURCE)))
-OBJ=$(SOURCE:.cpp=.o)
+OBJ=$(subst .cpp,.o, $(subst src,.,$(SOURCE)))
 
 #Compiler
 CC=g++
@@ -103,8 +101,7 @@ FILES:
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFullSearch.cpp
 	@ echo 'Downloaded files'
 	@ mkdir src obj
-#	@ mv *.h *.cpp src/
-#	@ mkdir obj
+	@ mv *.h *.cpp src/
 
 PARSER: OBJECTS
 	@echo 'Building PARSER dynamic library.'
@@ -188,15 +185,13 @@ FullSearch: OBJECTS
 	
 OBJECTS: $(OBJ)
 	@ mv *.o obj/
-	@ mv *.cpp *.h src/
 	@ echo 'Succesfully compiled .o files!'
 
 LINKAGE: $(CLASSES)
 	@echo 'Classes are linked!'
 	@echo ''
 
-# %.o: ./src/%.cpp
-.cpp.o: $(SOURCE)
+ %.o: ./src/%.cpp
 	@ echo 'Compiling objects'
 	@$(CC) -c $(CC_FLAGS) $< 
 
