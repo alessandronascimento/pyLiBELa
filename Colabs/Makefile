@@ -195,7 +195,7 @@ LINKAGE: $(CLASSES)
 
 %.o: ./src/%.cpp
        	@echo 'Compiling object'
-	@$(CC) -c $(CC_FLAGS) $< 
+	$(CC) -c $(CC_FLAGS) $< 
 
 clean:
 	@ $(RM) obj src $(PROJ_NAME) *~
