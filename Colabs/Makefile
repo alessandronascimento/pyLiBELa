@@ -103,7 +103,7 @@ FILES:
 	@ mkdir src obj
 	@ mv *.h *.cpp src/
 
-PARSER: $(OBJ) FILES
+PARSER: $(OBJ)
 	@echo 'Building PARSER dynamic library.'
 	$(CC) -shared obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
@@ -189,10 +189,11 @@ LINKAGE: $(CLASSES)
 	@echo 'Classes are linked!'
 	@echo ''
 
- %.o: ./src/%.cpp FILES
-	@ echo 'Compiling objects'
+./obj/%.o: ./src/%.cpp FILES
+	@ echo 'Compiling object of $<'
 	@$(CC) -c $(CC_FLAGS) $< 
 	@mv *.o obj/
+	@echo ''
 
 clean:
 	@ $(RM) obj src $(PROJ_NAME) *~
