@@ -25,9 +25,7 @@ CLASSES= PARSER    \
 SOURCE=$(wildcard ./src/*.cpp)
 
 #Objects
-OBJ= pyPARSER.o \
-     pyMol2.o   
-#$(subst .cpp,.o, $(subst src,.,$(SOURCE)))
+OBJ= $(subst .cpp,.o, $(subst src,.,$(SOURCE)))
 
 #Compiler
 CC=g++
