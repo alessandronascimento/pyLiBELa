@@ -185,7 +185,7 @@ FullSearch: OBJECTS
 	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
 	@echo ' '
 	
-OBJECTS: $(OBJ) FILES
+OBJECTS: FILES $(OBJ)
 	@ mv *.o obj/
 	@ echo 'Objects are created!'
 	
@@ -193,7 +193,7 @@ LINKAGE: $(CLASSES)
 	@echo 'Classes are linked!'
 	@echo ''
 
-%.o: ./src/%.cpp FILES
+%.o: ./src/%.cpp
        	@echo 'Compiling object'
 	@$(CC) -c $(CC_FLAGS) $< 
 
