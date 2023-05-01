@@ -42,7 +42,7 @@ CC_FLAGS=-fPIC                       \
 	 
 #Linkage
 LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
-         -lboost_python310            \
+         -lboost_python39            \
 	 -lz                         \
 	 -lopenbabel                 \
 	 -lgsl                       \
