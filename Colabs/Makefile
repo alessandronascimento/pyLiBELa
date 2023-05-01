@@ -25,7 +25,9 @@ CLASSES= PARSER    \
 SOURCE=$(wildcard ./src/*.cpp)
 
 #Objects
-OBJ=$(subst .cpp,.o, $(subst src,.,$(SOURCE)))
+OBJ= pyPARSER.o \
+     pyMol2.o   
+#$(subst .cpp,.o, $(subst src,.,$(SOURCE)))
 
 #Compiler
 CC=g++
@@ -58,7 +60,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: FILES OBJECTS LINKAGE
+all: LINKAGE
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
