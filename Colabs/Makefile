@@ -25,7 +25,7 @@ CLASSES= PARSER    \
 SOURCE=$(wildcard ./src/*.cpp)
 
 #Objects
-OBJ=$(subst .cpp,.o, $(subst src,obj,$(SOURCE)))
+OBJ=$(subst .cpp,.o, $(subst src,.,$(SOURCE)))
 
 #Compiler
 CC=g++
@@ -58,7 +58,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: LINKAGE
+all: FILES OBJECTS LINKAGE
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
@@ -189,11 +189,9 @@ LINKAGE: $(CLASSES)
 	@echo 'Classes are linked!'
 	@echo ''
 
-./obj/%.o: ./src/%.cpp
-	@ echo 'Compiling object of $<'
+ %.o: ./src/%.cpp FILES
+	@ echo 'Compiling objects'
 	@$(CC) -c $(CC_FLAGS) $< 
-	@mv *.o obj/
-	@echo ''
 
 clean:
 	@ $(RM) obj src $(PROJ_NAME) *~
