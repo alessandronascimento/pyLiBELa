@@ -103,7 +103,7 @@ FILES:
 	@ mkdir src obj
 	@ mv *.h *.cpp src/
 
-PARSER: pyPARSER.o
+PARSER: $(OBJ) FILES
 	@echo 'Building PARSER dynamic library.'
 	$(CC) -shared obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
