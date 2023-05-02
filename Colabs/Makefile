@@ -33,7 +33,7 @@ CC=g++
 #Flags for compiler
 CC_FLAGS=-fPIC                       \
          -O3                         \
-	 -I/usr/include/python3.10   \
+	 -I/usr/include/python3.8   \
 	 -I/usr/include/openbabel3   \
 	 -I/usr/include/eigen3       \
 	 -DBUILD=0                   \
@@ -42,7 +42,7 @@ CC_FLAGS=-fPIC                       \
 	 
 #Linkage
 LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
-         -lboost_python310            \
+         -lboost_python38            \
 	 -lz                         \
 	 -lopenbabel                 \
 	 -lgsl                       \
@@ -58,14 +58,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-src/pyPARSER.cpp: 
-	@ echo $@
-	@ git clone https://github.com/alessandronascimento/pyLiBELa.git
-	@ mv pyLiBELa/src src
-	@ rm -rf pyLiBELa
-	@ mkdir -p obj
-
-all: src/pyPARSER.cpp pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEnergy2.so pyConformer.so pyRAND.so pyGaussian.so pyMcEntropy.so pySA.so pyMC.so pyOptimizer.so pyDocker.so pyFullSearch.so
+all: pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEnergy2.so pyConformer.so pyRAND.so pyGaussian.so pyMcEntropy.so pySA.so pyMC.so pyOptimizer.so pyDocker.so pyFullSearch.so
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
@@ -158,11 +151,6 @@ pyFullSearch.so: obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o ob
 	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
 	@echo ' '
 	
-#OBJECTS: $(OBJ)
-#	@ echo 'Objects are created!'
-#	@ mv *.o obj
-
-#.cpp.o:
 obj/%.o: src/%.cpp
 	$(CC) $(CC_FLAGS) $< -c -o $@
 	@ echo ''
