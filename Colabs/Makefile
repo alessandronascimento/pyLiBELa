@@ -58,18 +58,25 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: $(SOURCE) pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEnergy2.so pyConformer.so pyRAND.so pyGaussian.so pyMcEntropy.so pySA.so pyMC.so pyOptimizer.so pyDocker.so pyFullSearch.so
+SOURCE: 
+	@ echo $@
+	@ git clone https://github.com/alessandronascimento/pyLiBELa.git
+	@ mv pyLiBELa/src src
+	@ rm -rf pyLiBELa
+	@ mkdir -p obj
+
+all: pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEnergy2.so pyConformer.so pyRAND.so pyGaussian.so pyMcEntropy.so pySA.so pyMC.so pyOptimizer.so pyDocker.so pyFullSearch.so
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
 	@ mv *.gz test/
 	@ echo ' '
 
-src/%.cpp:
-	@ git clone https://github.com/alessandronascimento/pyLiBELa.git
-	@ mv pyLiBELa/src src
-	@ rm -rf pyLiBELa
-	@ mkdir -p obj
+#src/%.cpp:
+#	@ git clone https://github.com/alessandronascimento/pyLiBELa.git
+#	@ mv pyLiBELa/src src
+#	@ rm -rf pyLiBELa
+#	@ mkdir -p obj
 
 pyPARSER.so: obj/pyPARSER.o
 	@echo 'Building PARSER dynamic library.'
