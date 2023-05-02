@@ -25,7 +25,7 @@ CLASSES= PARSER    \
 SOURCE=$(wildcard src/*.cpp)
 
 #Objects
-OBJ=$(subst .cpp,.o,$(subst src,obj,$(SOURCE)))
+OBJ=$(SOURCE:.cpp=.o)
 
 #Compiler
 CC=g++
@@ -58,7 +58,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: FILES PARSER
+all: $(CLASSES)
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
@@ -66,42 +66,10 @@ all: FILES PARSER
 	@ echo ' '
 
 FILES:
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyPARSER.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMol2.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyWRITER.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyWRITER.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGrid.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGrid.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyCOORD_MC.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyCOORD_MC.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFindHB.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFindHB.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyEnergy2.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyEnergy2.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyConformer.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyConformer.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyRAND.cpp	
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyGaussian.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMcEntropy.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMcEntropy.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/iMcLiBELa.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pySA.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pySA.cpp	
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyMC.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyOptimizer.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyDocker.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyDocker.cpp
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFullSearch.h
-	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/src/pyFullSearch.cpp
-	@ echo 'Downloaded files'
-	@ mkdir src obj
-	@ mv *.h *.cpp src/
+	@ git clone https://github.com/alessandronascimento/pyLiBELa.git
+	@ mv pyLiBELa/src src
+	@ rm -rf pyLiBELa
+	@ mkdir -p obj
 
 PARSER: OBJECTS 
 	@echo 'Building PARSER dynamic library.'
@@ -183,23 +151,16 @@ FullSearch: OBJECTS
 	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
 	@echo ' '
 	
-OBJECTS: $(OBJ) 
+OBJECTS: $(OBJ)
 	@ echo 'Objects are created!'
 	@ mv *.o obj
 
-$(PROJ_NAME): $(CLASSES)
-	@echo 'Classes are linked!'
-	@echo ''
-
-
-obj/%.o: src/%.cpp src/%.h
-	@echo 'Compiling object $@!'
-	$(CC) -c $(CC_FLAGS) $<
+.cpp.o:
+	$(CC) $(CC_FLAGS) $< -c
 	@ echo ''
 
-
 clean:
-	@ $(RM) obj src $(PROJ_NAME) *~
-	@ $(RM) *.so
+	@ $(RM) obj src test $(PROJ_NAME) *~
+	@ $(RM) *.so *.o *.h *.cpp
 
 .PHONY: all clean
