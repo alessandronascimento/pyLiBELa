@@ -22,10 +22,10 @@ CLASSES= PARSER    \
 	 FullSearch
 
 #Sources
-SOURCE=$(wildcard ./src/*.cpp)
+SOURCE=$(wildcard src/*.cpp)
 
 #Objects
-OBJ= $(subst .cpp,.o, $(subst src,.,$(SOURCE)))
+OBJ=$(subst .cpp,.o,$(subst src,obj,$(SOURCE)))
 
 #Compiler
 CC=g++
@@ -33,7 +33,7 @@ CC=g++
 #Flags for compiler
 CC_FLAGS=-fPIC                       \
          -O3                         \
-	 -I/usr/include/python3.10    \
+	 -I/usr/include/python3.10   \
 	 -I/usr/include/openbabel3   \
 	 -I/usr/include/eigen3       \
 	 -DBUILD=0                   \
@@ -42,7 +42,7 @@ CC_FLAGS=-fPIC                       \
 	 
 #Linkage
 LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
-         -lboost_python39            \
+         -lboost_python310           \
 	 -lz                         \
 	 -lopenbabel                 \
 	 -lgsl                       \
@@ -58,7 +58,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: FILES LINKAGE
+all: FILES $(PROJ_NAME)
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
@@ -184,19 +184,22 @@ FullSearch: OBJECTS
 	@echo ' '
 	
 OBJECTS: $(OBJ)
-	@ mv *.o obj/
 	@ echo 'Objects are created!'
-	
-LINKAGE: $(CLASSES)
+	@ mv *.o obj
+
+$(PROJ_NAME): $(CLASSES)
 	@echo 'Classes are linked!'
 	@echo ''
 
 
-%.o: ./src/%.cpp
-	@echo 'Compiling object!'
+obj/%.o: src/%.cpp src/%.h
+	@echo 'Compiling object $@!'
 	$(CC) -c $(CC_FLAGS) $<
-	
+	@ echo ''
+
+
 clean:
 	@ $(RM) obj src $(PROJ_NAME) *~
+	@ $(RM) *.so
 
 .PHONY: all clean
