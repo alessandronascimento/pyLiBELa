@@ -42,7 +42,7 @@ CC_FLAGS=-fPIC                       \
 	 
 #Linkage
 LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
-         -lboost_python310           \
+         -lboost_python310            \
 	 -lz                         \
 	 -lopenbabel                 \
 	 -lgsl                       \
@@ -58,7 +58,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: FILES $(PROJ_NAME)
+all: FILES PARSER
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
 	@ mkdir test
@@ -103,7 +103,7 @@ FILES:
 	@ mkdir src obj
 	@ mv *.h *.cpp src/
 
-PARSER: OBJECTS
+PARSER: OBJECTS 
 	@echo 'Building PARSER dynamic library.'
 	$(CC) -shared obj/pyPARSER.o -o pyPARSER.so $(LD_FLAGS)
 	@echo ' '
@@ -183,7 +183,7 @@ FullSearch: OBJECTS
 	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
 	@echo ' '
 	
-OBJECTS: $(OBJ)
+OBJECTS: $(OBJ) 
 	@ echo 'Objects are created!'
 	@ mv *.o obj
 

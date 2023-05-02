@@ -1513,6 +1513,18 @@ Mol2* get_Rec(){
     return Optimizer::Rec;
 }
 
+Mol2* get_RefLig(){
+    return Optimizer::RefLig;
+}
+
+PARSER* get_Parser(){
+    return Optimizer::Parser;
+}
+
+Grid* get_Grids(){
+    return Optimizer::Grids;
+}
+
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/python/return_arg.hpp>
@@ -1523,6 +1535,12 @@ BOOST_PYTHON_MODULE(pyOptimizer)
         boost::python::class_<Optimizer>("Optimizer", init<Mol2*, Mol2*, PARSER*>())
             .def(init<Mol2*, Mol2*, PARSER*, Grid*>())
             .def("get_Rec", get_Rec, return_internal_reference<>())
+            .def("get_RefLig", get_RefLig, return_internal_reference<>())
+            .def("get_Parser", get_Parser, return_internal_reference<>())
+            .def("get_Grids", get_Grids, return_internal_reference<>())
+            .def_readwrite("RefLig", &Optimizer::RefLig)
+            .def_readwrite("RefLig", &Optimizer::RefLig)
+            .def_readwrite("RefLig", &Optimizer::RefLig)
             .def_readwrite("RefLig", &Optimizer::RefLig)
             .def_readwrite("Parser", &Optimizer::Parser)
             .def_readwrite("Grids", &Optimizer::Grids)
