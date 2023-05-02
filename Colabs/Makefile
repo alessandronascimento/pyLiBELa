@@ -65,8 +65,7 @@ all: $(SOURCE) pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindH
 	@ mv *.gz test/
 	@ echo ' '
 
-#FILES:
-$(SOURCE):
+src/%.cpp:
 	@ git clone https://github.com/alessandronascimento/pyLiBELa.git
 	@ mv pyLiBELa/src src
 	@ rm -rf pyLiBELa
