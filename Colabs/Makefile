@@ -58,7 +58,7 @@ RM = rm -rf
 
 #Compilation and linking
 
-SOURCE: 
+$(SOURCE): 
 	@ echo $@
 	@ git clone https://github.com/alessandronascimento/pyLiBELa.git
 	@ mv pyLiBELa/src src
@@ -164,7 +164,7 @@ pyFullSearch.so: obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o ob
 
 #.cpp.o:
 obj/%.o: src/%.cpp
-	$(CC) $(CC_FLAGS) $< -c
+	$(CC) $(CC_FLAGS) $< -c -o $@
 	@ echo ''
 
 clean:
