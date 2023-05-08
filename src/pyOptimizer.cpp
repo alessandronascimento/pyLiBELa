@@ -1566,7 +1566,7 @@ BOOST_PYTHON_MODULE(pyOptimizer)
             .def("minimize_energy_nlopt_stogo", & Optimizer::minimize_energy_nlopt_stogo).staticmethod("minimize_energy_nlopt_stogo")
             .def("minimize_energy_nlopt_isres", & Optimizer::minimize_energy_nlopt_isres).staticmethod("minimize_energy_nlopt_isres")
             .def("minimize_energy_nlopt_esch", & Optimizer::minimize_energy_nlopt_esch).staticmethod("minimize_energy_nlopt_esch")
-            .def("minimize_energy_adaptative", & Optimizer::minimize_energy_adaptative).staticmethod("minimize_energy_nlopt_adaptive")
+            .def("minimize_energy_adaptative", & Optimizer::minimize_energy_adaptative).staticmethod("minimize_energy_adaptive")
 
             .def("minimize_overlay_nlopt_cobyla", & Optimizer::minimize_overlay_nlopt_cobyla).staticmethod("minimize_overlay_nlopt_cobyla")
             .def("minimize_overlay_nlopt_subplex", & Optimizer::minimize_overlay_nlopt_subplex).staticmethod("minimize_overlay_nlopt_subplex")
