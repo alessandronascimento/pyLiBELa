@@ -2,25 +2,6 @@
 #Name of the project
 PROJ_NAME=pyLiBELa
 
-#Classes
-
-CLASSES= PARSER    \
-	 Mol2      \
-	 WRITER    \
-	 Grid      \
-	 COORD_MC  \
-	 FindHB    \
-	 Energy2   \
-	 Conformer \
-	 RAND      \
-	 Gaussian  \
-	 McEntropy \
-	 SA	   \
-	 MC	   \
-	 Optimizer \
-	 Docker    \
-	 FullSearch
-
 #Sources
 SOURCE=$(wildcard src/*.cpp)
 
@@ -55,7 +36,6 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 #Command to clean target
 RM = rm -rf
 
-
 #Compilation and linking
 
 all: pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEnergy2.so pyConformer.so pyRAND.so pyGaussian.so pyMcEntropy.so pySA.so pyMC.so pyOptimizer.so pyDocker.so pyFullSearch.so
@@ -65,11 +45,6 @@ all: pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEne
 	@ mv *.gz test/
 	@ echo ' '
 
-#src/%.cpp:
-#	@ git clone https://github.com/alessandronascimento/pyLiBELa.git
-#	@ mv pyLiBELa/src src
-#	@ rm -rf pyLiBELa
-#	@ mkdir -p obj
 
 pyPARSER.so: obj/pyPARSER.o
 	@echo 'Building PARSER dynamic library.'
@@ -136,19 +111,19 @@ pyMC.so: obj/pyMC.o obj/pyPARSER.o obj/pyGrid.o obj/pyMol2.o obj/pyCOORD_MC.o ob
 	$(CC) -shared obj/pyMC.o obj/pyPARSER.o obj/pyGrid.o obj/pyMol2.o obj/pyCOORD_MC.o obj/pyEnergy2.o obj/pyWRITER.o obj/pyMcEntropy.o obj/pyOptimizer.o -o pyMC.so $(LD_FLAGS)
 	@echo ' '
 
-pyOptimizer.so: obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyGrid.o
+pyOptimizer.so: obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o obj/pyGrid.o
 	@echo 'Building OPTIMIZER dynamic library.'
-	$(CC) -shared obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyGrid.o -o pyOptimizer.so $(LD_FLAGS)
+	$(CC) -shared obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o obj/pyGrid.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
 
-pyDocker.so: obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o
+pyDocker.so: obj/pyDocker.o obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o
 	@echo 'Building DOCKER dynamic library.'
-	$(CC) -shared obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o -o pyDocker.so $(LD_FLAGS)
+	$(CC) -shared obj/pyDocker.o obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o -o pyDocker.so $(LD_FLAGS)
 	@echo ' '
 
-pyFullSearch.so: obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o
+pyFullSearch.so: obj/pyFullSearch.o obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o
 	@echo 'Building FULLSEARCH dynamic library.'
-	$(CC) -shared obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
+	$(CC) -shared obj/pyFullSearch obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
 	@echo ' '
 	
 obj/%.o: src/%.cpp
