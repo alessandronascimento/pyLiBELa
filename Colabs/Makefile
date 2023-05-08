@@ -113,7 +113,7 @@ pyMC.so: obj/pyMC.o obj/pyPARSER.o obj/pyGrid.o obj/pyMol2.o obj/pyCOORD_MC.o ob
 
 pyOptimizer.so: obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o obj/pyGrid.o obj/pyMcEntropy.o
 	@echo 'Building OPTIMIZER dynamic library.'
-	$(CC) -shared obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o obj/pyGrid.o obj/pyMcEnergy.o -o pyOptimizer.so $(LD_FLAGS)
+	$(CC) -shared obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o obj/pyCOORD_MC.o obj/pyGaussian.o obj/pyWRITER.o obj/pySA.o obj/pyMC.o obj/pyGrid.o obj/pyMcEntropy.o -o pyOptimizer.so $(LD_FLAGS)
 	@echo ' '
 
 pyDocker.so: obj/pyDocker.o obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pySA.o obj/pyEnergy2.o obj/pyGaussian.o 
