@@ -118,7 +118,7 @@ pyOptimizer.so: obj/pyOptimizer.o obj/pyMol2.o obj/pyEnergy2.o obj/pyPARSER.o ob
 
 pyDocker.so: obj/pyDocker.o obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pySA.o obj/pyEnergy2.o obj/pyGaussian.o 
 	@echo 'Building DOCKER dynamic library.'
-	$(CC) -shared obj/pyDocker.o obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyGaussian.o obj/pySA.o obj/pyEnergy2.o obj/pyGaussian.o-o pyDocker.so $(LD_FLAGS)
+	$(CC) -shared obj/pyDocker.o obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pySA.o obj/pyEnergy2.o obj/pyGaussian.o -o pyDocker.so $(LD_FLAGS)
 	@echo ' '
 
 pyFullSearch.so: obj/pyFullSearch.o obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o
