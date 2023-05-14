@@ -1673,7 +1673,9 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(pyGrid)
 {
 
-
+    class_< vector<vector<vector<double> > > >("vectorvectorvectorDouble")
+        .def(vector_indexing_suite<vector<vector<vector<double> > > >())
+    ;
 
     class_<Grid>("Grid", init< PARSER*,WRITER*,Mol2*, vector <double> >())
         .def(init<PARSER*, WRITER*>())
