@@ -2220,7 +2220,7 @@ BOOST_PYTHON_MODULE(pyMol2)
     ;
     
         class_< vector<vector<int> > >("vectorvectorInt")
-        .def(vector_indexing_suite<vector<string> >())
+        .def(vector_indexing_suite<vector<vector<int> > >())
     ;
     
     class_<Mol2>("Mol2", init< >())
