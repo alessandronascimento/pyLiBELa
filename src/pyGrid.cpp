@@ -200,8 +200,8 @@ void Grid::compute_grid_softcore(Mol2* Rec){
                         denom = pow((d3 + Input->deltaij_es3), (1.0/3.0));
 
                         if (Input->dielectric_model == "constant"){
-                            elec += (332.0*Rec->charges[i])/(Input->diel*denom);
                             denom = pow((d6 + Input->deltaij_es6), (1.0/3.0));
+                            elec += (332.0*Rec->charges[i])/(Input->diel*denom);
                             solv += ((Input->solvation_alpha * Rec->charges[i] * Rec->charges[i])+ Input->solvation_beta) *  exp((-denom/(2*Input->sigma*Input->sigma))) / (Input->sigma*Input->sigma*Input->sigma);
                             rec_solv += (4.0/3.0) * PI * pow(Rec->radii[i], 3) * exp((-denom/(2*Input->sigma*Input->sigma))) / (Input->sigma*Input->sigma*Input->sigma);
                         }
@@ -301,8 +301,8 @@ void Grid::compute_grid_softcore_omp(Mol2* Rec){
                             double denom = pow((d3 + Input->deltaij_es3), (1.0/3.0));
 
                             if (Input->dielectric_model == "constant"){
-                                elec += (332.0*Rec->charges[i])/(Input->diel*denom);
                                 denom = pow((d6 + Input->deltaij_es6), (1.0/3.0));
+                                elec += (332.0*Rec->charges[i])/(Input->diel*denom);
                                 solv += ((Input->solvation_alpha * Rec->charges[i] * Rec->charges[i])+ Input->solvation_beta) *  exp((-denom/(2*Input->sigma*Input->sigma))) / (Input->sigma*Input->sigma*Input->sigma);
                                 rec_solv += (4.0/3.0) * PI * pow(Rec->radii[i], 3) * exp((-denom/(2*Input->sigma*Input->sigma))) / (Input->sigma*Input->sigma*Input->sigma);
                             }
@@ -398,8 +398,8 @@ void Grid::compute_grid_softcore_HB_omp(Mol2* Rec){
                             double denom; //= pow((d3 + Input->deltaij_es3), (1.0/3.0));
 
                             if (Input->dielectric_model == "constant"){
-                                elec += (332.0*Rec->charges[i])/(Input->diel*denom);
                                 denom = pow((d6 + Input->deltaij_es6), (1.0/3.0));
+                                elec += (332.0*Rec->charges[i])/(Input->diel*denom);
                                 solv += ((Input->solvation_alpha * Rec->charges[i] * Rec->charges[i])+ Input->solvation_beta) *  exp((-denom/(2*Input->sigma*Input->sigma))) / (Input->sigma*Input->sigma*Input->sigma);
                                 rec_solv += (4.0/3.0) * PI * pow(Rec->radii[i], 3) * exp((-denom/(2*Input->sigma*Input->sigma))) / (Input->sigma*Input->sigma*Input->sigma);
                             }
