@@ -19,6 +19,7 @@ CC_FLAGS=-fPIC                       \
 	 -I/usr/include/eigen3       \
 	 -DBUILD=0                   \
 	 -DHAVE_EIGEN                \
+	 -fopenmp                    \
 	 -Wunused-value
 	 
 #Linkage
@@ -30,7 +31,7 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 	 -lnlopt_cxx                 \
 	 -lgsl                       \
 	 -lgslcblas                  \
-	 -lm 
+	 -lm
 
 
 #Command to clean target
