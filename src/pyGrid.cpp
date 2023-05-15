@@ -351,8 +351,6 @@ void Grid::compute_grid_softcore_HB_omp(Mol2* Rec){
         double HB_C10=18393.199;
 
         // initializing the vectors;
-        // TODO try this:
-        //this->elec_grid.resize(npointsx, vector<vector<double>>(npointsy, vector<double>(npointsz)));
 
         for (int i=0; i<this->npointsy; i++){
             elec_t2.push_back(elec_t1);
@@ -379,7 +377,7 @@ void Grid::compute_grid_softcore_HB_omp(Mol2* Rec){
         {
 #pragma omp for schedule(static, 1)
             for(int a=0; a< this->npointsx; a++){
-                double x = (a*this->grid_spacing) + this->xbegin;
+                double x = (a*grid_spacing) + this->xbegin;
 
                 for (int b=0; b< this->npointsy; b++){
                     double y = (b*this->grid_spacing) + this->ybegin;
