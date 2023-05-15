@@ -2219,6 +2219,10 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def(vector_indexing_suite<vector<string> >())
     ;
     
+        class_< vector<vector<int> > >("vectorvectorInt")
+        .def(vector_indexing_suite<vector<string> >())
+    ;
+    
     class_<Mol2>("Mol2", init< >())
         .def(init<PARSER*, string>())
         .def_readwrite("N", & Mol2::N)
