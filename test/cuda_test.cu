@@ -40,3 +40,5 @@ int main(void)
   free(x);
   free(y);
 }
+
+//nvcc -o saxpy saxpy.cu
