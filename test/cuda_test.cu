@@ -1,14 +1,13 @@
 #include <stdio.h>
+#include "cuda_test.cuh"
 
 __global__
-void saxpy(int n, float a, float *x, float *y)
-{
+void saxpy(int n, float a, float *x, float *y) {
   int i = blockIdx.x*blockDim.x + threadIdx.x;
   if (i < n) y[i] = a*x[i] + y[i];
 }
 
-int main(void)
-{
+void execution(){
   int N = 1<<20;
   float *x, *y, *d_x, *d_y;
   x = (float*)malloc(N*sizeof(float));
@@ -41,4 +40,9 @@ int main(void)
   free(y);
 }
 
-//nvcc -o saxpy saxpy.cu
+int main(void)
+{
+  execution();
+}
+
+//nvcc -o test_cuda test_cuda.cu
