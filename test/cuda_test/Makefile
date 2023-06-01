@@ -4,24 +4,34 @@ CPP_FILES= *.cpp
 
 OBJS= *.o
 
-EXEC= exec
+PYTHON_FILE = *.py
 
-# CUDA_FLAGS= -L/usr/local/cuda/lib64 -lcudart
+EXEC= cudaTest
+
+CUDA_FLAGS= -L/usr/local/cuda/lib64 -lcudart
+#NVCC= ~/miniconda3/bin/nvcc
 
 BOOST_FLAGS = -lboost_python38 
+# BOOST_FLAGS = -lboost_python39 -L ~/miniconda3/lib 
+			  
+
+#PYTHON_INCLUDE= -I ~/miniconda3/include/python3.9
 
 PYTHON_INCLUDE= -I /usr/include/python3.8
 
-all: cuda cpp link
+all: cuda cpp linknvcc
+
+python: 
+	@python3.8 $(PYTHON_FILE)
 
 cuda: 
-	@ nvcc -c $(CUDA_FILES)
+	@ nvcc --compiler-options '-fPIC' -I /usr/local/cuda/include -c $(CUDA_FILES)
 
 cpp: 
-	@ g++ -c $(PYTHON_INCLUDE) $(CPP_FILES)
+	@ g++ -fPIC -c $(PYTHON_INCLUDE) $(CPP_FILES)
 
 linknvcc: 
-	@ nvcc -o $(EXEC) $(OBJS) $(BOOST_FLAGS) 
+	@ nvcc --shared $(OBJS) -o $(EXEC).so $(BOOST_FLAGS) $(CUDA_FLAGS)
 
 linkg++:
 	@ g++ -o $(EXEC) $(OBJS) $(BOOST_FLAGS) 
@@ -34,5 +44,6 @@ run:
 
 clear: 
 	@ rm -f *.o
+	@ rm -f *.so
 	@ rm -f $(EXEC)
 

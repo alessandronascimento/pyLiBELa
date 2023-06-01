@@ -1,8 +1,8 @@
 #include "cudaTest.cuh"
 
-void cudaWrapper(){
-  execution();
-}
+// void cudaWrapper(){
+//   execution();
+// }
 
 // int main() {
 //   execution();
@@ -13,6 +13,6 @@ void cudaWrapper(){
 
 BOOST_PYTHON_MODULE(cudaTest) {
   using namespace boost::python;
-  def("cudaTest", cudaWrapper);
+  def("execution", execution);
 }
 

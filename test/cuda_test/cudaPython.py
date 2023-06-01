@@ -1,3 +1,3 @@
-import test
+from cudaTest import *
 
-test.cudaTest()
+print(execution())
