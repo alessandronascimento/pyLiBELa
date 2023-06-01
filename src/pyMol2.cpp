@@ -2219,6 +2219,10 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def(vector_indexing_suite<vector<string> >())
     ;
     
+        class_< vector<vector<int> > >("vectorvectorInt")
+        .def(vector_indexing_suite<vector<vector<int> > >())
+    ;
+    
     class_<Mol2>("Mol2", init< >())
         .def(init<PARSER*, string>())
         .def_readwrite("N", & Mol2::N)
@@ -2236,7 +2240,7 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("opt_overlay_xyz", & Mol2::opt_overlay_xyz)
         .def_readwrite("opt_energy_xyz", & Mol2::opt_energy_xyz)
         .def_readwrite("epsilons", & Mol2::epsilons)
-        .def_readwrite("epsilons", & Mol2::epsilons_sqrt)
+        .def_readwrite("epsilons_sqrt", & Mol2::epsilons_sqrt)
         .def_readwrite("radii", & Mol2::radii)
         .def_readwrite("str", & Mol2::str)
         .def_readwrite("resnames", & Mol2::resnames)
