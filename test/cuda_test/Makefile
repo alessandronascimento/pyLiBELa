@@ -11,21 +11,33 @@ EXEC= cudaTest
 CUDA_FLAGS= -L/usr/local/cuda/lib64 -lcudart
 #NVCC= ~/miniconda3/bin/nvcc
 
-BOOST_FLAGS = -lboost_python38 
-# BOOST_FLAGS = -lboost_python39 -L ~/miniconda3/lib 
-			  
+#BOOST_FLAGS = -lboost_python38 
+BOOST_FLAGS = -lboost_python310 
 
 #PYTHON_INCLUDE= -I ~/miniconda3/include/python3.9
 
-PYTHON_INCLUDE= -I /usr/include/python3.8
+#PYTHON_INCLUDE= -I /usr/include/python3.8
+PYTHON_INCLUDE= -I /usr/include/python3.10
+
+LIBS = -I/usr/local/include/python3.10 \
+	 -I/usr/include/openbabel3   \
+	 -I/usr/include/eigen3       \
+	 -DBUILD=0                   \
+	 -DHAVE_EIGEN              	 \
+	 # --expt-relaxed-constexpr
+	 
 
 all: cuda cpp linknvcc
 
 python: 
-	@python3.8 $(PYTHON_FILE)
+	@python3.10 $(PYTHON_FILE)
 
 cuda: 
 	@ nvcc --compiler-options '-fPIC' -I /usr/local/cuda/include -c $(CUDA_FILES)
+
+
+grid:
+	@ nvcc -o cudaGrid cudaGrid.cu $(LIBS)
 
 cpp: 
 	@ g++ -fPIC -c $(PYTHON_INCLUDE) $(CPP_FILES)

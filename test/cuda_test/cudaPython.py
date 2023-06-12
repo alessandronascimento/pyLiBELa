@@ -1,3 +1,3 @@
 from cudaTest import *
 
-print(execution())
+execution()
