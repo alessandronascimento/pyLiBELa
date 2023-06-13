@@ -1,6 +1,7 @@
 #include "math.h"
 #include <stdio.h>
 #include <vector>
+#include "../../src/pyGrid.h"
 #include "../../src/pyMol2.h"
 
 #define HB_C12 55332.873 
@@ -8,9 +9,10 @@
 
 // Will interpret the dielectric_model attribute as int because 
 // string handling through the kernel may not be straight forward
-typedef enum e_DieletricModel {
+typedef enum class e_DieletricModel {
     Constant,
-    Four_r
+    Four_r,
+    None
 } DieletricModel;
 
 __device__ double distance_squared(double x1, double x2, 
@@ -40,19 +42,19 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
                                 double solvation_alpha, double solvation_beta,
                                 double sigma, double diel,
                                 int N,
-                                double** xyz,
+                                int xyz_w, double* xyz, //
                                 double* charges,
                                 double* radii,
                                 double* epsilons_sqrt,
                                 int* HBacceptors,
-                                int** HBdonors,
-                                double*** out_elec_grid,
-                                double*** out_vdwA_grid,
-                                double*** out_vdwB_grid,
-                                double*** out_solv_gauss,
-                                double*** out_rec_solv_gauss,
-                                double*** out_hb_donor_grid,
-                                double*** out_hb_acceptor_grid,
+                                int HBdonors_w, int* HBdonors, //
+                                double* out_elec_grid,
+                                double* out_vdwA_grid,
+                                double* out_vdwB_grid,
+                                double* out_solv_gauss,
+                                double* out_rec_solv_gauss,
+                                double* out_hb_donor_grid,
+                                double* out_hb_acceptor_grid,
                                 int* out_rec_si) {
 
 
@@ -74,7 +76,7 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
         
         for (int a = 0; a < N; a++) 
         {
-            double d2 = distance_squared(x, xyz[a][0], y, xyz[a][1], z, xyz[a][2]);
+            double d2 = distance_squared(x, xyz[a*xyz_w + 0], y, xyz[a*xyz_w + 1], z, xyz[a*xyz_w + 2]);
             double d6 = d2*d2*d2;
             double denom = 0.0;
 
@@ -104,32 +106,34 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
         }
 
         double hb_donor = 0;
-        double hb_acceptor = 0;
 
         for (int m = 0; m < sizeof(HBdonors)/sizeof(HBdonors[0]); m++)
         {
-            double d2 = distance_squared(xyz[HBdonors[m][1]][0], x, xyz[HBdonors[m][1]][0], y, xyz[HBdonors[m][1]][0], z);
+            double HB0 = HBdonors[m * HBdonors_w + 0];
+            double HB1 = HBdonors[m * HBdonors_w + 1];
+
+            double d2 = distance_squared(xyz[HB1*xyz_w + 0], x, xyz[HB1*xyz_w + 0], y, xyz[HB1*xyz_w + 0], z);
             double d10 = d2*d2*d2*d2*d2;
-            double ang = angle(xyz[HBdonors[m][0]][0], xyz[HBdonors[m][0]][1], xyz[HBdonors[m][0]][2],
-                      xyz[HBdonors[m][1]][0], xyz[HBdonors[m][1]][1], xyz[HBdonors[m][1]][2], x, y, z);
+            double ang = angle(xyz[HB0*xyz_w + 0], xyz[HB0*xyz_w + 1], xyz[HB0*xyz_w + 2],
+                      xyz[HB1*xyz_w + 0], xyz[HB1*xyz_w + 1], xyz[HB1*xyz_w + 2], x, y, z);
             double angle_term = (pow(cos(ang * M_PI / 180.0), 4.0));
             hb_donor += (HB_C12/(d10*d2)) - (HB_C10/d10);
         }
 
-        for (int n = 0 ; n < sizeof(HBacceptors)/sizeof(HBacceptors[0]) ; n++)
+        double hb_acceptor = 0;
         {
-           double d2 = distance_squared(xyz[HBacceptors[n]][0], x, xyz[HBacceptors[n]][1], y, xyz[HBacceptors[n]][2], z);
+           double d2 = distance_squared(xyz[HBacceptors[n]*xyz_w + 0], x, xyz[HBacceptors[n]*xyz_w + 1], y, xyz[HBacceptors[n]*xyz_w + 2], z);
            double d10 = pow(d2, 5.0);
            hb_acceptor += (HB_C12/(d10*d2)) - (HB_C10/d10);
         }
 
-        out_elec_grid[i][j][k] = elec;
-        out_vdwA_grid[i][j][k] = vdwA;
-        out_vdwB_grid[i][j][k] = vdwB;
-        out_solv_gauss[i][j][k] = solv;
-        out_rec_solv_gauss[i][j][k] = rec_solv;
-        out_hb_donor_grid[i][j][k] = hb_donor;
-        out_hb_acceptor_grid[i][j][k] = hb_acceptor;
+        out_elec_grid[(i * npointsx + j) * npointsy + k] = elec;
+        out_vdwA_grid[(i * npointsx + j) * npointsy + k] = vdwA;
+        out_vdwB_grid[(i * npointsx + j) * npointsy + k] = vdwB;
+        out_solv_gauss[(i * npointsx + j) * npointsy + k] = solv;
+        out_rec_solv_gauss[(i * npointsx + j) * npointsy + k] = rec_solv;
+        out_hb_donor_grid[(i * npointsx + j) * npointsy + k] = hb_donor;
+        out_hb_acceptor_grid[(i * npointsx + j) * npointsy + k] = hb_acceptor;
     }
 
     out_rec_si[0] = 0.0;
@@ -139,14 +143,100 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
     }
 }
 
-//TODO: talvez tenha uma forma direta de fazer isso com C++ 
-void invoke_compute_grid_softcore_HB_omp() {
+void invoke_compute_grid_softcore_HB_omp(const Grid& grid, const Mol2& rec) {
 
+   double* d_xyz, d_charges, d_radii, d_epsilons_sqrt; 
+   int* d_HBacceptors, d_HBdonors;
+
+   double* out_elec_grid, out_vdwA_grid, out_vdwB_grid, out_solv_gauss, out_rec_solv_gauss, out_hb_donor_grid, out_hb_acceptor_grid;
+   int* out_rec_si;
+
+   cudaMalloc(&d_xyz, rec.xyz.size() * rec.xyz[0].size() * sizeof(double));
+   cudaMalloc(&d_charges, rec.charges.size() * sizeof(double));
+   cudaMalloc(&d_radii, rec.radii.size() * sizeof(double));
+   cudaMalloc(&d_epsilons_sqrt, rec.epsilons_sqrt.size() * sizeof(double));
+
+   cudaMalloc(&d_HBdonors, rec.HBdonors.size() * rec.HBdonors[0]*size() * sizeof(int));
+   cudaMalloc(&d_HBacceptors, rec.HBacceptors.size() * sizeof(int));
+
+   size_t size {(grid.npointsx * grid.npointsy * grid.npointsz) * sizeof(double)};
+   cudaMalloc(&out_rec_si, size);
+   cudaMalloc(&out_vdwA_grid, size);
+   cudaMalloc(&out_vdwB_grid, size);
+   cudaMalloc(&out_solv_gauss, size);
+   cudaMalloc(&out_rec_solv_gauss, size);
+   cudaMalloc(&out_hb_donor_grid, size);
+   cudaMalloc(&out_hb_acceptor_grid, size);
+
+   cudaMalloc(&out_rec_si, 1 * sizeof(int));
+
+   //FIXME: possível memory error
+   cudaMemcpy(rec.xyz.data(), d_xyz, rec.xyz.size() * rec.xyz[0].size() * sizeof(double), cudaMemcpyHostToDevice);
+   cudaMemcpy(rec.charges.data(), d_charges, rec.charges.size() * sizeof(double), cudaMemcpyHostToDevice);
+   cudaMemcpy(rec.radii.data(), d_radii, rec.radii.size() * sizeof(double), cudaMemcpyHostToDevice);
+   cudaMemcpy(rec.epsilons_sqrt.data(), d_epsilons_sqrt, rec.epsilons_sqrt.size() * sizeof(double, cudaMemcpyHostToDevice));
+
+   cudaMemcpy(rec.HBacceptors.data(), d_HBacceptors, rec.HBacceptors.size() * sizeof(int), cudaMemcpyHostToDevice);
+   cudaMemcpy(rec.HBdonors.data(), d_HBdonors, rec.HBdonors.size() * rec.HBdonors[0].size() * sizeof(int), cudaMemcpyHostToDevice);
+
+   DieletricModel dieletric_model{};
+
+   switch (grid.Input->dielectric_model)
+   {
+   case "constant":
+      dieletric_model = DieletricModel::Constant;
+      break;
+   
+   default:
+      dieletric_model = DieletricModel::None;
+   }
+
+   //TODO: ver melhor estes parâmetros de launch
+   compute_grid_softcore_HB_omp<<<(size+255)/256, 256>>>(grid.npointsx, grid.npointsy, grid.npointsz,
+                                                         grid.grid_spacing,
+                                                         grid.xbegin, grid.ybegin, grid.zbegin,
+                                                         dieletric_model,
+                                                         grid.Input->deltaij_es6, grid.Input->deltaij6,
+                                                         grid.Input->solvation_alpha, grid.Input->solvation_beta,
+                                                         grid.Input->sigma, grid.Input->diel,
+                                                         rec.N,
+                                                         rec.xyz[0].size(), d_xyz,//FIXME: pode ser o shape errado 
+                                                         d_charges,
+                                                         d_radii,
+                                                         d_epsilons_sqrt,
+                                                         d_HBacceptors,
+                                                         rec.HBdonors[0].size(), d_HBdonors,
+                                                         out_elec_grid,
+                                                         out_vdwA_grid,
+                                                         out_vdwB_grid,
+                                                         out_solv_gauss,
+                                                         out_rec_solv_gauss,
+                                                         out_hb_donor_grid,
+                                                         out_hb_acceptor_grid,
+                                                         out_rec_si)   
+
+   //TODO: verificar como funciona. Se for move semantics, checar se é memory safe
+   
+
+
+   cudaFree();
+   cudaFree();
+   cudaFree();
+   cudaFree();
+   cudaFree();
+   cudaFree();
+   cudaFree();
+   cudaFree();
+   cudaFree();
+   cudaFree();
+   cudaFree();
+   cudaFree();
+   
 }
 
 class Bar{
 public:
-    std::vector<int> val{3, 10};
+    std::vector<int> val(3, 10);
     Bar() = default;
 };
 

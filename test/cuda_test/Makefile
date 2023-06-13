@@ -1,5 +1,3 @@
-CUDA_FILES= *.cu
-
 CPP_FILES= *.cpp
 
 OBJS= *.o
@@ -33,7 +31,7 @@ python:
 	@python3.10 $(PYTHON_FILE)
 
 cuda: 
-	@ nvcc --compiler-options '-fPIC' -I /usr/local/cuda/include -c $(CUDA_FILES)
+	@ nvcc --compiler-options '-fPIC' -I /usr/local/cuda/include -c cudaTest.cu
 
 
 grid:

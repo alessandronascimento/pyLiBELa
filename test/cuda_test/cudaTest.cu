@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "cudaTest.cuh"
+#include <vector>
+#include <thrust/device_vector.h>
 
 __global__
 void saxpy(int n, float a, float *x, float *y) {
@@ -9,9 +11,9 @@ void saxpy(int n, float a, float *x, float *y) {
 
 void execution(){
   int N = 1<<20;
-  float *x, *y, *d_x, *d_y;
+  float *x, *d_x, *d_y;
   x = (float*)malloc(N*sizeof(float));
-  y = (float*)malloc(N*sizeof(float));
+  std::vector<float> y (N);
 
   cudaMalloc(&d_x, N*sizeof(float)); 
   cudaMalloc(&d_y, N*sizeof(float));
@@ -22,12 +24,12 @@ void execution(){
   }
 
   cudaMemcpy(d_x, x, N*sizeof(float), cudaMemcpyHostToDevice);
-  cudaMemcpy(d_y, y, N*sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_y, y.data(), N*sizeof(float), cudaMemcpyHostToDevice);
 
   // Perform SAXPY on 1M elements
   saxpy<<<(N+255)/256, 256>>>(N, 2.0f, d_x, d_y);
 
-  cudaMemcpy(y, d_y, N*sizeof(float), cudaMemcpyDeviceToHost);
+  cudaMemcpy(y.data(), d_y, N*sizeof(float), cudaMemcpyDeviceToHost);
 
   float maxError = 0.0f;
   for (int i = 0; i < N; i++)
@@ -37,6 +39,6 @@ void execution(){
   cudaFree(d_x);
   cudaFree(d_y);
   free(x);
-  free(y);
+  y.clear(); 
 }
 
