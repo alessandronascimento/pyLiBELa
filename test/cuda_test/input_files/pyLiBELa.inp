@@ -1,0 +1,107 @@
+
+# mode
+
+mode			mcr
+dock_parallel          	yes
+parallel_jobs		8
+
+#
+# input files
+#
+
+rec_mol2                ./184L_DOCKPREP.mol2.gz
+lig_mol2                ./184L_LIG_DOCKPREP.mol2.gz
+reflig_mol2		./184L_LIG_DOCKPREP.mol2.gz
+multifile               multimol.dat
+
+#
+# force field parameters
+#
+
+deltaij			2.5
+deltaij_es		2.5
+mol2_aa			no
+search_box		45.0 45.0 45.0
+scoring_function        0
+use_grids		yes
+grid_spacing            0.4
+grid_box                20.0    20.0    20.0    
+load_grids		./McGrid
+solvation_alpha		0.1
+dielectric_model	r
+diel			2.0
+ligand_energy_model	GAFF
+atomic_model_ff		AMBER
+LJ_sigma		1.2
+
+#
+# PBSA Parameter
+#
+use_pbsa                no
+use_delphi		no
+
+#
+# Optimization
+#
+
+timeout                 120
+minimization_tolerance  1.0e-10
+minimization_delta      1.0e-5
+dock_min_tol            1.0e-10
+minimization_timeout    120
+sort_by_energy		yes
+overlay_optimizer       ln_auglag
+energy_optimizer      	direct
+ignore_h                no
+deal                    no
+elec_scale		1.0
+vdw_scale		1.0
+
+#
+# MC Options
+#
+nsteps				20000000
+temperature			300.0
+cushion				0.5
+max_atom_displacement		0.035
+rotation_step			1.25
+torsion_step			1.25
+sample_torsions			yes
+mc_full_flex			no
+compute_rotation_entropy	no
+equilibration_steps		1000000
+ligand_simulation		yes
+mc_stride			50000
+seed 				3112
+#entropy_rotation_bins		720
+#entropy_translation_bins	20
+
+#
+# SA Options
+#
+sa_start_temp		100.0
+sa_steps		10000
+sa_mu_t			1.1
+
+#
+# MCR Options
+#
+
+mcr_size                12
+mcr_coefficients        1.5 1.5 2.0 2.0 2.0 4.0 8.0 16.0 32.0 64.0 128.0 256.0
+
+#
+# output
+#
+
+output_prefix		184L_SF0_1
+write_mol2		yes
+
+#
+# flexible ligands
+#
+
+generate_conformers	no
+number_of_conformers	10
+conformers_to_rank	1
+conformer_min_steps	1000

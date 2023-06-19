@@ -35,7 +35,7 @@ cuda:
 
 
 grid:
-	@ nvcc -o cudaGrid cudaGrid.cu $(LIBS)
+	@ nvcc -c cudaGrid.o cudaGrid.cu $(LIBS)
 
 cpp: 
 	@ g++ -fPIC -c $(PYTHON_INCLUDE) $(CPP_FILES)

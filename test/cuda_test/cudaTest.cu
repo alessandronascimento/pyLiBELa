@@ -38,7 +38,7 @@ void execution(){
 
   cudaFree(d_x);
   cudaFree(d_y);
-  free(x);
+  delete(x);
   y.clear(); 
 }
 
