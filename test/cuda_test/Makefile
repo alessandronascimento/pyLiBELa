@@ -52,7 +52,7 @@ linkg++:
 run: 
 	@./$(EXEC)
 
-clear: 
+clean: 
 	@ rm -f *.o
 	@ rm -f *.so
 	@ rm -f $(EXEC)

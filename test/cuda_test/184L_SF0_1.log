@@ -1,0 +1,41 @@
+****************************************************************************************************
+****************************************************************************************************
+*                  MCLiBELa - Monte Carlo-based Ligand Binding Energy Landscape                    *
+*                                      Version 1.0  - Build     0                                  *
+*                                                                                                  *
+* University of Sao Paulo                                                                          *
+* More Info:                                                                                       *
+*      http://www.biotechmol.ifsc.usp.br                                                           *
+*                                                                                                  *
+****************************************************************************************************
+****************************************************************************************************
+*                                                                                                  *
+* dock_parallel                  0                                                                 *
+*                                                                                                  *
+* rec_mol2                       /home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/*
+* lig_mol2                       /home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/*
+* reflig_mol2                    /home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/*
+* multifile                      multimol.dat                                                      *
+* mol2_aa                        0                                                                 *
+*                                                                                                  *
+* scoring function               Amber Softcore + Dessolvation                                     *
+* deltaij6                       244.14                                                            *
+* deltaij_es6                    244.14                                                            *
+* Electrostatic model            Coulomb                                                           *
+* dielectric_model               r                                                                 *
+* diel                           2.000                                                             *
+* sigma                          3.500                                                             *
+* solvation_alpha                0.100                                                             *
+* solvation_beta                 -0.005                                                            *
+* use grids?                     1                                                                 *
+* grid spacing                   0.40                                                              *
+* grid box                       20.00                 20.00                 20.00                 *
+* write grids                    ./McGrid                                                          *
+*                                                                                                  *
+* only_score                     0                                                                 *
+* use_score_optimization         0                                                                 *
+* search_box                     45.00                 45.00                 45.00                 *
+* minimization_tolerance         0.0000000001                                                      *
+* minimization_delta             0.0000100000                                                      *
+* dock_min_tol                   0.0000000001                                                      *
+* minimization_timeout           120                    

@@ -2,16 +2,21 @@
 # mode
 
 mode			mcr
-dock_parallel          	yes
+dock_parallel          no	
 parallel_jobs		8
 
 #
 # input files
 #
 
-rec_mol2                ./184L_DOCKPREP.mol2.gz
-lig_mol2                ./184L_LIG_DOCKPREP.mol2.gz
-reflig_mol2		./184L_LIG_DOCKPREP.mol2.gz
+#rec_mol2                ./184L_DOCKPREP.mol2.gz
+#lig_mol2                ./184L_LIG_DOCKPREP.mol2.gz
+#reflig_mol2		./184L_LIG_DOCKPREP.mol2.gz
+#multifile               multimol.dat
+
+rec_mol2                /home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/184L_DOCKPREP.mol2.gz
+lig_mol2                /home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/184L_LIG_DOCKPREP.mol2.gz
+reflig_mol2		/home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/184L_LIG_DOCKPREP.mol2.gz
 multifile               multimol.dat
 
 #

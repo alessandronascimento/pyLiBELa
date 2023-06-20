@@ -70,7 +70,8 @@ int main(int argc, char* argv[]){
 
         Writer->write_box(com, Grids->xbegin, Grids->ybegin, Grids->zbegin, Grids->xend, Grids->yend, Grids->zend);
 
-        printf("Now invoking kernel:\n");
+        Grids->compute_grid_hardcore_HB_omp(Rec); 
+        printf("\nNow invoking kernel:\n");
         invoke_compute_grid_softcore_HB_omp(Grids, Rec);
 
         delete Rec;

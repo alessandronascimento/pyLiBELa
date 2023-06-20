@@ -1,19 +1,22 @@
 #include "math.h"
 #include <iostream>
 #include <vector>
+#include <cmath>
+#include <cassert>
 #include "../../src/pyGrid.h"
 #include "../../src/pyMol2.h"
 
 
-static void HandleError( cudaError_t err,
-                         const char *file,
-                         int line ) {
-    if (err != cudaSuccess) {
-        printf( "%s in %s at line %d\n", cudaGetErrorString( err ),
-                file, line );
-        exit( EXIT_FAILURE );
-    }
-}
+// static void HandleError( cudaError_t err,
+//                          const char *file,
+//                          int line ) {
+//     if (err != cudaSuccess) {
+//         printf( "%s in %s at line %d\n", cudaGetErrorString( err ),
+//                 file, line );
+//         exit( EXIT_FAILURE );
+//     }
+// }
+
 #define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
 
 #define HB_C12 55332.873 
@@ -53,7 +56,7 @@ void print_values_3D(const T* array, size_t size_x, size_t size_y, size_t size_z
       {
          for (int k = 0 ; k < size_z ; k++)
          {
-            printf("%.4f\t", static_cast<float>(array[(i * size_x + j) * size_y + k]));
+            printf("%.4lf\t", static_cast<float>(array[(i * size_x + j) * size_y + k]));
          }
       }
       printf("\n");
@@ -61,6 +64,49 @@ void print_values_3D(const T* array, size_t size_x, size_t size_y, size_t size_z
    printf("\n");
 }
 
+void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, double* arr) {
+
+   size_t x {vec.size()};
+   size_t y {vec[0].size()};
+   size_t z {vec[0][0].size()};
+   
+   double diff{};
+   double max{0};
+   double sum{};
+   int count{};
+   int original_anormal{};
+   int new_anormal{};
+   int lin_index{};
+   for (int i = 0 ; i < x ; i++)
+   {
+      for (int j = 0 ; j < y ; j++)
+      {
+         for (int k = 0 ; k < z ; k++)
+         {
+            lin_index = (i * z + j) * y + k;
+            // assert((lin_index < sizeof(arr)/sizeof(double)));
+            
+            if (!std::isfinite(vec[i][j][k]))
+            {
+               original_anormal++;
+               continue;
+            }
+            if (!std::isfinite(arr[lin_index]))
+            {
+               new_anormal++;
+               continue;
+            }
+            diff = abs(vec[i][j][k] - arr[lin_index]);
+            sum += diff;
+            if (diff > max)
+               max = diff;
+            count++;
+         }
+      }
+   }
+   printf("Avg: %lf\nMax diff: %lf\nInfs or NaNs in original: %d\nInfs or Nans in new: %d\n",
+         sum/count, max, original_anormal, new_anormal);
+}
 __global__
 void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
                                 double grid_spacing, 
@@ -85,13 +131,16 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
                                 double* out_hb_acceptor_grid,
                                 int* out_rec_si) {
 
-
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
     int k = threadIdx.z + blockIdx.z * blockDim.z;
 
-    if (i < npointsx && j < npointsy && k < npointsz)
-    {
+    int I = 0;
+    int J = 0;
+    int K = 0;
+
+   if (i < npointsx && j < npointsy && k < npointsz)
+   {
         double x = i*grid_spacing + xbegin;
         double y = j*grid_spacing + ybegin;
         double z = k*grid_spacing + zbegin;
@@ -148,6 +197,7 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
             hb_donor += (HB_C12/(d10*d2)) - (HB_C10/d10);
         }
 
+
         double hb_acceptor = 0;
         for (int n = 0 ; n < HBacceptors_size ; n++)
         {
@@ -172,32 +222,33 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
     }
 }
 
-void invoke_compute_grid_softcore_HB_omp(const Grid* grid, const Mol2* rec) {
+void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
 
    double *d_xyz, *d_charges, *d_radii, *d_epsilons_sqrt; 
    int *d_hbacceptors, *d_hbdonors;
 
-   double *out_elec_grid, *out_vdwa_grid, *out_vdwb_grid, *out_solv_gauss, *out_rec_solv_gauss, *out_hb_donor_grid, *out_hb_acceptor_grid;
-   int *out_rec_si;
+   double *d_out_elec_grid, *d_out_vdwa_grid, *d_out_vdwb_grid, *d_out_solv_gauss, *d_out_rec_solv_gauss, *d_out_hb_donor_grid, *d_out_hb_acceptor_grid;
+   int *d_out_rec_si;
 
-   HANDLE_ERROR(cudaMalloc(&d_xyz, rec->xyz.size() * rec->xyz[0].size() * sizeof(double)));
-   HANDLE_ERROR(cudaMalloc(&d_charges, rec->charges.size() * sizeof(double)));
-   HANDLE_ERROR(cudaMalloc(&d_radii, rec->radii.size() * sizeof(double)));
-   HANDLE_ERROR(cudaMalloc(&d_epsilons_sqrt, rec->epsilons_sqrt.size() * sizeof(double)));
+   cudaMalloc(&d_xyz, rec->xyz.size() * rec->xyz[0].size() * sizeof(double));
+   cudaMalloc(&d_charges, rec->charges.size() * sizeof(double));
+   cudaMalloc(&d_radii, rec->radii.size() * sizeof(double));
+   cudaMalloc(&d_epsilons_sqrt, rec->epsilons_sqrt.size() * sizeof(double));
 
-   HANDLE_ERROR(cudaMalloc(&d_hbdonors, rec->HBdonors.size() * rec->HBdonors[0].size() * sizeof(int)));
-   HANDLE_ERROR(cudaMalloc(&d_hbacceptors, rec->HBacceptors.size() * sizeof(int)));
+   cudaMalloc(&d_hbdonors, rec->HBdonors.size() * rec->HBdonors[0].size() * sizeof(int));
+   cudaMalloc(&d_hbacceptors, rec->HBacceptors.size() * sizeof(int));
 
-   size_t size {(grid->npointsx * grid->npointsy * grid->npointsz) * sizeof(double)};
-   HANDLE_ERROR(cudaMalloc(&out_elec_grid, size));
-   HANDLE_ERROR(cudaMalloc(&out_vdwa_grid, size));
-   HANDLE_ERROR(cudaMalloc(&out_vdwb_grid, size));
-   HANDLE_ERROR(cudaMalloc(&out_solv_gauss, size));
-   HANDLE_ERROR(cudaMalloc(&out_rec_solv_gauss, size));
-   HANDLE_ERROR(cudaMalloc(&out_hb_donor_grid, size));
-   HANDLE_ERROR(cudaMalloc(&out_hb_acceptor_grid, size));
+   size_t size_bytes {(grid->npointsx * grid->npointsy * grid->npointsz) * sizeof(double)};
+   
+   cudaMalloc(&d_out_elec_grid, size_bytes);
+   cudaMalloc(&d_out_vdwa_grid, size_bytes);
+   cudaMalloc(&d_out_vdwb_grid, size_bytes);
+   cudaMalloc(&d_out_solv_gauss, size_bytes);
+   cudaMalloc(&d_out_rec_solv_gauss, size_bytes);
+   cudaMalloc(&d_out_hb_donor_grid, size_bytes);
+   cudaMalloc(&d_out_hb_acceptor_grid, size_bytes);
 
-   cudaMalloc(&out_rec_si, 1 * sizeof(int));
+   cudaMalloc(&d_out_rec_si, 1 * sizeof(int));
 
    //Deep copying C++ vectors into linearized arrays
    //TODO: xyz.size() vem antes de xyz[0].size() mesmo?
@@ -219,24 +270,35 @@ void invoke_compute_grid_softcore_HB_omp(const Grid* grid, const Mol2* rec) {
       }
    } 
 
-   //FIXME: possível memory error
+
+   //Guarantee that size matches the vector' capacity
+   rec->charges.shrink_to_fit();
+   rec->radii.shrink_to_fit();
+   rec->epsilons_sqrt.shrink_to_fit();
+   rec->HBacceptors.shrink_to_fit();
+
    cudaMemcpy(d_xyz, xyz_arr, rec->xyz.size() * rec->xyz[0].size() * sizeof(double), cudaMemcpyHostToDevice);
    cudaMemcpy(d_charges, rec->charges.data(), rec->charges.size() * sizeof(double), cudaMemcpyHostToDevice);
    cudaMemcpy(d_radii, rec->radii.data(), rec->radii.size() * sizeof(double), cudaMemcpyHostToDevice);
    cudaMemcpy(d_epsilons_sqrt, rec->epsilons_sqrt.data(), rec->epsilons_sqrt.size() * sizeof(double), cudaMemcpyHostToDevice);
-
    cudaMemcpy(d_hbacceptors, rec->HBacceptors.data(), rec->HBacceptors.size() * sizeof(int), cudaMemcpyHostToDevice);
    cudaMemcpy(d_hbdonors, HBdonors_arr, rec->HBdonors.size() * rec->HBdonors[0].size() * sizeof(int), cudaMemcpyHostToDevice);
 
+   
    DieletricModel dieletric_model{};
 
    if (grid->Input->dielectric_model == "constant")
       dieletric_model = DieletricModel::constant;
    else
       dieletric_model = DieletricModel::none;
+    
+      
+   dim3 blockdims(10,10,10);
+   dim3 griddims(3,3,3);
 
+   printf("Entering kernel\n");
    //TODO: ver melhor estes parâmetros de launch
-   compute_grid_softcore_HB_omp<<<(size+255)/256, 256>>>(grid->npointsx, grid->npointsy, grid->npointsz,
+   compute_grid_softcore_HB_omp<<<griddims, blockdims>>>(grid->npointsx, grid->npointsy, grid->npointsz,
                                                          grid->grid_spacing,
                                                          grid->xbegin, grid->ybegin, grid->zbegin,
                                                          dieletric_model,
@@ -250,38 +312,74 @@ void invoke_compute_grid_softcore_HB_omp(const Grid* grid, const Mol2* rec) {
                                                          d_epsilons_sqrt,
                                                          rec->HBacceptors.size(),d_hbacceptors,
                                                          rec->HBdonors[0].size(), d_hbdonors,
-                                                         out_elec_grid,
-                                                         out_vdwa_grid,
-                                                         out_vdwb_grid,
-                                                         out_solv_gauss,
-                                                         out_rec_solv_gauss,
-                                                         out_hb_donor_grid,
-                                                         out_hb_acceptor_grid,
-                                                         out_rec_si);   
+                                                         d_out_elec_grid,
+                                                         d_out_vdwa_grid,
+                                                         d_out_vdwb_grid,
+                                                         d_out_solv_gauss,
+                                                         d_out_rec_solv_gauss,
+                                                         d_out_hb_donor_grid,
+                                                         d_out_hb_acceptor_grid,
+                                                         d_out_rec_si);   
+   printf("Kernel has endend/n");
+   cudaDeviceSynchronize();
 
-   
+   //Só para teste, preferencialmente irá escrever diretamente para o Grid
+   double* out_elec_grid = (double*) malloc(size_bytes);
+   double* out_vdwa_grid = (double*) malloc(size_bytes);
+   double* out_vdwb_grid = (double*) malloc(size_bytes);
+   double* out_solv_gauss = (double*) malloc(size_bytes);
+   double* out_rec_solv_gauss = (double*) malloc(size_bytes);
+   double* out_hb_donor_grid = (double*) malloc(size_bytes);
+   double* out_hb_acceptor_grid = (double*) malloc(size_bytes);
+
+   cudaMemcpy(out_elec_grid, d_out_elec_grid, size_bytes, cudaMemcpyDeviceToHost);
+   cudaMemcpy(out_vdwa_grid, d_out_vdwa_grid, size_bytes, cudaMemcpyDeviceToHost);
+   cudaMemcpy(out_vdwb_grid, d_out_vdwb_grid, size_bytes, cudaMemcpyDeviceToHost);
+   cudaMemcpy(out_solv_gauss, d_out_solv_gauss, size_bytes, cudaMemcpyDeviceToHost);
+   cudaMemcpy(out_rec_solv_gauss, d_out_rec_solv_gauss, size_bytes, cudaMemcpyDeviceToHost);
+   cudaMemcpy(out_hb_donor_grid, d_out_hb_donor_grid, size_bytes, cudaMemcpyDeviceToHost);
+   cudaMemcpy(out_hb_acceptor_grid, d_out_hb_acceptor_grid, size_bytes, cudaMemcpyDeviceToHost);
+
    //TODO: verificar como funciona. se for move semantics, checar se é memory safe
 
-   print_values_3D(out_elec_grid, grid->npointsx, grid->npointsy, grid->npointsz);
-   print_values_3D(out_vdwa_grid, grid->npointsx, grid->npointsy, grid->npointsz);
-   print_values_3D(out_vdwb_grid, grid->npointsx, grid->npointsy, grid->npointsz);
-   print_values_3D(out_solv_gauss, grid->npointsx, grid->npointsy, grid->npointsz);
-   print_values_3D(out_rec_solv_gauss, grid->npointsx, grid->npointsy, grid->npointsz);
-   print_values_3D(out_hb_donor_grid, grid->npointsx, grid->npointsy, grid->npointsz);
-   print_values_3D(out_hb_acceptor_grid, grid->npointsx, grid->npointsy, grid->npointsz);
+   // print_values_3D(out_elec_grid, grid->npointsx, grid->npointsy, grid->npointsz);
+   // print_values_3D(out_vdwa_grid, grid->npointsx, grid->npointsy, grid->npointsz);
+   // print_values_3D(out_vdwb_grid, grid->npointsx, grid->npointsy, grid->npointsz);
+   // print_values_3D(out_solv_gauss, grid->npointsx, grid->npointsy, grid->npointsz);
+   // print_values_3D(out_rec_solv_gauss, grid->npointsx, grid->npointsy, grid->npointsz);
+   // print_values_3D(out_hb_donor_grid, grid->npointsx, grid->npointsy, grid->npointsz);
+   // print_values_3D(out_hb_acceptor_grid, grid->npointsx, grid->npointsy, grid->npointsz);
 
+   print_difference(grid->elec_grid, out_elec_grid);
+   print_difference(grid->vdwA_grid, out_vdwa_grid);
+   print_difference(grid->vdwB_grid, out_vdwb_grid);
+   print_difference(grid->solv_gauss, out_solv_gauss);
+   print_difference(grid->rec_solv_gauss, out_rec_solv_gauss);
+   print_difference(grid->hb_donor_grid, out_hb_donor_grid);
+   print_difference(grid->hb_acceptor_grid, out_hb_acceptor_grid);
+   
+   free(xyz_arr);
+   free(HBdonors_arr);
+
+   free(out_vdwa_grid);
+   free(out_vdwb_grid);
+   free(out_solv_gauss);
+   free(out_hb_donor_grid);
+   free(out_hb_acceptor_grid);
+   
    cudaFree(d_xyz);
    cudaFree(d_charges);
    cudaFree(d_radii);
    cudaFree(d_epsilons_sqrt);
    cudaFree(d_hbdonors);
    cudaFree(d_hbacceptors);
-   cudaFree(out_rec_si);
-   cudaFree(out_vdwa_grid);
-   cudaFree(out_vdwb_grid);
-   cudaFree(out_solv_gauss);
-   cudaFree(out_hb_donor_grid);
-   cudaFree(out_hb_acceptor_grid);
-   cudaFree(out_rec_si);
+   cudaFree(d_out_vdwa_grid);
+   cudaFree(d_out_vdwb_grid);
+   cudaFree(d_out_solv_gauss);
+   cudaFree(d_out_hb_donor_grid);
+   cudaFree(d_out_hb_acceptor_grid);
+   cudaFree(d_out_rec_si);
+
+   printf("Invoking finished\n");
    
 }
