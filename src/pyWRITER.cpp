@@ -725,12 +725,12 @@ BOOST_PYTHON_MODULE(pyWRITER)
     void    (WRITER::*wpdb_1)(vector<vector<double> >, int, vector<string>, double, double, string)  = &WRITER::write_pdb;
     void    (WRITER::*wpdb_2)(Mol2*, vector<vector<double> >, double, double, string)   = &WRITER::write_pdb;
 
-/*
+
     void    (WRITER::*wmol2_1)(Mol2*, vector<vector<double> >, double, double, string)  = &WRITER::writeMol2;
     void    (WRITER::*wmol2_2)(Mol2*, vector<vector<double> >, double, double) = &WRITER::writeMol2;
     void    (WRITER::*wmol2_3)(Mol2*, vector<vector<double> >, energy_result_t*, double) = &WRITER::writeMol2;
     void    (WRITER::*wmol2_4)(Mol2*, vector<vector<double> >, energy_result_t*, double, string)  = &WRITER::writeMol2;
-*/
+
 
 
     class_<WRITER>("WRITER", init<string>())
@@ -750,16 +750,16 @@ BOOST_PYTHON_MODULE(pyWRITER)
         .def("write_pdb", wpdb_1)
         .def("write_pdb", wpdb_2)
 
-//        .def("write_pdb", &WRITER::write_pdb, wpdboverloads())
+ //       .def("write_pdb", &WRITER::write_pdb, wpdboverloads())
 
 
-            /*
+            
         .def("writeMol2", wmol2_1)
         .def("writeMol2", wmol2_2)
         .def("writeMol2", wmol2_3)
         .def("writeMol2", wmol2_4)
 
-*/
+
         .def("writeMol2_Mol_new_xyz", &WRITER::writeMol2_Mol_new_xyz)
         .def("print_info", &WRITER::print_info)
         .def("print_info_no_newline", &WRITER::print_info_no_newline)
