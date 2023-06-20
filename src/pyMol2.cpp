@@ -1766,6 +1766,9 @@ string Mol2::gaff_2_sybyl(string atom){
     else if (atom == "Si"){
         sybyl_atom = "Si";
     }
+    else if (atom =="HO"){
+        sybyl_atom = "H";
+    }
     return(sybyl_atom);
 }
 
