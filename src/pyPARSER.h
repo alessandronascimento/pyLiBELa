@@ -28,6 +28,7 @@ using namespace std;
  * parameters are used in almost every class of the program.
  */
 
+
 class PARSER {
 
 public:
@@ -145,6 +146,10 @@ public:
 	string reflig_mol2;
     //! File with the list of molecules to be docked.
 	string multifile;
+    //! flag to use smiles
+    bool use_smiles;
+    //! File with the list of smiles molecules to be docked.
+    string smiles_multifile;
     /*! Algorithm for overlay optimization. Current options are:
      * lbfgs
      * ln_auglag
@@ -330,6 +335,8 @@ public:
     bool use_overlay_cutoff;
     //! Cutoff value in similatiy index for energy optimization
     double overlay_cutoff;
+    //! Maximal number of atoms allowed for smiles molecules
+    int atom_limit;
 
 #ifdef HAS_GUI
 	QStringList docking_molecules;
