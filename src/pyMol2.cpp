@@ -70,6 +70,7 @@ bool Mol2::parse_smiles(PARSER *Input, string smiles_input, string molname){
         OBAtom *atom;
         vector<int> vtemp(2);
         string sybyl_atom;
+        string sybyl_gaff;
 
         this->N = mol.NumAtoms();
         this->molname = molname;
