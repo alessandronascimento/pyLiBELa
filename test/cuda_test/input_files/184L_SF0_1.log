@@ -29,7 +29,7 @@
 * solvation_beta                 -0.005                                                            *
 * use grids?                     1                                                                 *
 * grid spacing                   0.40                                                              *
-* grid box                       2.00                  2.00                  2.00                  *
+* grid box                       20.00                 20.00                 20.00                 *
 * write grids                    ./McGrid                                                          *
 *                                                                                                  *
 * only_score                     0                                                                 *

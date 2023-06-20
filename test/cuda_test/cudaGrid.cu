@@ -70,10 +70,7 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
    size_t y {vec[0].size()};
    size_t z {vec[0][0].size()};
 
-   size_t test{vec[0][0][0].size()};
-
    printf("x %ld, y %ld, z %ld\n", x, y, z);
-   printf("t %lf\n");
    
    double diff{};
    double max{0};
@@ -82,6 +79,7 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
    int original_anormal{};
    int new_anormal{};
    int lin_index{};
+
    for (int i = 0 ; i < x ; i++)
    {
       for (int j = 0 ; j < y ; j++)
@@ -90,7 +88,6 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
          {
             lin_index = (i * z + j) * y + k;
             //printf("index %d\n", lin_index);
-            
             if (!std::isfinite(vec[i][j][k]))
             {
                original_anormal++;
@@ -109,7 +106,7 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
          }
       }
    }
-   printf("Avg: %lf\nMax diff: %lf\nInfs or NaNs in original: %d\nInfs or Nans in new: %d\n",
+   printf("Avg: %lf\nMax diff: %lf\nInfs or NaNs in original: %d\nInfs or Nans in new: %d\n\n",
          sum/count, max, original_anormal, new_anormal);
 }
 __global__

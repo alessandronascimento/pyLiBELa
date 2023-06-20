@@ -70,7 +70,16 @@ int main(int argc, char* argv[]){
 
         Writer->write_box(com, Grids->xbegin, Grids->ybegin, Grids->zbegin, Grids->xend, Grids->yend, Grids->zend);
 
-        for (auto i: Grids->elec_grid)
+        Grids->elec_grid.clear();
+        Grids->vdwA_grid.clear();
+        Grids->vdwB_grid.clear();
+        Grids->solv_gauss.clear();
+        Grids->rec_solv_gauss.clear();
+        Grids->hb_donor_grid.clear();
+        Grids->hb_acceptor_grid.clear();
+        Grids->compute_grid_hardcore_HB_omp(Rec); 
+        printf("Grids x y z: %ld %ld %ld\n\n", Grids->elec_grid.size(), Grids->elec_grid[0].size(), Grids->elec_grid[0][0].size());
+        for (auto i: Grids->vdwA_grid)
         {
             for (auto j: i)
             {
@@ -82,7 +91,7 @@ int main(int argc, char* argv[]){
             }
             printf("\n");
         }
-        Grids->compute_grid_hardcore_HB_omp(Rec); 
+        
         printf("\nNow invoking kernel:\n");
         invoke_compute_grid_softcore_HB_omp(Grids, Rec);
 

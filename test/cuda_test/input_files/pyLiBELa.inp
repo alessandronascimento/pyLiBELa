@@ -9,11 +9,6 @@ parallel_jobs		8
 # input files
 #
 
-#rec_mol2                ./184L_DOCKPREP.mol2.gz
-#lig_mol2                ./184L_LIG_DOCKPREP.mol2.gz
-#reflig_mol2		./184L_LIG_DOCKPREP.mol2.gz
-#multifile               multimol.dat
-
 rec_mol2                /home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/184L_DOCKPREP.mol2.gz
 lig_mol2                /home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/184L_LIG_DOCKPREP.mol2.gz
 reflig_mol2		/home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/184L_LIG_DOCKPREP.mol2.gz
@@ -30,7 +25,7 @@ search_box		45.0 45.0 45.0
 scoring_function        0
 use_grids		yes
 grid_spacing            0.4
-grid_box                2.0    2.0    2.0    
+grid_box                20.0    20.0    20.0    
 load_grids		./McGrid
 solvation_alpha		0.1
 dielectric_model	r
