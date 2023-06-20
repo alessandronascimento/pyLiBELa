@@ -375,7 +375,7 @@ void WRITER::write_pdb(Mol2 *Cmol, vector<vector<double> >xyz, double energy, do
 	}
 
 	while (i < Cmol->N){
-		gzprintf(outpdb, "ATOM   %4d  %4s  %3.3s%4d    % 8.3f % 7.3f % 7.3f  0.000  0.00  1\n", i+1, Cmol->sybyl_atoms[i].c_str(), Cmol->resnames[resn].c_str(), resn+1, xyz[i][0], xyz[i][1], xyz[i][2]);
+		gzprintf(outpdb, "ATOMs                %4d  %4s  %3.3s%4d    % 8.3f % 7.3f % 7.3f  0.000  0.00  1\n", i+1, Cmol->sybyl_atoms[i].c_str(), Cmol->resnames[resn].c_str(), resn+1, xyz[i][0], xyz[i][1], xyz[i][2]);
 		i++;
 	}
 	gzprintf(outpdb, "TER\n");
