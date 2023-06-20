@@ -70,6 +70,18 @@ int main(int argc, char* argv[]){
 
         Writer->write_box(com, Grids->xbegin, Grids->ybegin, Grids->zbegin, Grids->xend, Grids->yend, Grids->zend);
 
+        for (auto i: Grids->elec_grid)
+        {
+            for (auto j: i)
+            {
+                for (auto k: j)
+                {
+                    printf("%.2lf ", k);
+                }
+                printf("\n");
+            }
+            printf("\n");
+        }
         Grids->compute_grid_hardcore_HB_omp(Rec); 
         printf("\nNow invoking kernel:\n");
         invoke_compute_grid_softcore_HB_omp(Grids, Rec);

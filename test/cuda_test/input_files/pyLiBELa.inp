@@ -30,7 +30,7 @@ search_box		45.0 45.0 45.0
 scoring_function        0
 use_grids		yes
 grid_spacing            0.4
-grid_box                20.0    20.0    20.0    
+grid_box                2.0    2.0    2.0    
 load_grids		./McGrid
 solvation_alpha		0.1
 dielectric_model	r

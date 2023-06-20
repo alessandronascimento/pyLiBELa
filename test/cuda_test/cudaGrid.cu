@@ -69,6 +69,11 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
    size_t x {vec.size()};
    size_t y {vec[0].size()};
    size_t z {vec[0][0].size()};
+
+   size_t test{vec[0][0][0].size()};
+
+   printf("x %ld, y %ld, z %ld\n", x, y, z);
+   printf("t %lf\n");
    
    double diff{};
    double max{0};
@@ -84,7 +89,7 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
          for (int k = 0 ; k < z ; k++)
          {
             lin_index = (i * z + j) * y + k;
-            // assert((lin_index < sizeof(arr)/sizeof(double)));
+            //printf("index %d\n", lin_index);
             
             if (!std::isfinite(vec[i][j][k]))
             {
@@ -238,7 +243,7 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
    cudaMalloc(&d_hbdonors, rec->HBdonors.size() * rec->HBdonors[0].size() * sizeof(int));
    cudaMalloc(&d_hbacceptors, rec->HBacceptors.size() * sizeof(int));
 
-   size_t size_bytes {(grid->npointsx * grid->npointsy * grid->npointsz) * sizeof(double)};
+   size_t size_bytes {grid->npointsx * grid->npointsy * grid->npointsz * sizeof(double)};
    
    cudaMalloc(&d_out_elec_grid, size_bytes);
    cudaMalloc(&d_out_vdwa_grid, size_bytes);
@@ -291,11 +296,20 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
       dieletric_model = DieletricModel::constant;
    else
       dieletric_model = DieletricModel::none;
-    
-      
+
+
+   //Só para teste, preferencialmente irá escrever diretamente para o Grid
+   double* out_elec_grid = (double*) malloc(size_bytes);
+   double* out_vdwa_grid = (double*) malloc(size_bytes);
+   double* out_vdwb_grid = (double*) malloc(size_bytes);
+   double* out_solv_gauss = (double*) malloc(size_bytes);
+   double* out_rec_solv_gauss = (double*) malloc(size_bytes);
+   double* out_hb_donor_grid = (double*) malloc(size_bytes);
+   double* out_hb_acceptor_grid = (double*) malloc(size_bytes);
+
    dim3 blockdims(10,10,10);
    dim3 griddims(3,3,3);
-
+   
    printf("Entering kernel\n");
    //TODO: ver melhor estes parâmetros de launch
    compute_grid_softcore_HB_omp<<<griddims, blockdims>>>(grid->npointsx, grid->npointsy, grid->npointsz,
@@ -320,17 +334,8 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
                                                          d_out_hb_donor_grid,
                                                          d_out_hb_acceptor_grid,
                                                          d_out_rec_si);   
-   printf("Kernel has endend/n");
-   cudaDeviceSynchronize();
-
-   //Só para teste, preferencialmente irá escrever diretamente para o Grid
-   double* out_elec_grid = (double*) malloc(size_bytes);
-   double* out_vdwa_grid = (double*) malloc(size_bytes);
-   double* out_vdwb_grid = (double*) malloc(size_bytes);
-   double* out_solv_gauss = (double*) malloc(size_bytes);
-   double* out_rec_solv_gauss = (double*) malloc(size_bytes);
-   double* out_hb_donor_grid = (double*) malloc(size_bytes);
-   double* out_hb_acceptor_grid = (double*) malloc(size_bytes);
+   
+   printf("Kernel has ended\n");
 
    cudaMemcpy(out_elec_grid, d_out_elec_grid, size_bytes, cudaMemcpyDeviceToHost);
    cudaMemcpy(out_vdwa_grid, d_out_vdwa_grid, size_bytes, cudaMemcpyDeviceToHost);
