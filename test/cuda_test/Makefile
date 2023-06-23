@@ -7,12 +7,9 @@ PYTHON_FILE = *.py
 EXEC= cudaTest
 
 CUDA_FLAGS= -L/usr/local/cuda/lib64 -lcudart
-#NVCC= ~/miniconda3/bin/nvcc
 
 #BOOST_FLAGS = -lboost_python38 
 BOOST_FLAGS = -lboost_python310 
-
-#PYTHON_INCLUDE= -I ~/miniconda3/include/python3.9
 
 #PYTHON_INCLUDE= -I /usr/include/python3.8
 PYTHON_INCLUDE= -I /usr/include/python3.10
@@ -25,7 +22,8 @@ LIBS = -I/usr/local/include/python3.10 \
 	 # --expt-relaxed-constexpr
 	 
 
-all: cuda cpp linknvcc
+# all: cuda cpp linknvcc
+all: grid
 
 python: 
 	@python3.10 $(PYTHON_FILE)

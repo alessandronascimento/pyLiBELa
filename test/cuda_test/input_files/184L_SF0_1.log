@@ -12,9 +12,9 @@
 *                                                                                                  *
 * dock_parallel                  0                                                                 *
 *                                                                                                  *
-* rec_mol2                       /home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/*
-* lig_mol2                       /home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/*
-* reflig_mol2                    /home/alex/Documents/workproj/pyLiBELa/test/cuda_test/input_files/*
+* rec_mol2                       ./184L_DOCKPREP.mol2.gz                                           *
+* lig_mol2                       ./184L_LIG_DOCKPREP.mol2.gz                                       *
+* reflig_mol2                    ./184L_LIG_DOCKPREP.mol2.gz                                       *
 * multifile                      multimol.dat                                                      *
 * mol2_aa                        0                                                                 *
 *                                                                                                  *

@@ -85,11 +85,11 @@ int main(int argc, char* argv[]){
             {
                 for (auto k: j)
                 {
-                    printf("%.2lf ", k);
+                    // printf("%.2lf ", k);
                 }
-                printf("\n");
+                // printf("\n");
             }
-            printf("\n");
+            // printf("\n");
         }
         
         printf("\nNow invoking kernel:\n");
