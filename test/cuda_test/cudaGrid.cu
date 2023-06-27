@@ -320,7 +320,7 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
    dim3 griddims(1,1,1);
 
    printf("Entering kernel\n");
-   printf("rec->N = %d\n", rec->N);
+   printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));
    //TODO: ver melhor estes parâmetros de launch
    compute_grid_softcore_HB_omp<<<griddims, blockdims>>>(grid->npointsx, grid->npointsy, grid->npointsz,
                                                          grid->grid_spacing,
@@ -346,6 +346,7 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
                                                          d_out_rec_si);
 
    printf("Kernel has ended\n");
+   printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));
 
    cudaMemcpy(out_elec_grid, d_out_elec_grid, size_bytes, cudaMemcpyDeviceToHost);
    cudaMemcpy(out_vdwa_grid, d_out_vdwa_grid, size_bytes, cudaMemcpyDeviceToHost);
