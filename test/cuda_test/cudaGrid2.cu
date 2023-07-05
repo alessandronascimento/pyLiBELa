@@ -89,7 +89,7 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
         {
             for (int k = 0 ; k < z ; k++)
             {
-                lin_index = (i * z + j) * y + k;
+                lin_index = k + (j*y) + (x*y*i);
                 //printf("index %d\n", lin_index);
                 if (!std::isfinite(vec[i][j][k]))
                 {
@@ -303,7 +303,7 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                         rec_solv += (4.0/3.0) * M_PI * pow(radii[a], 3.0)
                                 * exp((-denom/(2*pow(sigma, 2.0)))) / (pow(sigma, 3.0));
                     }
-/*
+                    /*
                     denom = (d6 + deltaij6);
                     vdwA = (4096*epsilons_sqrt[a] * pow(radii[a], 6.0)) / pow(denom, 2.0);
                     vdwB = (128*epsilons_sqrt[a] * pow(radii[a], 3.0)) / denom;
@@ -312,7 +312,7 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
 
                 double hb_donor = 0;
                 double hb_acceptor = 0;
-/*
+                /*
                 for (int m = 0; m < HBdonors_w; m++)
                 {
                     int HB0 = HBdonors[m * HBdonors_w + 0];
@@ -379,22 +379,19 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
 
     cudaMalloc(&d_out_rec_si, 1 * sizeof(double));
 
-    //Deep copying C++ vectors into linearized arrays
-    //TODO: xyz.size() vem antes de xyz[0].size() mesmo?
-    double* xyz_arr = (double*) malloc(rec->xyz.size() * rec->xyz[0].size() * sizeof(double));
-    for (int i = 0; i < rec->xyz.size(); i++)
-    {
-        for (int j = 0; j < rec->xyz[0].size(); j++)
-        {
-            xyz_arr[rec->xyz[0].size()*i + j] = rec->xyz[i][j];
-        }
+//    double* xyz_arr = (double*) malloc(rec->xyz.size()*rec->xyz[0].size()*sizeof(double));
+
+    double* xyz_arr = new double[rec->xyz.size()*3];
+
+    for (int i = 0; i < rec->xyz.size(); i++){
+        xyz_arr[3*i] = rec->xyz[i][0];
+        xyz_arr[(3*i)+1] = rec->xyz[i][1];
+        xyz_arr[(3*i)+2] = rec->xyz[i][2];
     }
 
-    double* HBdonors_arr = (double*) malloc(rec->HBdonors.size() * rec->HBdonors[0].size() * sizeof(double));
-    for (int i = 0; i < rec->HBdonors.size(); i++)
-    {
-        for (int j = 0; j < rec->HBdonors[0].size(); j++)
-        {
+    double* HBdonors_arr = new double[rec->HBdonors.size()*2];
+    for (int i = 0; i < rec->HBdonors.size(); i++){
+        for (int j = 0; j < rec->HBdonors[0].size(); j++){
             HBdonors_arr[rec->HBdonors[0].size()*i + j] = rec->HBdonors[i][j];
         }
     }
@@ -438,19 +435,19 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));
     //TODO: ver melhor estes parâmetros de launch
     compute_grid_softcore_HB_omp2<<<griddims, blockdims>>>(grid->npointsx, grid->npointsy, grid->npointsz,
-                                                          grid->grid_spacing,
-                                                          grid->xbegin, grid->ybegin, grid->zbegin,
-                                                          dieletric_model,
-                                                          grid->Input->deltaij_es6, grid->Input->deltaij6,
-                                                          grid->Input->solvation_alpha, grid->Input->solvation_beta,
-                                                          grid->Input->sigma, grid->Input->diel,
-                                                          rec->N,
-                                                          rec->xyz.size(), d_xyz,//fixme: pode ser o shape errado
-            d_charges,
-            d_radii,
-            d_epsilons_sqrt,
-            rec->HBacceptors.size(),d_hbacceptors,
-            rec->HBdonors[0].size(), d_hbdonors,
+                                                           grid->grid_spacing,
+                                                           grid->xbegin, grid->ybegin, grid->zbegin,
+                                                           dieletric_model,
+                                                           grid->Input->deltaij_es6, grid->Input->deltaij6,
+                                                           grid->Input->solvation_alpha, grid->Input->solvation_beta,
+                                                           grid->Input->sigma, grid->Input->diel,
+                                                           rec->N,
+                                                           rec->xyz.size(), d_xyz,//fixme: pode ser o shape errado
+                                                           d_charges,
+                                                           d_radii,
+                                                           d_epsilons_sqrt,
+                                                           rec->HBacceptors.size(),d_hbacceptors,
+                                                           rec->HBdonors[0].size(), d_hbdonors,
             d_out_elec_grid,
             d_out_vdwa_grid,
             d_out_vdwb_grid,
@@ -482,15 +479,15 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     // print_values_3D(out_hb_acceptor_grid, grid->npointsx, grid->npointsy, grid->npointsz);
 
     print_difference(grid->elec_grid, out_elec_grid);
-    print_difference(grid->vdwA_grid, out_vdwa_grid);
-    print_difference(grid->vdwB_grid, out_vdwb_grid);
+//    print_difference(grid->vdwA_grid, out_vdwa_grid);
+//    print_difference(grid->vdwB_grid, out_vdwb_grid);
     print_difference(grid->solv_gauss, out_solv_gauss);
     print_difference(grid->rec_solv_gauss, out_rec_solv_gauss);
-    print_difference(grid->hb_donor_grid, out_hb_donor_grid);
-    print_difference(grid->hb_acceptor_grid, out_hb_acceptor_grid);
+//    print_difference(grid->hb_donor_grid, out_hb_donor_grid);
+//    print_difference(grid->hb_acceptor_grid, out_hb_acceptor_grid);
 
-    free(xyz_arr);
-    free(HBdonors_arr);
+    delete [] (xyz_arr);
+    delete [] (HBdonors_arr);
 
     free(out_vdwa_grid);
     free(out_vdwb_grid);
