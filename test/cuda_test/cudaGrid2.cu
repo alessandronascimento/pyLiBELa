@@ -431,8 +431,8 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     double* out_hb_donor_grid = (double*) malloc(size_bytes);
     double* out_hb_acceptor_grid = (double*) malloc(size_bytes);
 
-    dim3 blockdims(1,1,1);
-    dim3 griddims(1,1,1);
+    dim3 blockdims(8,8,8);
+    dim3 griddims(8,8,8);
 
     printf("Entering kernel\n");
     printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));
@@ -445,7 +445,7 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
                                                           grid->Input->solvation_alpha, grid->Input->solvation_beta,
                                                           grid->Input->sigma, grid->Input->diel,
                                                           rec->N,
-                                                          rec->xyz[0].size(), d_xyz,//fixme: pode ser o shape errado
+                                                          rec->xyz.size(), d_xyz,//fixme: pode ser o shape errado
             d_charges,
             d_radii,
             d_epsilons_sqrt,
