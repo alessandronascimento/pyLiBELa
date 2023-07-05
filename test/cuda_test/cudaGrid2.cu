@@ -260,16 +260,19 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                                    double* out_hb_acceptor_grid,
                                    double* out_rec_si) {
 
-    int idxi=threadIdx.x, idxj=threadIdx.y, idxk=threadIdx.x;
+    int idxi=threadIdx.x + blockIdx.x * blockDim.x;
+    int idxj=threadIdx.y + blockIdx.y * blockDim.y;
+    int idxk=threadIdx.z + blockIdx.z * blockDim.z;
+    int stride = blockDim.x * gridDim.x; // Assuming they are the same for x,y,z
     double deltaij_es3 = sqrt(deltaij_es6);
 
-    for (int i=idxi; i<npointsx; i++){
+    for (int i=idxi; i<npointsx; i+= stride){
         double x = i*grid_spacing + xbegin;
 
-        for(int j=idxj; j<npointsy; j++){
+        for(int j=idxj; j<npointsy; j+= stride){
             double y = j*grid_spacing + ybegin;
 
-            for (int k=idxk; k<npointsz; k++){
+            for (int k=idxk; k<npointsz; k+= stride){
                 double z = k*grid_spacing + zbegin;
 
                 double elec = 0.0;
@@ -300,14 +303,16 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                         rec_solv += (4.0/3.0) * M_PI * pow(radii[a], 3.0)
                                 * exp((-denom/(2*pow(sigma, 2.0)))) / (pow(sigma, 3.0));
                     }
-
+/*
                     denom = (d6 + deltaij6);
                     vdwA = (4096*epsilons_sqrt[a] * pow(radii[a], 6.0)) / pow(denom, 2.0);
                     vdwB = (128*epsilons_sqrt[a] * pow(radii[a], 3.0)) / denom;
+*/
                 }
 
                 double hb_donor = 0;
-
+                double hb_acceptor = 0;
+/*
                 for (int m = 0; m < HBdonors_w; m++)
                 {
                     int HB0 = HBdonors[m * HBdonors_w + 0];
@@ -321,14 +326,14 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                     hb_donor += (HB_C12/(d10*d2)) - (HB_C10/d10);
                 }
 
-                double hb_acceptor = 0;
+
                 for (int n = 0 ; n < HBacceptors_size ; n++)
                 {
                     double d2 = distance_squared(xyz[HBacceptors[n]*xyz_w + 0], x, xyz[HBacceptors[n]*xyz_w + 1], y, xyz[HBacceptors[n]*xyz_w + 2], z);
                     double d10 = pow(d2, 5.0);
                     hb_acceptor += (HB_C12/(d10*d2)) - (HB_C10/d10);
                 }
-
+*/
                 out_elec_grid[k + (npointsy*j) + (npointsx*npointsy*i)] = elec;
                 out_vdwA_grid[k + (npointsy*j) + (npointsx*npointsy*i)] = vdwA;
                 out_vdwB_grid[k + (npointsy*j) + (npointsx*npointsy*i)] = vdwB;
