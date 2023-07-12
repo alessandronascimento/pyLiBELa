@@ -31,9 +31,11 @@ python:
 cuda: 
 	@ nvcc --compiler-options '-fPIC' -I /usr/local/cuda/include -c cudaTest.cu
 
-
 grid:
-	@ nvcc -c cudaGrid.o cudaGrid.cu $(LIBS)
+	@ nvcc -c cudaGrid.o cudaGrid2.cu $(LIBS)
+	
+debug:
+	@ nvcc -c -g -G cudaGrid.o cudaGrid2.cu $(LIBS)
 
 cpp: 
 	@ g++ -fPIC -c $(PYTHON_INCLUDE) $(CPP_FILES)

@@ -12,7 +12,7 @@ McConf: McConf.o
 	$(CC) McConf.o -o McConf $(LDFLAGS)
 
 McGrid: McGrid.o
-	$(CC) McGrid.o -o McGrid ../cudaGrid.o $(LDFLAGS)
+	$(CC) McGrid.o -o McGrid ../cudaGrid2.o $(LDFLAGS)
 
 mol2_rmsd: mol2_rmsd.o
 	$(CC) mol2_rmsd.o -o mol2_rmsd $(LDFLAGS)

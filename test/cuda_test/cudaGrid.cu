@@ -140,8 +140,7 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
                                  double* out_solv_gauss,
                                  double* out_rec_solv_gauss,
                                  double* out_hb_donor_grid,
-                                 double* out_hb_acceptor_grid,
-                                 int* out_rec_si) {
+                                 double* out_hb_acceptor_grid) {
 
    int i = threadIdx.x + blockIdx.x * blockDim.x;
    int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -229,11 +228,11 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
       out_hb_acceptor_grid[(i * npointsx + j) * npointsy + k] = hb_acceptor;
     }
 
-   out_rec_si[0] = 0.0;
-   for (int a = 0; a < N ; a++)
-   {
-      out_rec_si[0] += (solvation_alpha * pow(charges[a], 2.0)) + solvation_beta;
-   }
+   // out_rec_si[0] = 0.0;
+   // for (int a = 0; a < N ; a++)
+   // {
+   //    out_rec_si[0] += (solvation_alpha * pow(charges[a], 2.0)) + solvation_beta;
+   // }
 }
 
 void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
@@ -261,8 +260,6 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
    cudaMalloc(&d_out_rec_solv_gauss, size_bytes);
    cudaMalloc(&d_out_hb_donor_grid, size_bytes);
    cudaMalloc(&d_out_hb_acceptor_grid, size_bytes);
-
-   cudaMalloc(&d_out_rec_si, 1 * sizeof(int));
 
    //Deep copying C++ vectors into linearized arrays
    //TODO: xyz.size() vem antes de xyz[0].size() mesmo?
@@ -342,8 +339,7 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
                                                          d_out_solv_gauss,
                                                          d_out_rec_solv_gauss,
                                                          d_out_hb_donor_grid,
-                                                         d_out_hb_acceptor_grid,
-                                                         d_out_rec_si);
+                                                         d_out_hb_acceptor_grid);
 
    printf("Kernel has ended\n");
    printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));

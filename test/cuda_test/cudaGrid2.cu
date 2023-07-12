@@ -1,7 +1,5 @@
-#include "math.h"
 #include <iostream>
 #include <vector>
-#include <cmath>
 #include <cassert>
 #include "../../src/pyGrid.h"
 #include "../../src/pyMol2.h"
@@ -15,7 +13,7 @@
 //                 file, line );
 //         exit( EXIT_FAILURE );
 //     }
-// }
+// 
 
 #define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
 
@@ -77,8 +75,8 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
     double max{0};
     double sum{0};
     int count{0};
-    int original_anormal{0};
-    int new_anormal{0};
+    int original_abnormal{0};
+    int new_abnormal{0};
     int lin_index{};
     int zeroes_original{0};
     int zeroes_new{0};
@@ -93,12 +91,12 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
                 //printf("index %d\n", lin_index);
                 if (!std::isfinite(vec[i][j][k]))
                 {
-                    original_anormal++;
+                    original_abnormal++;
                     continue;
                 }
                 if (!std::isfinite(arr[lin_index]))
                 {
-                    new_anormal++;
+                    new_abnormal++;
                     continue;
                 }
                 if (vec[i][j][k] == 0.0)
@@ -108,7 +106,7 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
                 }
                 if (arr[lin_index] == 0.0) zeroes_new++;
 
-                diff = abs(vec[i][j][k] - arr[lin_index]) / vec[i][j][k];
+                diff = abs(vec[i][j][k] - arr[lin_index]) / std::max(vec[i][j][k], arr[lin_index]);
                 sum += diff;
 
                 if (diff > max) max = diff;
@@ -117,7 +115,7 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
         }
     }
     printf("Avg: %lf\nMax diff: %lf\nInfs or NaNs in original: %d\nInfs or Nans in new: %d\nzeroes_original: %d\nzeroes_new: %d\n\n",
-           sum/count, max, original_anormal, new_anormal, zeroes_original, zeroes_new);
+           sum/count, max, original_abnormal, new_abnormal, zeroes_original, zeroes_new);
 }
 __global__
 void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
@@ -257,22 +255,23 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                                    double* out_solv_gauss,
                                    double* out_rec_solv_gauss,
                                    double* out_hb_donor_grid,
-                                   double* out_hb_acceptor_grid,
-                                   double* out_rec_si) {
+                                   double* out_hb_acceptor_grid) {
 
     int idxi=threadIdx.x + blockIdx.x * blockDim.x;
     int idxj=threadIdx.y + blockIdx.y * blockDim.y;
     int idxk=threadIdx.z + blockIdx.z * blockDim.z;
-    int stride = blockDim.x * gridDim.x; // Assuming they are the same for x,y,z
+    int xstride = blockDim.x * gridDim.x; // Assuming they are the same for x,y,z
+    int ystride = blockDim.y * gridDim.y; // Assuming they are the same for x,y,z
+    int zstride = blockDim.z * gridDim.z; // Assuming they are the same for x,y,z
     double deltaij_es3 = sqrt(deltaij_es6);
 
-    for (int i=idxi; i<npointsx; i+= stride){
+    for (int i=idxi; i<npointsx; i+= xstride){
         double x = i*grid_spacing + xbegin;
 
-        for(int j=idxj; j<npointsy; j+= stride){
+        for(int j=idxj; j<npointsy; j+= ystride){
             double y = j*grid_spacing + ybegin;
 
-            for (int k=idxk; k<npointsz; k+= stride){
+            for (int k=idxk; k<npointsz; k+= zstride){
                 double z = k*grid_spacing + zbegin;
 
                 double elec = 0.0;
@@ -286,17 +285,19 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                     double d6 = d2*d2*d2;
                     double denom = 0.0;
 
-                    if (dielectric_model == DieletricModel::constant){
+                    if (dielectric_model == DieletricModel::constant) {
                         double d3 = sqrt(d6);
-                        denom = pow(d3 + deltaij_es3, 1/3);
+                        denom = cbrt(d3 + deltaij_es3);
                         elec += (332.0*charges[a])/(diel*denom);
                         solv += ((solvation_alpha * charges[a] * charges[a]) + solvation_beta)
                                 * exp((-denom/(2*pow(sigma, 2.0)))) / (pow(sigma, 3.0));
                         rec_solv += (4.0/3.0) * M_PI * pow(radii[a], 3.0)
                                 * exp((-denom/(2*pow(sigma, 2.0)))) / (pow(sigma, 3.0));
                     }
-                    else{
-                        denom = pow(d6 + deltaij_es6, 1/3);
+                    else {
+                        if (i == 0 && j == 0 && k == 0) printf("%d\n", a);
+                        denom = cbrt(d6 + deltaij_es6);
+                        // if (a == 0) printf("%lf\n", denom);
                         elec += (332.0*charges[a])/(diel*denom);
                         solv += ((solvation_alpha * charges[a] * charges[a]) + solvation_beta)
                                 * exp((-denom/(2*pow(sigma, 2.0)))) / (pow(sigma, 3.0));
@@ -309,7 +310,7 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                     vdwB = (128*epsilons_sqrt[a] * pow(radii[a], 3.0)) / denom;
 */
                 }
-
+                printf("ended inner for loop\n");
                 double hb_donor = 0;
                 double hb_acceptor = 0;
                 /*
@@ -334,20 +335,16 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                     hb_acceptor += (HB_C12/(d10*d2)) - (HB_C10/d10);
                 }
 */
-                out_elec_grid[k + (npointsy*j) + (npointsx*npointsy*i)] = elec;
-                out_vdwA_grid[k + (npointsy*j) + (npointsx*npointsy*i)] = vdwA;
-                out_vdwB_grid[k + (npointsy*j) + (npointsx*npointsy*i)] = vdwB;
-                out_solv_gauss[k + (npointsy*j) + (npointsx*npointsy*i)] = solv;
-                out_rec_solv_gauss[k + (npointsy*j) + (npointsx*npointsy*i)] = rec_solv;
-                out_hb_donor_grid[k + (npointsy*j) + (npointsx*npointsy*i)] = hb_donor;
-                out_hb_acceptor_grid[k + (npointsy*j) + (npointsx*npointsy*i)] = hb_acceptor;
+                printf("%lf\n", elec);
+                out_elec_grid[(i * npointsx + j) * npointsy + k] = elec;
+                out_vdwA_grid[(i * npointsx + j) * npointsy + k] = vdwA;
+                out_vdwB_grid[(i * npointsx + j) * npointsy + k] = vdwB;
+                out_solv_gauss[(i * npointsx + j) * npointsy + k] = solv;
+                out_rec_solv_gauss[(i * npointsx + j) * npointsy + k] = rec_solv;
+                out_hb_donor_grid[(i * npointsx + j) * npointsy + k] = hb_donor;
+                out_hb_acceptor_grid[(i * npointsx + j) * npointsy + k] = hb_acceptor;
             }
         }
-    }
-    out_rec_si[0] = 0.0;
-    for (int a = 0; a < N ; a++)
-    {
-        out_rec_si[0] += (solvation_alpha * pow(charges[a], 2.0)) + solvation_beta;
     }
 }
 
@@ -357,7 +354,6 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     int *d_hbacceptors, *d_hbdonors;
 
     double *d_out_elec_grid, *d_out_vdwa_grid, *d_out_vdwb_grid, *d_out_solv_gauss, *d_out_rec_solv_gauss, *d_out_hb_donor_grid, *d_out_hb_acceptor_grid;
-    double *d_out_rec_si;
 
     cudaMalloc(&d_xyz, rec->xyz.size() * rec->xyz[0].size() * sizeof(double));
     cudaMalloc(&d_charges, rec->charges.size() * sizeof(double));
@@ -376,8 +372,6 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     cudaMalloc(&d_out_rec_solv_gauss, size_bytes);
     cudaMalloc(&d_out_hb_donor_grid, size_bytes);
     cudaMalloc(&d_out_hb_acceptor_grid, size_bytes);
-
-    cudaMalloc(&d_out_rec_si, 1 * sizeof(double));
 
 //    double* xyz_arr = (double*) malloc(rec->xyz.size()*rec->xyz[0].size()*sizeof(double));
 
@@ -428,7 +422,7 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     double* out_hb_donor_grid = (double*) malloc(size_bytes);
     double* out_hb_acceptor_grid = (double*) malloc(size_bytes);
 
-    dim3 blockdims(8,8,8);
+    dim3 blockdims(4,4,4);
     dim3 griddims(8,8,8);
 
     printf("Entering kernel\n");
@@ -442,34 +436,38 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
                                                            grid->Input->solvation_alpha, grid->Input->solvation_beta,
                                                            grid->Input->sigma, grid->Input->diel,
                                                            rec->N,
-                                                           rec->xyz.size(), d_xyz,//fixme: pode ser o shape errado
+                                                           rec->xyz.size(), d_xyz,//FIXME: pode ser o shape errado
                                                            d_charges,
                                                            d_radii,
                                                            d_epsilons_sqrt,
                                                            rec->HBacceptors.size(),d_hbacceptors,
                                                            rec->HBdonors[0].size(), d_hbdonors,
-            d_out_elec_grid,
-            d_out_vdwa_grid,
-            d_out_vdwb_grid,
-            d_out_solv_gauss,
-            d_out_rec_solv_gauss,
-            d_out_hb_donor_grid,
-            d_out_hb_acceptor_grid,
-            d_out_rec_si);
+                                                           d_out_elec_grid,
+                                                           d_out_vdwa_grid,
+                                                           d_out_vdwb_grid,
+                                                           d_out_solv_gauss,
+                                                           d_out_rec_solv_gauss,
+                                                           d_out_hb_donor_grid,
+                                                           d_out_hb_acceptor_grid);
+
+    double out_rec_si = 0.0;
+    for (int a = 0; a < rec->N ; a++)
+    {
+        out_rec_si += (grid->Input->solvation_alpha * pow(rec->charges[a], 2.0)) + grid->Input->solvation_beta;
+    }
 
     printf("Kernel has ended\n");
     printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));
 
     cudaMemcpy(out_elec_grid, d_out_elec_grid, size_bytes, cudaMemcpyDeviceToHost);
-    cudaMemcpy(out_vdwa_grid, d_out_vdwa_grid, size_bytes, cudaMemcpyDeviceToHost);
-    cudaMemcpy(out_vdwb_grid, d_out_vdwb_grid, size_bytes, cudaMemcpyDeviceToHost);
+    //cudaMemcpy(out_vdwa_grid, d_out_vdwa_grid, size_bytes, cudaMemcpyDeviceToHost);
+    //cudaMemcpy(out_vdwb_grid, d_out_vdwb_grid, size_bytes, cudaMemcpyDeviceToHost);
     cudaMemcpy(out_solv_gauss, d_out_solv_gauss, size_bytes, cudaMemcpyDeviceToHost);
     cudaMemcpy(out_rec_solv_gauss, d_out_rec_solv_gauss, size_bytes, cudaMemcpyDeviceToHost);
-    cudaMemcpy(out_hb_donor_grid, d_out_hb_donor_grid, size_bytes, cudaMemcpyDeviceToHost);
-    cudaMemcpy(out_hb_acceptor_grid, d_out_hb_acceptor_grid, size_bytes, cudaMemcpyDeviceToHost);
+    //cudaMemcpy(out_hb_donor_grid, d_out_hb_donor_grid, size_bytes, cudaMemcpyDeviceToHost);
+    //cudaMemcpy(out_hb_acceptor_grid, d_out_hb_acceptor_grid, size_bytes, cudaMemcpyDeviceToHost);
 
-    //TODO: verificar como funciona. se for move semantics, checar se é memory safe
-
+    printf("\nrec_si from invoke function: %lf\n\n", out_rec_si);
     // print_values_3D(out_elec_grid, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_vdwa_grid, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_vdwb_grid, grid->npointsx, grid->npointsy, grid->npointsz);
@@ -506,7 +504,6 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     cudaFree(d_out_solv_gauss);
     cudaFree(d_out_hb_donor_grid);
     cudaFree(d_out_hb_acceptor_grid);
-    cudaFree(d_out_rec_si);
 
     printf("Invoking finished\n");
 

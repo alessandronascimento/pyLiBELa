@@ -77,24 +77,29 @@ int main(int argc, char* argv[]){
         Grids->rec_solv_gauss.clear();
         Grids->hb_donor_grid.clear();
         Grids->hb_acceptor_grid.clear();
+
         Grids->compute_grid_hardcore_HB_omp(Rec); 
-        printf("Grids x y z: %ld %ld %ld\n\n", Grids->elec_grid.size(), Grids->elec_grid[0].size(), Grids->elec_grid[0][0].size());
-        for (auto i: Grids->vdwA_grid)
-        {
-            for (auto j: i)
-            {
-                for (auto k: j)
-                {
-                    // printf("%.2lf ", k);
-                }
-                // printf("\n");
-            }
-            // printf("\n");
-        }
+        // for (auto i: Grids->elec_grid)
+        // {
+        //     for (auto j: i)
+        //     {
+        //         for (auto k: j)
+        //         {
+        //             //printf("%.2lf\n", k);
+        //         }
+        //         // printf("\n");
+        //     }
+        //     // printf("\n");
+        // }
         
         printf("\nNow invoking kernel:\n");
         invoke_compute_grid_softcore_HB_omp(Grids, Rec);
+        cout << "N (atoms): " << Rec->N << '\n';
 
+        cout << "dielectric_model: " << Grids->Input->dielectric_model << '\n';
+        printf("Grids x y z: %ld %ld %ld\n\n", Grids->elec_grid.size(), Grids->elec_grid[0].size(), Grids->elec_grid[0][0].size());
+        printf("rec_si from McGrid: %lf\n", Grids->rec_si);
+        
         delete Rec;
         delete Writer;
         delete Input;
