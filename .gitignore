@@ -1,2 +1,5 @@
 #object files
 *.o
+
+# McGrid executable
+test/cuda_test/McGrid/McGrid
