@@ -81,6 +81,8 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
     int zeroes_original{0};
     int zeroes_new{0};
 
+    double tolerance{1e-6};
+
     for (int i = 0 ; i < x ; i++)
     {
         for (int j = 0 ; j < y ; j++)
@@ -99,12 +101,16 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
                     new_abnormal++;
                     continue;
                 }
-                if (vec[i][j][k] == 0.0)
+                if (abs(vec[i][j][k]) <= tolerance)
                 {
                     zeroes_original++;
                     continue;
                 }
-                if (arr[lin_index] == 0.0) zeroes_new++;
+                if (arr[lin_index] <= tolerance) 
+                {
+                    zeroes_new++;
+                    continue;
+                }
 
                 diff = abs(vec[i][j][k] - arr[lin_index]) / std::max(vec[i][j][k], arr[lin_index]);
                 sum += diff;
@@ -138,8 +144,7 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
                                   double* out_solv_gauss,
                                   double* out_rec_solv_gauss,
                                   double* out_hb_donor_grid,
-                                  double* out_hb_acceptor_grid,
-                                  int* out_rec_si) {
+                                  double* out_hb_acceptor_grid) {
 
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -179,6 +184,8 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
             //TODO: condicional desnecessário?
             else
             {
+                if (i == 0 && j == 0 && k == 0) printf("%d\n", a);
+
                 denom = pow(d6 + deltaij_es6, 1/3);
                 elec += (332.0*charges[a])/(diel*denom);
                 solv += ((solvation_alpha * charges[a] * charges[a]) + solvation_beta)
@@ -216,8 +223,6 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
             hb_acceptor += (HB_C12/(d10*d2)) - (HB_C10/d10);
         }
 
-        printf("%lf", elec);
-
         out_elec_grid[(i * npointsx + j) * npointsy + k] = elec;
         out_vdwA_grid[(i * npointsx + j) * npointsy + k] = vdwA;
         out_vdwB_grid[(i * npointsx + j) * npointsy + k] = vdwB;
@@ -227,12 +232,14 @@ void compute_grid_softcore_HB_omp(int npointsx, int npointsy, int npointsz,
         out_hb_acceptor_grid[(i * npointsx + j) * npointsy + k] = hb_acceptor;
     }
 
-    out_rec_si[0] = 0.0;
-    for (int a = 0; a < N ; a++)
-    {
-        out_rec_si[0] += (solvation_alpha * pow(charges[a], 2.0)) + solvation_beta;
-    }
+    // out_rec_si[0] = 0.0;
+    // for (int a = 0; a < N ; a++)
+    // {
+    //     out_rec_si[0] += (solvation_alpha * pow(charges[a], 2.0)) + solvation_beta;
+    // }
 }
+
+#define DISTANCE_SQUARED(x1, x2, y1, y2, z1, z2) (pow(x1 - x2, 2.0) + pow(y1 - y2, 2.0) + pow(z1 - z2, 2.0))
 
 __global__
 void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
@@ -274,6 +281,16 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
             for (int k=idxk; k<npointsz; k+= zstride){
                 double z = k*grid_spacing + zbegin;
 
+
+                // if (i == 0 && j == 0 && k == 0)
+                // {
+                //     for (int i = 0 ; i < xyz_w ; i++)
+                //     {
+                //         printf("%lf\t%lf\t%lf", xyz[i*3 + 0], xyz[i*3 + 1], xyz[i*3 + 2]);
+                //     }
+                //     printf("\n");
+                // }
+
                 double elec = 0.0;
                 double vdwA = 0.0;
                 double vdwB = 0.0;
@@ -282,6 +299,8 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
 
                 for (int a = 0; a < N; a++){
                     double d2 = distance_squared(x, xyz[a*xyz_w + 0], y, xyz[a*xyz_w + 1], z, xyz[a*xyz_w + 2]);
+                    // double d2 = DISTANCE_SQUARED(x, xyz[a*N + 0], y, xyz[a*N + 1], z, xyz[a*N + 2]);
+                    // double d2 = DISTANCE_SQUARED(x, xyz[a*N + 0], y, xyz[a*N + 1], z, xyz[a*N + 2]);
                     double d6 = d2*d2*d2;
                     double denom = 0.0;
 
@@ -295,7 +314,7 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                                 * exp((-denom/(2*pow(sigma, 2.0)))) / (pow(sigma, 3.0));
                     }
                     else {
-                        if (i == 0 && j == 0 && k == 0) printf("%d\n", a);
+                        // if (i == 0 && j == 0 && k == 0) printf("iter: %d, d2: %lf\n", a, d2);
                         denom = cbrt(d6 + deltaij_es6);
                         // if (a == 0) printf("%lf\n", denom);
                         elec += (332.0*charges[a])/(diel*denom);
@@ -310,7 +329,7 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                     vdwB = (128*epsilons_sqrt[a] * pow(radii[a], 3.0)) / denom;
 */
                 }
-                printf("ended inner for loop\n");
+                // printf("ended inner for loop\n");
                 double hb_donor = 0;
                 double hb_acceptor = 0;
                 /*
@@ -335,7 +354,7 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                     hb_acceptor += (HB_C12/(d10*d2)) - (HB_C10/d10);
                 }
 */
-                printf("%lf\n", elec);
+                // printf("%lf\n", elec);
                 out_elec_grid[(i * npointsx + j) * npointsy + k] = elec;
                 out_vdwA_grid[(i * npointsx + j) * npointsy + k] = vdwA;
                 out_vdwB_grid[(i * npointsx + j) * npointsy + k] = vdwB;
@@ -373,8 +392,8 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     cudaMalloc(&d_out_hb_donor_grid, size_bytes);
     cudaMalloc(&d_out_hb_acceptor_grid, size_bytes);
 
-//    double* xyz_arr = (double*) malloc(rec->xyz.size()*rec->xyz[0].size()*sizeof(double));
-
+    // double* xyz_arr = (double*) malloc(rec->xyz.size() * 3 * sizeof(double));
+    
     double* xyz_arr = new double[rec->xyz.size()*3];
 
     for (int i = 0; i < rec->xyz.size(); i++){
@@ -391,14 +410,20 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     }
 
 
-    //Guarantee that size matches the vector' capacity
-    rec->charges.shrink_to_fit();
-    rec->radii.shrink_to_fit();
-    rec->epsilons_sqrt.shrink_to_fit();
-    rec->HBacceptors.shrink_to_fit();
+    // rec->charges.shrink_to_fit();
+    // rec->radii.shrink_to_fit();
+    // rec->epsilons_sqrt.shrink_to_fit();
+    // rec->HBacceptors.shrink_to_fit();
+
+    // double* temp_charges = (double*) malloc(rec->charges.size() * sizeof(double)); 
+    // for (int i = 0 ; i < rec->charges.size() ; i++)
+    // {
+    //     temp_charges[i] = rec->charges[i];
+    // }
 
     cudaMemcpy(d_xyz, xyz_arr, rec->xyz.size() * rec->xyz[0].size() * sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(d_charges, rec->charges.data(), rec->charges.size() * sizeof(double), cudaMemcpyHostToDevice);
+    // cudaMemcpy(d_charges, temp_charges, rec->charges.size() * sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(d_radii, rec->radii.data(), rec->radii.size() * sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(d_epsilons_sqrt, rec->epsilons_sqrt.data(), rec->epsilons_sqrt.size() * sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(d_hbacceptors, rec->HBacceptors.data(), rec->HBacceptors.size() * sizeof(int), cudaMemcpyHostToDevice);
@@ -436,7 +461,7 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
                                                            grid->Input->solvation_alpha, grid->Input->solvation_beta,
                                                            grid->Input->sigma, grid->Input->diel,
                                                            rec->N,
-                                                           rec->xyz.size(), d_xyz,//FIXME: pode ser o shape errado
+                                                           3, d_xyz,
                                                            d_charges,
                                                            d_radii,
                                                            d_epsilons_sqrt,
@@ -467,14 +492,14 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     //cudaMemcpy(out_hb_donor_grid, d_out_hb_donor_grid, size_bytes, cudaMemcpyDeviceToHost);
     //cudaMemcpy(out_hb_acceptor_grid, d_out_hb_acceptor_grid, size_bytes, cudaMemcpyDeviceToHost);
 
-    printf("\nrec_si from invoke function: %lf\n\n", out_rec_si);
-    // print_values_3D(out_elec_grid, grid->npointsx, grid->npointsy, grid->npointsz);
+    print_values_3D(out_elec_grid, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_vdwa_grid, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_vdwb_grid, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_solv_gauss, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_rec_solv_gauss, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_hb_donor_grid, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_hb_acceptor_grid, grid->npointsx, grid->npointsy, grid->npointsz);
+    printf("\nrec_si from invoke function: %lf\n\n", out_rec_si);
 
     print_difference(grid->elec_grid, out_elec_grid);
 //    print_difference(grid->vdwA_grid, out_vdwa_grid);
