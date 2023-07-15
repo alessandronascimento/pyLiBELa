@@ -96,6 +96,7 @@ int main(int argc, char* argv[]){
         invoke_compute_grid_softcore_HB_omp(Grids, Rec);
         cout << "N (atoms): " << Rec->N << '\n';
 
+        printf("HBdonors shape: (%ld,%ld)\n", Rec->HBdonors.size(), Rec->HBdonors[0].size());
         cout << "dielectric_model: " << Grids->Input->dielectric_model << '\n';
         printf("Grids x y z: %ld %ld %ld\n\n", Grids->elec_grid.size(), Grids->elec_grid[0].size(), Grids->elec_grid[0][0].size());
         printf("rec_si from McGrid: %lf\n", Grids->rec_si);

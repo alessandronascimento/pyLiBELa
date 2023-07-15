@@ -81,7 +81,7 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
     int zeroes_original{0};
     int zeroes_new{0};
 
-    double tolerance{1e-6};
+    double tolerance{0};
 
     for (int i = 0 ; i < x ; i++)
     {
@@ -106,7 +106,7 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
                     zeroes_original++;
                     continue;
                 }
-                if (arr[lin_index] <= tolerance) 
+                if (abs(arr[lin_index]) <= tolerance) 
                 {
                     zeroes_new++;
                     continue;
@@ -114,6 +114,9 @@ void print_difference(const std::vector<std::vector<std::vector<double>>>& vec, 
 
                 diff = abs(vec[i][j][k] - arr[lin_index]) / std::max(vec[i][j][k], arr[lin_index]);
                 sum += diff;
+
+                // if (diff > 1) printf("Diff > 1 --> original: %lf\t new: %lf\n", vec[i][j][k], arr[lin_index]);
+                //  printf("Diff > 1 --> original: %lf\t new: %lf\n", vec[i][j][k], arr[lin_index]);
 
                 if (diff > max) max = diff;
                 count++;
@@ -305,8 +308,7 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                     double denom = 0.0;
 
                     if (dielectric_model == DieletricModel::constant) {
-                        double d3 = sqrt(d6);
-                        denom = cbrt(d3 + deltaij_es3);
+                        denom = cbrt(d6 + deltaij_es6);
                         elec += (332.0*charges[a])/(diel*denom);
                         solv += ((solvation_alpha * charges[a] * charges[a]) + solvation_beta)
                                 * exp((-denom/(2*pow(sigma, 2.0)))) / (pow(sigma, 3.0));
@@ -323,11 +325,10 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                         rec_solv += (4.0/3.0) * M_PI * pow(radii[a], 3.0)
                                 * exp((-denom/(2*pow(sigma, 2.0)))) / (pow(sigma, 3.0));
                     }
-                    /*
+                    
                     denom = (d6 + deltaij6);
-                    vdwA = (4096*epsilons_sqrt[a] * pow(radii[a], 6.0)) / pow(denom, 2.0);
-                    vdwB = (128*epsilons_sqrt[a] * pow(radii[a], 3.0)) / denom;
-*/
+                    // vdwA += (4096*epsilons_sqrt[a] * pow(radii[a], 6.0)) / pow(denom, 2.0);
+                    // vdwB += (128*epsilons_sqrt[a] * pow(radii[a], 3.0)) / denom;
                 }
                 // printf("ended inner for loop\n");
                 double hb_donor = 0;
@@ -355,13 +356,13 @@ void compute_grid_softcore_HB_omp2(int npointsx, int npointsy, int npointsz,
                 }
 */
                 // printf("%lf\n", elec);
-                out_elec_grid[(i * npointsx + j) * npointsy + k] = elec;
-                out_vdwA_grid[(i * npointsx + j) * npointsy + k] = vdwA;
-                out_vdwB_grid[(i * npointsx + j) * npointsy + k] = vdwB;
-                out_solv_gauss[(i * npointsx + j) * npointsy + k] = solv;
-                out_rec_solv_gauss[(i * npointsx + j) * npointsy + k] = rec_solv;
-                out_hb_donor_grid[(i * npointsx + j) * npointsy + k] = hb_donor;
-                out_hb_acceptor_grid[(i * npointsx + j) * npointsy + k] = hb_acceptor;
+                out_elec_grid[(i * npointsz + j) * npointsy + k] = elec;
+                out_vdwA_grid[(i * npointsz + j) * npointsy + k] = vdwA;
+                out_vdwB_grid[(i * npointsz + j) * npointsy + k] = vdwB;
+                out_solv_gauss[(i * npointsz + j) * npointsy + k] = solv;
+                out_rec_solv_gauss[(i * npointsz + j) * npointsy + k] = rec_solv;
+                out_hb_donor_grid[(i * npointsz + j) * npointsy + k] = hb_donor;
+                out_hb_acceptor_grid[(i * npointsz + j) * npointsy + k] = hb_acceptor;
             }
         }
     }
@@ -492,7 +493,7 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     //cudaMemcpy(out_hb_donor_grid, d_out_hb_donor_grid, size_bytes, cudaMemcpyDeviceToHost);
     //cudaMemcpy(out_hb_acceptor_grid, d_out_hb_acceptor_grid, size_bytes, cudaMemcpyDeviceToHost);
 
-    print_values_3D(out_elec_grid, grid->npointsx, grid->npointsy, grid->npointsz);
+    // print_values_3D(out_elec_grid, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_vdwa_grid, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_vdwb_grid, grid->npointsx, grid->npointsy, grid->npointsz);
     // print_values_3D(out_solv_gauss, grid->npointsx, grid->npointsy, grid->npointsz);
