@@ -29,15 +29,17 @@ __device__ double distance(double x1, double x2,
     return sqrt(pow(x2 - x1, 2.0) + pow(y2 - y1, 2.0) + pow(z2 - z1, 2.0));
 }
 
-__device__ double angle(double x1, double x2, double x3,
-                        double y1, double y2, double y3,
-                        double z1, double z2, double z3 ) {
+__device__ double angle(double x1, double y1, double z1,
+                        double x2, double y2, double z2,
+                        double x3, double y3, double z3 ) {
 
     double ab = sqrt(distance_squared(x1, x2, y1, y2, z1, z2));
     double ac = sqrt(distance_squared(x1, x3, y1, y3, z1, z3));
     double bc = sqrt(distance_squared(x2, x3, y2, y3, z2, z3));
 
-    return 180.0/M_PI * acos((pow(ab, 2.0) + pow(bc, 2.0) - pow(ac, 2.0))/ (2*ab*bc));
+    double angle = acos(((ab*ab)+(bc*bc)-(ac*ac))/(2*ab*bc));
+    angle = angle * 180.0 / PI;
+    return (angle);
 }
 
 __global__
@@ -101,11 +103,13 @@ void compute_grid(int npointsx, int npointsy, int npointsz,
 
         for (int a=0; a<NHBdonors; a++){
             double d2 = distance_squared(xyz[HBdonor2[a]*3+0], x, xyz[HBdonor2[a]*3+1], y, xyz[HBdonor2[a]*3+2], z);
+            // if (index == 113181) printf("DEBUG d2 %lf\n", d2);
             double d10 = d2*d2*d2*d2*d2;
-            double ang = angle(xyz[HBdonor1[a]*3+0], xyz[HBdonor1[a]*3+1], xyz[HBdonor1[a]*3+2], xyz[HBdonor2[a]*3+0],
-            xyz[HBdonor2[a]*3+1], xyz[HBdonor2[a]*3+2], x, y, z);
+            double ang = angle(xyz[HBdonor1[a]*3+0], xyz[HBdonor1[a]*3+1], xyz[HBdonor1[a]*3+2], 
+                    xyz[HBdonor2[a]*3+0], xyz[HBdonor2[a]*3+1], xyz[HBdonor2[a]*3+2], x, y, z);
+            if (index == 113181) printf("DEBUG ang %lf\n", ang);
             double angle_term = cos(ang * PI / 180.0) * cos(ang * PI / 180.0) * cos(ang * PI / 180.0) * cos(ang * PI / 180.0);
-            hb_donor += ((HB_C12/(d10*d2)) - (HB_C10/d10)) * angle_term;
+            hb_donor += ((HB_C12/(d10*d2)) - (HB_C10/d10)) * angle_term;    
         }
 
         for (unsigned a=0; a<NHBacceptors; a++){
@@ -113,6 +117,8 @@ void compute_grid(int npointsx, int npointsy, int npointsz,
             double d10 = d2*d2*d2*d2*d2;
             hb_acceptor += ((HB_C12/(d10*d2)) - (HB_C10/d10));
         }
+
+        if (index == 113181) printf("DEBUG %lf\n", hb_donor);
         out_elec_grid[index] = elec;
         out_vdwA_grid[index] = vdwA;
         out_vdwB_grid[index] = vdwB;
@@ -190,7 +196,6 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
 
     printf("Entering kernel\n");
     printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));
-    //TODO: ver melhor estes parâmetros de launch
     compute_grid<<<griddims, blockdims>>>(grid->npointsx, grid->npointsy, grid->npointsz,
                                                            grid->grid_spacing,
                                                            grid->xbegin, grid->ybegin, grid->zbegin,
@@ -228,9 +233,9 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     cudaMemcpy(out_hbd_grid, d_out_hbd_grid, size_bytes, cudaMemcpyDeviceToHost);
     cudaMemcpy(out_hba_grid, d_out_hba_grid, size_bytes, cudaMemcpyDeviceToHost);
 
-    for (int i=0; i< grid->npointsx/10; i++){
-        for (int j=0; j< grid->npointsy/10; j++){
-            for (int k=0; k< grid->npointsz/10; k++){
+    for (int i=0; i< grid->npointsx; i++){
+        for (int j=0; j< grid->npointsy; j++){
+            for (int k=0; k< grid->npointsz; k++){
                 int index = k + (j*grid->npointsx) + (grid->npointsx*grid->npointsy*i);
                 printf("ElecGrid[%3d][%3d][%3d] = %8.3f \t CudaGrid[%8d] = %8.3f \t Diff = %8.3f\n", i, j, k, grid->elec_grid[i][j][k], index, out_elec_grid[index], abs(grid->elec_grid[i][j][k]-abs(out_elec_grid[index])));
                 printf("VdwAGrid[%3d][%3d][%3d] = %8.3f \t CudaGrid[%8d] = %8.3f \t Diff = %8.3f\n", i, j, k, grid->vdwA_grid[i][j][k], index, out_vdwA_grid[index], abs(grid->vdwA_grid[i][j][k]-abs(out_vdwA_grid[index])));
@@ -243,7 +248,6 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
             }
         }
     }
-
     delete [] (xyz_arr);
     delete (HBdonnor1);
     delete (HBdonnor2);
@@ -264,7 +268,5 @@ void invoke_compute_grid_softcore_HB_omp(Grid* grid, Mol2* rec) {
     cudaFree(d_out_hba_grid);
     cudaFree(d_out_hbd_grid);
 
-
     printf("Invoking finished\n");
-
 }
