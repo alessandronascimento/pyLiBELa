@@ -329,8 +329,36 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid* grid, Mol2* rec) {
     cudaMemcpy(out_hbd_grid, d_out_hbd_grid, size_bytes, cudaMemcpyDeviceToHost);
     cudaMemcpy(out_hba_grid, d_out_hba_grid, size_bytes, cudaMemcpyDeviceToHost);
 
+    int nx{grid->npointsx};
+    int ny{grid->npointsy};
+    int nz{grid->npointsz};
+
+    grid->elec_grid.resize(nx);
+    grid->vdwA_grid.resize(nx);
+    grid->vdwB_grid.resize(nx);
+    grid->rec_solv_gauss.resize(nx);
+    grid->solv_gauss.resize(nx);
+    grid->hb_acceptor_grid.resize(nx);
+    grid->hb_donor_grid.resize(nx);
+
     for (int i=0; i< grid->npointsx; i++){
+        grid->elec_grid[i].resize(ny);
+        grid->vdwA_grid[i].resize(ny);
+        grid->vdwB_grid[i].resize(ny);
+        grid->rec_solv_gauss[i].resize(ny);
+        grid->solv_gauss[i].resize(ny);
+        grid->hb_acceptor_grid[i].resize(ny);
+        grid->hb_donor_grid[i].resize(ny);
+
         for (int j=0; j< grid->npointsy; j++){
+            grid->elec_grid[i][j].resize(nz);
+            grid->vdwA_grid[i][j].resize(nz);
+            grid->vdwB_grid[i][j].resize(nz);
+            grid->rec_solv_gauss[i][j].resize(nz);
+            grid->solv_gauss[i][j].resize(nz);
+            grid->hb_acceptor_grid[i][j].resize(nz);
+            grid->hb_donor_grid[i][j].resize(nz);
+
             for (int k=0; k< grid->npointsz; k++){
                 int index = k + (j*grid->npointsx) + (grid->npointsx*grid->npointsy*i);
                 grid->elec_grid[i][j][k] = out_elec_grid[index];
@@ -527,7 +555,6 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid* grid, Mol2* rec) {
             grid->hb_donor_grid[i][j].resize(nz);
 
             for (int k=0; k< grid->npointsz; k++){
-                // TODO : inconsistência com nome do array 
                 int index = k + (j*grid->npointsx) + (grid->npointsx*grid->npointsy*i);
                 grid->elec_grid[i][j][k] = out_elec_grid[index];
                 grid->vdwA_grid[i][j][k] = out_vdwA_grid[index];
