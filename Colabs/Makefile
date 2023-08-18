@@ -31,6 +31,7 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 	 -lnlopt_cxx                 \
 	 -lgsl                       \
 	 -lgslcblas                  \
+	 -lgomp                      \
 	 -lm
 
 
