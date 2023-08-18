@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CC=g++
-CFLAGS=-c -O3 -ffast-math -fopenmp -DBUILD=0 -DHAVE_EIGEN -I/usr/include/openbabel3 -I/usr/include/eigen3 -I/usr/include/python3.10
+CFLAGS=-c -O3 -ffast-math -fopenmp -DBUILD=0 -DHAVE_EIGEN -I/usr/local/include/openbabel3 -I/usr/include/eigen3 -I/usr/include/python3.10
 LDFLAGS=-lz -L/usr/lib/x86_64-linux-gnu -lopenbabel -lgomp -lpthread -lgsl -lgslcblas -lm -lpython3.10 -lboost_python310 -L/usr/local/cuda/lib64 -lcudart
 SOURCES=McGrid.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
@@ -12,7 +12,7 @@ McConf: McConf.o
 	$(CC) McConf.o -o McConf $(LDFLAGS)
 
 McGrid: McGrid.o
-	$(CC) McGrid.o -o McGrid ../cudaGrid2.o $(LDFLAGS)
+	$(CC) McGrid.o -o McGrid ../cudaGrid.o $(LDFLAGS)
 
 mol2_rmsd: mol2_rmsd.o
 	$(CC) mol2_rmsd.o -o mol2_rmsd $(LDFLAGS)

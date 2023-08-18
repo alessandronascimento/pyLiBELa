@@ -70,11 +70,22 @@ int main(int argc, char* argv[]){
 
         Writer->write_box(com, Grids->xbegin, Grids->ybegin, Grids->zbegin, Grids->xend, Grids->yend, Grids->zend);
 
-
+        for (auto i: Grids->elec_grid)
+        {
+            for (auto j: i)
+            {
+                for (auto k: j)
+                {
+                    printf("%.2lf\n", k);
+                }
+                printf("\n");
+            }
+            printf("\n");
+        }
         
         printf("\nNow invoking kernel:\n");
         start = clock();
-        invoke_compute_grid_softcore_HB_omp(Grids, Rec);
+        // invoke_compute_grid_hardcore_HB_CUDA(Grids, Rec);
         end = clock();
         printf("Grid computation took %7.3f seconds.\n", (1.0*(end-start)/CLOCKS_PER_SEC));
         cout << "N (atoms): " << Rec->N << '\n';
