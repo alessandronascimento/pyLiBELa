@@ -70,20 +70,19 @@ int main(int argc, char* argv[]){
 
         Writer->write_box(com, Grids->xbegin, Grids->ybegin, Grids->zbegin, Grids->xend, Grids->yend, Grids->zend);
 
-        for (auto i: Grids->elec_grid)
-        {
-            for (auto j: i)
-            {
-                for (auto k: j)
-                {
-                    printf("%.2lf\n", k);
-                }
-                printf("\n");
-            }
-            printf("\n");
-        }
+        // for (auto i: Grids->elec_grid)
+        // {
+        //     for (auto j: i)
+        //     {
+        //         for (auto k: j)
+        //         {
+        //             printf("%.2lf\n", k);
+        //         }
+        //         printf("\n");
+        //     }
+        //     printf("\n");
+        // }
         
-        printf("\nNow invoking kernel:\n");
         start = clock();
         // invoke_compute_grid_hardcore_HB_CUDA(Grids, Rec);
         end = clock();

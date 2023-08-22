@@ -333,42 +333,25 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid* grid, Mol2* rec) {
     int ny{grid->npointsy};
     int nz{grid->npointsz};
 
-    grid->elec_grid.resize(nx);
-    grid->vdwA_grid.resize(nx);
-    grid->vdwB_grid.resize(nx);
-    grid->rec_solv_gauss.resize(nx);
-    grid->solv_gauss.resize(nx);
-    grid->hb_acceptor_grid.resize(nx);
-    grid->hb_donor_grid.resize(nx);
+    grid->elec_grid = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->vdwA_grid = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->vdwB_grid = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->rec_solv_gauss = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->solv_gauss = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->hb_acceptor_grid = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->hb_donor_grid = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
 
-    for (int i=0; i< grid->npointsx; i++){
-        grid->elec_grid[i].resize(ny);
-        grid->vdwA_grid[i].resize(ny);
-        grid->vdwB_grid[i].resize(ny);
-        grid->rec_solv_gauss[i].resize(ny);
-        grid->solv_gauss[i].resize(ny);
-        grid->hb_acceptor_grid[i].resize(ny);
-        grid->hb_donor_grid[i].resize(ny);
+    for (int i=0; i < nx; i++){
 
-        for (int j=0; j< grid->npointsy; j++){
-            grid->elec_grid[i][j].resize(nz);
-            grid->vdwA_grid[i][j].resize(nz);
-            grid->vdwB_grid[i][j].resize(nz);
-            grid->rec_solv_gauss[i][j].resize(nz);
-            grid->solv_gauss[i][j].resize(nz);
-            grid->hb_acceptor_grid[i][j].resize(nz);
-            grid->hb_donor_grid[i][j].resize(nz);
-
-            for (int k=0; k< grid->npointsz; k++){
-                int index = k + (j*grid->npointsx) + (grid->npointsx*grid->npointsy*i);
-                grid->elec_grid[i][j][k] = out_elec_grid[index];
-                grid->vdwA_grid[i][j][k] = out_vdwA_grid[index];
-                grid->vdwB_grid[i][j][k] = out_vdwB_grid[index];
-                grid->rec_solv_gauss[i][j][k] = out_solv_grid[index];
-                grid->solv_gauss[i][j][k] = out_rec_solv_grid[index];
-                grid->hb_acceptor_grid[i][j][k] = out_hba_grid[index];
-                grid->hb_donor_grid[i][j][k] = out_hbd_grid[index];
-            }
+        for (int j=0; j < ny; j++){
+            int idx = (nx*ny*i + nx*j);
+            grid->elec_grid[i][j].insert(grid->elec_grid[i][j].end(), out_elec_grid + idx, out_elec_grid + idx + nz);
+            grid->vdwA_grid[i][j].insert(grid->vdwA_grid[i][j].end(), out_vdwA_grid + idx, out_vdwA_grid + idx + nz);
+            grid->vdwB_grid[i][j].insert(grid->vdwB_grid[i][j].end(), out_vdwB_grid + idx, out_vdwB_grid + idx + nz);
+            grid->rec_solv_gauss[i][j].insert(grid->rec_solv_gauss[i][j].end(), out_rec_solv_grid + idx, out_rec_solv_grid + idx + nz);
+            grid->solv_gauss[i][j].insert(grid->solv_gauss[i][j].end(), out_solv_grid + idx, out_solv_grid + idx + nz);
+            grid->hb_acceptor_grid[i][j].insert(grid->hb_acceptor_grid[i][j].end(), out_hba_grid + idx, out_hba_grid + idx + nz);
+            grid->hb_donor_grid[i][j].insert(grid->hb_donor_grid[i][j].end(), out_hbd_grid + idx, out_hbd_grid + idx + nz);
         }
     }
 
@@ -509,63 +492,33 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid* grid, Mol2* rec) {
     cudaMemcpy(out_hbd_grid, d_out_hbd_grid, size_bytes, cudaMemcpyDeviceToHost);
     cudaMemcpy(out_hba_grid, d_out_hba_grid, size_bytes, cudaMemcpyDeviceToHost);
 
-    // for (int i=0; i< grid->npointsx; i++){
-    //     for (int j=0; j< grid->npointsy; j++){
-    //         for (int k=0; k< grid->npointsz; k++){
-    //             int index = k + (j*grid->npointsx) + (grid->npointsx*grid->npointsy*i);
-    //             printf("ElecGrid[%3d][%3d][%3d] = %8.3f \t CudaGrid[%8d] = %8.3f \t Diff = %8.3f\n", i, j, k, grid->elec_grid[i][j][k], index, out_elec_grid[index], abs(abs(grid->elec_grid[i][j][k])-abs(out_elec_grid[index])));
-    //             printf("VdwAGrid[%3d][%3d][%3d] = %8.3f \t CudaGrid[%8d] = %8.3f \t Diff = %8.3f\n", i, j, k, grid->vdwA_grid[i][j][k], index, out_vdwA_grid[index], abs(abs(grid->vdwA_grid[i][j][k])-abs(out_vdwA_grid[index])));
-    //             printf("VdwBGrid[%3d][%3d][%3d] = %8.3f \t CudaGrid[%8d] = %8.3f \t Diff = %8.3f\n", i, j, k, grid->vdwB_grid[i][j][k], index, out_vdwB_grid[index], abs(abs(grid->vdwB_grid[i][j][k])-abs(out_vdwB_grid[index])));
-    //             printf("RecSGrid[%3d][%3d][%3d] = %8.3f \t CudaGrid[%8d] = %8.3f \t Diff = %8.3f\n", i, j, k, grid->rec_solv_gauss[i][j][k], index, out_rec_solv_grid[index], abs(abs(grid->rec_solv_gauss[i][j][k])-abs(out_rec_solv_grid[index])));
-    //             printf("SolvGrid[%3d][%3d][%3d] = %8.3f \t CudaGrid[%8d] = %8.3f \t Diff = %8.3f\n", i, j, k, grid->solv_gauss[i][j][k], index, out_solv_grid[index], abs(abs(grid->solv_gauss[i][j][k])-abs(out_solv_grid[index])));
-    //             printf("HBAcGrid[%3d][%3d][%3d] = %8.3f \t CudaGrid[%8d] = %8.3f \t Diff = %8.3f\n", i, j, k, grid->hb_acceptor_grid[i][j][k], index, out_hba_grid[index], abs(abs(grid->hb_acceptor_grid[i][j][k])-abs(out_hba_grid[index])));
-    //             printf("HBDoGrid[%3d][%3d][%3d] = %8.3f \t CudaGrid[%8d] = %8.3f \t Diff = %8.3f\n", i, j, k, grid->hb_donor_grid[i][j][k], index, out_hbd_grid[index], abs(abs(grid->hb_donor_grid[i][j][k])-abs(out_hbd_grid[index])));
-    //             printf("\n\n");
-    //         }
-    //     }
-    // }
     int nx{grid->npointsx};
     int ny{grid->npointsy};
     int nz{grid->npointsz};
 
-    grid->elec_grid.resize(nx);
-    grid->vdwA_grid.resize(nx);
-    grid->vdwB_grid.resize(nx);
-    grid->rec_solv_gauss.resize(nx);
-    grid->solv_gauss.resize(nx);
-    grid->hb_acceptor_grid.resize(nx);
-    grid->hb_donor_grid.resize(nx);
+    grid->elec_grid = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->vdwA_grid = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->vdwB_grid = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->rec_solv_gauss = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->solv_gauss = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->hb_acceptor_grid = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
+    grid->hb_donor_grid = std::vector<std::vector<std::vector<double>>>(nx, std::vector<std::vector<double>>(ny));
 
-    for (int i=0; i< grid->npointsx; i++){
-        grid->elec_grid[i].resize(ny);
-        grid->vdwA_grid[i].resize(ny);
-        grid->vdwB_grid[i].resize(ny);
-        grid->rec_solv_gauss[i].resize(ny);
-        grid->solv_gauss[i].resize(ny);
-        grid->hb_acceptor_grid[i].resize(ny);
-        grid->hb_donor_grid[i].resize(ny);
+    for (int i=0; i < nx; i++){
 
-        for (int j=0; j< grid->npointsy; j++){
-            grid->elec_grid[i][j].resize(nz);
-            grid->vdwA_grid[i][j].resize(nz);
-            grid->vdwB_grid[i][j].resize(nz);
-            grid->rec_solv_gauss[i][j].resize(nz);
-            grid->solv_gauss[i][j].resize(nz);
-            grid->hb_acceptor_grid[i][j].resize(nz);
-            grid->hb_donor_grid[i][j].resize(nz);
-
-            for (int k=0; k< grid->npointsz; k++){
-                int index = k + (j*grid->npointsx) + (grid->npointsx*grid->npointsy*i);
-                grid->elec_grid[i][j][k] = out_elec_grid[index];
-                grid->vdwA_grid[i][j][k] = out_vdwA_grid[index];
-                grid->vdwB_grid[i][j][k] = out_vdwB_grid[index];
-                grid->rec_solv_gauss[i][j][k] = out_solv_grid[index];
-                grid->solv_gauss[i][j][k] = out_rec_solv_grid[index];
-                grid->hb_acceptor_grid[i][j][k] = out_hba_grid[index];
-                grid->hb_donor_grid[i][j][k] = out_hbd_grid[index];
-            }
+        for (int j=0; j < ny; j++){
+            int idx = (nx*ny*i + nx*j);
+            grid->elec_grid[i][j].insert(grid->elec_grid[i][j].end(), out_elec_grid + idx, out_elec_grid + idx + nz);
+            grid->vdwA_grid[i][j].insert(grid->vdwA_grid[i][j].end(), out_vdwA_grid + idx, out_vdwA_grid + idx + nz);
+            grid->vdwB_grid[i][j].insert(grid->vdwB_grid[i][j].end(), out_vdwB_grid + idx, out_vdwB_grid + idx + nz);
+            grid->rec_solv_gauss[i][j].insert(grid->rec_solv_gauss[i][j].end(), out_rec_solv_grid + idx, out_rec_solv_grid + idx + nz);
+            grid->solv_gauss[i][j].insert(grid->solv_gauss[i][j].end(), out_solv_grid + idx, out_solv_grid + idx + nz);
+            grid->hb_acceptor_grid[i][j].insert(grid->hb_acceptor_grid[i][j].end(), out_hba_grid + idx, out_hba_grid + idx + nz);
+            grid->hb_donor_grid[i][j].insert(grid->hb_donor_grid[i][j].end(), out_hbd_grid + idx, out_hbd_grid + idx + nz);
         }
     }
+
+
     delete [] (xyz_arr);
     delete (HBdonnor1);
     delete (HBdonnor2);
