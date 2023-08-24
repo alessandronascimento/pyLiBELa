@@ -366,16 +366,17 @@ void WRITER::write_pdb(Mol2 *Cmol, vector<vector<double> >xyz, double energy, do
 	int i=0;
 	int resn=0;
 
+	
 	while (resn < int(Cmol->residue_pointer.size()-1)){
 		while(i < Cmol->residue_pointer[resn+1]){
-			gzprintf(outpdb, "ATOM   %4d%4s  %3.3s  %4d    % 8.3f % 7.3f % 7.3f   0.000    0.00  1\n", i+1, Cmol->sybyl_atoms[i].c_str(), Cmol->resnames[resn].c_str(), resn+1, xyz[i][0], xyz[i][1], xyz[i][2]);
+			gzprintf(outpdb, "ATOM   %4d%4s    %3.3s  %4d    % 8.3f % 7.3f % 7.3f   0.000    0.00  1\n", i+1, Cmol->sybyl_atoms[i].c_str(), Cmol->resnames[resn].c_str(), resn+1, xyz[i][0], xyz[i][1], xyz[i][2]);
 			i++;
 		}
 		resn++;
 	}
 
 	while (i < Cmol->N){
-		gzprintf(outpdb, "ATOM   %4d%4s  %3.3s  %4d    % 8.3f % 7.3f % 7.3f   0.000    0.00  1\n", i+1, Cmol->sybyl_atoms[i].c_str(), Cmol->resnames[resn].c_str(), resn+1, xyz[i][0], xyz[i][1], xyz[i][2]);
+		gzprintf(outpdb, "ATOM   %4d %-4s  %3.3s%4d    % 8.3f %7.3f %7.3f  0.900  0.00  1\n", i+1, Cmol->sybyl_atoms[i].c_str(), Cmol->resnames[resn].c_str(), resn+1, xyz[i][0], xyz[i][1], xyz[i][2]);
 		i++;
 	}
 	gzprintf(outpdb, "TER\n");
@@ -725,12 +726,12 @@ BOOST_PYTHON_MODULE(pyWRITER)
     void    (WRITER::*wpdb_1)(vector<vector<double> >, int, vector<string>, double, double, string)  = &WRITER::write_pdb;
     void    (WRITER::*wpdb_2)(Mol2*, vector<vector<double> >, double, double, string)   = &WRITER::write_pdb;
 
-/*
+
     void    (WRITER::*wmol2_1)(Mol2*, vector<vector<double> >, double, double, string)  = &WRITER::writeMol2;
     void    (WRITER::*wmol2_2)(Mol2*, vector<vector<double> >, double, double) = &WRITER::writeMol2;
     void    (WRITER::*wmol2_3)(Mol2*, vector<vector<double> >, energy_result_t*, double) = &WRITER::writeMol2;
     void    (WRITER::*wmol2_4)(Mol2*, vector<vector<double> >, energy_result_t*, double, string)  = &WRITER::writeMol2;
-*/
+
 
 
     class_<WRITER>("WRITER", init<string>())
@@ -750,16 +751,16 @@ BOOST_PYTHON_MODULE(pyWRITER)
         .def("write_pdb", wpdb_1)
         .def("write_pdb", wpdb_2)
 
-//        .def("write_pdb", &WRITER::write_pdb, wpdboverloads())
+ //       .def("write_pdb", &WRITER::write_pdb, wpdboverloads())
 
 
-            /*
+            
         .def("writeMol2", wmol2_1)
         .def("writeMol2", wmol2_2)
         .def("writeMol2", wmol2_3)
         .def("writeMol2", wmol2_4)
 
-*/
+
         .def("writeMol2_Mol_new_xyz", &WRITER::writeMol2_Mol_new_xyz)
         .def("print_info", &WRITER::print_info)
         .def("print_info_no_newline", &WRITER::print_info_no_newline)

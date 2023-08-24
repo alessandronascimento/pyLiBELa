@@ -14,7 +14,7 @@ CC=g++
 #Flags for compiler
 CC_FLAGS=-fPIC                       \
          -O3                         \
-	 -I/usr/local/include/python3.10 \
+	 -I/usr/include/python3.10 \
 	 -I/usr/include/openbabel3   \
 	 -I/usr/include/eigen3       \
 	 -DBUILD=0                   \
@@ -31,6 +31,7 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 	 -lnlopt_cxx                 \
 	 -lgsl                       \
 	 -lgslcblas                  \
+	 -lgomp                      \
 	 -lm
 
 

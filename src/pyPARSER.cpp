@@ -109,6 +109,9 @@ PARSER::PARSER(){
     this->use_overlay_cutoff = false;
     this->use_score_optimization = false;
     this->use_only_binding_energy = false;
+    this->smiles_multifile = "";
+    this->use_smiles = false;
+    this->atom_limit = 1E6;
 }
 
 void PARSER::comparing (string param, ifstream &input) {
@@ -547,6 +550,13 @@ void PARSER::comparing (string param, ifstream &input) {
             this->use_only_binding_energy = true;
         }
     }
+    else if (param == "smiles_multifile"){
+        input >> this->smiles_multifile;
+        this->use_smiles = true;
+    }
+    else if (param == "atom_limit"){
+        input >> this->atom_limit;
+    }
 	else {
 		cout << "Unknown parameter: " << param << endl;
 		exit(1);
@@ -575,6 +585,7 @@ void PARSER::check_parameters_sanity(void){
 		this->conformers_to_evaluate = this->lig_conformers;
 	}
 }
+
 
 
 #include <boost/python.hpp>
@@ -678,7 +689,7 @@ BOOST_PYTHON_MODULE(pyPARSER)
         .def_readwrite("restraints_weight", & PARSER::restraints_weight)
         .def_readwrite("use_overlay_cutoff", & PARSER::use_overlay_cutoff)
         .def_readwrite("overlay_cutoff", & PARSER::overlay_cutoff)
-
+        .def_readwrite("atom_limit", & PARSER::atom_limit)
         .def("set_parameters", &PARSER::set_parameters)
         .def("comparing", &PARSER::comparing)
         .def("check_parameters_sanity", &PARSER::check_parameters_sanity)
