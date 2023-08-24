@@ -2,8 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
-#include "../../src/pyGrid.h"
-#include "../../src/pyMol2.h"
+#include "pyGrid.h"
+#include "pyMol2.h"
 
 #define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
 

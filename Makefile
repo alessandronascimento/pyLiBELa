@@ -33,6 +33,10 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 	 -lm 
 
 
+NVFLAGS=-DBUILD=0 -DHAVE_EIGEN -I/usr/local/include/openbabel3 -I/usr/include/eigen3 -I/usr/include/python3.10
+
+CUDAFLAGS=-L/usr/local/cuda/lib64 -lcudart
+
 #Command to clean target
 RM = rm -rf
 
@@ -45,6 +49,10 @@ all: pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEne
 	@ mv *.gz test/
 	@ echo ' '
 
+cudaGrid: 
+	@echo 'Building CUDA objects'
+	nvcc -c obj/cudaGrid.o src/cudaGrid.cu $(NVFLAGS)
+	@echo ' '
 
 pyPARSER.so: obj/pyPARSER.o
 	@echo 'Building PARSER dynamic library.'
@@ -61,9 +69,9 @@ pyWRITER.so : obj/pyWRITER.o obj/pyMol2.o obj/pyPARSER.o
 	$(CC) -shared obj/pyWRITER.o obj/pyMol2.o obj/pyPARSER.o -o pyWRITER.so $(LD_FLAGS)
 	@echo ' '
 
-pyGrid.so:   obj/pyGrid.o obj/pyMol2.o obj/pyPARSER.o obj/pyWRITER.o
+pyGrid.so:   obj/pyGrid.o obj/pyMol2.o obj/pyPARSER.o obj/pyWRITER.o cudaGrid
 	@echo 'Building GRID dynamic library.'
-	$(CC) -shared obj/pyGrid.o obj/pyMol2.o obj/pyPARSER.o obj/pyWRITER.o -o pyGrid.so $(LD_FLAGS)
+	$(CC) -shared obj/pyGrid.o obj/pyMol2.o obj/pyPARSER.o obj/pyWRITER.o -o pyGrid.so $(LD_FLAGS) $(CUDAFLAGS)
 	@echo ' '
 
 pyCOORD_MC.so : obj/pyCOORD_MC.o obj/pyRAND.o obj/pyMol2.o

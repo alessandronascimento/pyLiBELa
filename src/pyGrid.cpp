@@ -6,6 +6,7 @@
  */
 
 #include "pyGrid.h"
+#include "cudaGrid.cuh"
 //#include "pyWRITER.cpp"
 
 #define MAX_ALJ 100.0
@@ -75,16 +76,20 @@ Grid::Grid(PARSER* _Input, WRITER* _Writer, Mol2* Rec, vector<double> com){
 
     switch (Input->scoring_function) {
     case 0:
-        this->compute_grid_softcore_HB_omp(Rec);
+        // this->compute_grid_softcore_HB_omp(Rec);
+        invoke_compute_grid_softcore_HB_CUDA(this, Rec);
         break;
     case 1:
-        this->compute_grid_softcore_HB_omp(Rec);
+        // this->compute_grid_softcore_HB_omp(Rec);
+        invoke_compute_grid_softcore_HB_CUDA(this, Rec);
         break;
     case 2:
-        this->compute_grid_hardcore_HB_omp(Rec);
+        // this->compute_grid_hardcore_HB_omp(Rec);
+        invoke_compute_grid_hardcore_HB_CUDA(this, Rec);
         break;
     case 3:
-        this->compute_grid_hardcore_HB_omp(Rec);
+        // this->compute_grid_hardcore_HB_omp(Rec);
+        invoke_compute_grid_hardcore_HB_CUDA(this, Rec);
         break;
     case 4:
         this->compute_grid_hardcore_omp_HB_Gaussian(Rec);
