@@ -34,6 +34,9 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 	 -lgomp                      \
 	 -lm
 
+NVFLAGS=-DBUILD=0 -DHAVE_EIGEN -I/usr/local/include/openbabel3 -I/usr/include/eigen3 -I/usr/include/python3.10
+
+CUDAFLAGS=-L/usr/local/cuda/lib64 -lcudart
 
 #Command to clean target
 RM = rm -rf
@@ -47,6 +50,10 @@ all: pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEne
 	@ mv *.gz test/
 	@ echo ' '
 
+cudaGrid:
+	@echo 'Building CUDA Objects.'
+	nvcc -c obj/cudaGrid.o src/cudaGrid.cu $(NVFLAGS)
+	@echo ' '
 
 pyPARSER.so: obj/pyPARSER.o
 	@echo 'Building PARSER dynamic library.'
