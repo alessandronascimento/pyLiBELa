@@ -104,11 +104,9 @@ void compute_grid_softcore_HB_CUDA(int npointsx, int npointsy, int npointsz,
 
         for (int a=0; a<NHBdonors; a++){
             double d2 = distance_squared(xyz[HBdonor2[a]*3+0], x, xyz[HBdonor2[a]*3+1], y, xyz[HBdonor2[a]*3+2], z);
-            // if (index == 113181) printf("DEBUG d2 %lf\n", d2);
             double d10 = d2*d2*d2*d2*d2;
             double ang = angle(xyz[HBdonor1[a]*3+0], xyz[HBdonor1[a]*3+1], xyz[HBdonor1[a]*3+2], 
                     xyz[HBdonor2[a]*3+0], xyz[HBdonor2[a]*3+1], xyz[HBdonor2[a]*3+2], x, y, z);
-            if (index == 113181) printf("DEBUG ang %lf\n", ang);
             double angle_term = cos(ang * PI / 180.0) * cos(ang * PI / 180.0) * cos(ang * PI / 180.0) * cos(ang * PI / 180.0);
             hb_donor += ((HB_C12/(d10*d2)) - (HB_C10/d10)) * angle_term;    
         }
@@ -119,7 +117,6 @@ void compute_grid_softcore_HB_CUDA(int npointsx, int npointsy, int npointsz,
             hb_acceptor += ((HB_C12/(d10*d2)) - (HB_C10/d10));
         }
 
-        if (index == 113181) printf("DEBUG %lf\n", hb_donor);
         out_elec_grid[index] = elec;
         out_vdwA_grid[index] = vdwA;
         out_vdwB_grid[index] = vdwB;
@@ -291,7 +288,6 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid* grid, Mol2* rec) {
     dim3 griddims(8,8,8);
 
     printf("Entering kernel\n");
-    printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));
     compute_grid_softcore_HB_CUDA<<<griddims, blockdims>>>(grid->npointsx, grid->npointsy, grid->npointsz,
                                                            grid->grid_spacing,
                                                            grid->xbegin, grid->ybegin, grid->zbegin,
@@ -319,7 +315,6 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid* grid, Mol2* rec) {
                                                            d_out_hba_grid);
 
     printf("Kernel has ended\n");
-    printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));
 
     cudaMemcpy(out_elec_grid, d_out_elec_grid, size_bytes, cudaMemcpyDeviceToHost);
     cudaMemcpy(out_vdwA_grid, d_out_vdwA_grid, size_bytes, cudaMemcpyDeviceToHost);
@@ -453,7 +448,6 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid* grid, Mol2* rec) {
         dielectric_model = DielectricModel::none;
 
     printf("Entering kernel\n");
-    printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));
     compute_grid_hardcore_HB_CUDA<<<griddims, blockdims>>>(grid->npointsx, grid->npointsy, grid->npointsz,
                                                            grid->grid_spacing,
                                                            grid->xbegin, grid->ybegin, grid->zbegin,
@@ -482,7 +476,6 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid* grid, Mol2* rec) {
                                                            d_out_hba_grid);
 
     printf("Kernel has ended\n");
-    printf("Last error: %s\n", cudaGetErrorString(cudaGetLastError()));
 
     cudaMemcpy(out_elec_grid, d_out_elec_grid, size_bytes, cudaMemcpyDeviceToHost);
     cudaMemcpy(out_vdwA_grid, d_out_vdwA_grid, size_bytes, cudaMemcpyDeviceToHost);
