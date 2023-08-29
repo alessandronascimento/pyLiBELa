@@ -15,7 +15,7 @@ CC=g++
 CC_FLAGS=-fPIC                       \
          -O3                         \
 	 -I/usr/include/python3.10 \
-	 -I/usr/include/openbabel3   \
+	 -I/usr/local/include/openbabel3   \
 	 -I/usr/include/eigen3       \
 	 -DBUILD=0                   \
 	 -DHAVE_EIGEN                \
