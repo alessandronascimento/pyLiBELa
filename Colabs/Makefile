@@ -27,7 +27,6 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
          -lboost_python310           \
 	 -lz                         \
 	 -lopenbabel                 \
-	 -lgsl                       \
 	 -lnlopt_cxx                 \
 	 -lgsl                       \
 	 -lgslcblas                  \
