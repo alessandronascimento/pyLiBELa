@@ -1163,6 +1163,12 @@ void Mol2::initialize_gaff2(){
     ap.mass = 14.01;
     gaff_parameters.push_back(ap);
 
+    ap.type = "N3+";
+    ap.radius = 1.8240;
+    ap.epsilon = 0.1700;
+    ap.mass = 14.01;
+    gaff_parameters.push_back(ap);
+    
     ap.type = "S";
     ap.radius = 2.0000;
     ap.epsilon = 0.2500;
@@ -1211,6 +1217,12 @@ void Mol2::initialize_gaff2(){
     ap.mass = 35.45;
     gaff_parameters.push_back(ap);
 
+    ap.type = "Cac";
+    ap.radius = 1.8606;
+    ap.epsilon = 0.0988;
+    ap.mass = 12.01;
+    gaff_parameters.push_back(ap);
+    
     ap.type = "Br";
     ap.radius = 2.22;
     ap.epsilon = 0.320;
