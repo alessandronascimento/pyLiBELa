@@ -1462,6 +1462,10 @@ string Mol2::sybyl_2_gaff(string atom){
     else if (atom =="C2"){
         gaff_atom = "c2";
     }
+    else if (atom =="Cac"){
+        gaff_atom = "c2";
+    }
+
     else if (atom =="C1"){
         gaff_atom = "c1";
     }
@@ -1492,7 +1496,10 @@ string Mol2::sybyl_2_gaff(string atom){
     else if (atom =="N3"){
         gaff_atom = "n3";
     }
-
+        
+    else if (atom =="N3+"){
+        gaff_atom = "n3";
+    }
 
     else if (atom =="N.2"){
         gaff_atom = "n2";
