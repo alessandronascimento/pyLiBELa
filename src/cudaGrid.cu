@@ -230,9 +230,10 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid *grid, Mol2 *rec) {
 
   int *d_HBdonnor1;
   int *d_HBdonnor2;
+  int *d_HBacceptors;
+
   int *HBdonnor1 = new int[rec->HBdonors.size()];
   int *HBdonnor2 = new int[rec->HBdonors.size()];
-  int *d_HBacceptors = new int[rec->HBacceptors.size()];
 
   for (int i = 0; i < rec->HBdonors.size(); i++) {
     HBdonnor1[i] = rec->HBdonors[i][0];
@@ -261,7 +262,6 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   cudaMemcpy(d_HBacceptors, rec->HBacceptors.data(),
              rec->HBacceptors.size() * sizeof(int), cudaMemcpyHostToDevice);
 
-  // Só para teste, preferencialmente irá escrever diretamente para o Grid
   double *out_elec_grid = (double *)malloc(size_bytes);
   double *out_vdwA_grid = (double *)malloc(size_bytes);
   double *out_vdwB_grid = (double *)malloc(size_bytes);
@@ -347,16 +347,18 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   }
 
   delete[] (xyz_arr);
-  delete (HBdonnor1);
-  delete (HBdonnor2);
-  cudaFree(d_xyz);
+  delete[] (HBdonnor1);
+  delete[] (HBdonnor2);
 
+  cudaFree(d_xyz);
   cudaFree(d_charges);
   cudaFree(d_radii);
   cudaFree(d_epsilon_sqrt);
+
   cudaFree(d_HBacceptors);
   cudaFree(d_HBdonnor1);
   cudaFree(d_HBdonnor2);
+
   cudaFree(d_out_elec_grid);
   cudaFree(d_out_vdwA_grid);
   cudaFree(d_out_vdwB_grid);
@@ -365,6 +367,14 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   cudaFree(d_out_solv_grid);
   cudaFree(d_out_hba_grid);
   cudaFree(d_out_hbd_grid);
+
+  free(out_elec_grid);
+  free(out_vdwA_grid);
+  free(out_vdwB_grid);
+  free(out_solv_grid);
+  free(out_rec_solv_grid);
+  free(out_hba_grid);
+  free(out_hbd_grid);
 
   printf("Invoking finished\n");
 }
@@ -401,9 +411,10 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid *grid, Mol2 *rec) {
 
   int *d_HBdonnor1;
   int *d_HBdonnor2;
+  int *d_HBacceptors;
+
   int *HBdonnor1 = new int[rec->HBdonors.size()];
   int *HBdonnor2 = new int[rec->HBdonors.size()];
-  int *d_HBacceptors = new int[rec->HBacceptors.size()];
 
   for (int i = 0; i < rec->HBdonors.size(); i++) {
     HBdonnor1[i] = rec->HBdonors[i][0];
@@ -432,7 +443,6 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   cudaMemcpy(d_HBacceptors, rec->HBacceptors.data(),
              rec->HBacceptors.size() * sizeof(int), cudaMemcpyHostToDevice);
 
-  // Só para teste, preferencialmente irá escrever diretamente para o Grid
   double *out_elec_grid = (double *)malloc(size_bytes);
   double *out_vdwA_grid = (double *)malloc(size_bytes);
   double *out_vdwB_grid = (double *)malloc(size_bytes);
@@ -454,6 +464,7 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid *grid, Mol2 *rec) {
     dielectric_model = DielectricModel::none;
 
   printf("Entering kernel\n");
+
   compute_grid_hardcore_HB_CUDA<<<griddims, blockdims>>>(
       grid->npointsx, grid->npointsy, grid->npointsz, grid->grid_spacing,
       grid->xbegin, grid->ybegin, grid->zbegin, dielectric_model, d_xyz, rec->N,
@@ -527,16 +538,18 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   }
 
   delete[] (xyz_arr);
-  delete (HBdonnor1);
-  delete (HBdonnor2);
+  delete[] (HBdonnor1);
+  delete[] (HBdonnor2);
 
   cudaFree(d_xyz);
   cudaFree(d_charges);
   cudaFree(d_radii);
   cudaFree(d_epsilon_sqrt);
+
   cudaFree(d_HBacceptors);
   cudaFree(d_HBdonnor1);
   cudaFree(d_HBdonnor2);
+
   cudaFree(d_out_elec_grid);
   cudaFree(d_out_vdwA_grid);
   cudaFree(d_out_vdwB_grid);
@@ -545,6 +558,14 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   cudaFree(d_out_solv_grid);
   cudaFree(d_out_hba_grid);
   cudaFree(d_out_hbd_grid);
+
+  free(out_elec_grid);
+  free(out_vdwA_grid);
+  free(out_vdwB_grid);
+  free(out_solv_grid);
+  free(out_rec_solv_grid);
+  free(out_hba_grid);
+  free(out_hbd_grid);
 
   printf("Invoking finished\n");
 }
