@@ -22,7 +22,7 @@ deltaij			2.5
 deltaij_es		2.5
 mol2_aa			no
 search_box		45.0 45.0 45.0
-scoring_function        2
+scoring_function        1
 use_grids		yes
 grid_spacing            0.4
 grid_box                20.0    20.0    20.0    

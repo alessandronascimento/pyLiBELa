@@ -18,7 +18,9 @@
 * multifile                      multimol.dat                                                      *
 * mol2_aa                        0                                                                 *
 *                                                                                                  *
-* scoring function               Amber FF + Dessolvation                                           *
+* scoring function               Amber Softcore                                                    *
+* deltaij6                       244.14                                                            *
+* deltaij_es6                    244.14                                                            *
 * Electrostatic model            Coulomb                                                           *
 * dielectric_model               r                                                                 *
 * diel                           2.000                                                             *
