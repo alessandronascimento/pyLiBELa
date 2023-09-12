@@ -47,6 +47,7 @@ __global__ void compute_grid_softcore_HB_CUDA(
     int *HBdonor1, int *HBdonor2, int *HBacceptors, double *out_elec_grid,
     double *out_vdwA_grid, double *out_vdwB_grid, double *out_rec_solv_grid,
     double *out_solv_grid, double *out_hbd_grid, double *out_hba_grid) {
+  printf("Starting CUDA calculation of softcore grids...\n");
   int i = threadIdx.x + blockIdx.x * blockDim.x;
   int j = threadIdx.y + blockIdx.y * blockDim.y;
   int k = threadIdx.z + blockIdx.z * blockDim.z;
@@ -125,6 +126,7 @@ __global__ void compute_grid_hardcore_HB_CUDA(
     int *HBdonor1, int *HBdonor2, int *HBacceptors, double *out_elec_grid,
     double *out_vdwA_grid, double *out_vdwB_grid, double *out_rec_solv_grid,
     double *out_solv_grid, double *out_hbd_grid, double *out_hba_grid) {
+  printf("Starting CUDA calculation of AMBER grids...\n");
   int i = threadIdx.x + blockIdx.x * blockDim.x;
   int j = threadIdx.y + blockIdx.y * blockDim.y;
   int k = threadIdx.z + blockIdx.z * blockDim.z;
