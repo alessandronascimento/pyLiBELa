@@ -13,4 +13,7 @@ typedef struct st_DeviceGridInterpol {
 
 } DeviceGridInterpol;
 
+double invoke_compute_ene_from_grids_softcore_solvation(Grid* grid, Mol2 *lig, 
+                                                 const std::vector<std::vector<double>>& xyz);
+
 #endif CUDA_ENERGY2_CUH

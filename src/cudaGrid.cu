@@ -529,8 +529,8 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   }
 
   delete[] (xyz_arr);
-  delete (HBdonnor1);
-  delete (HBdonnor2);
+  delete[] (HBdonnor1);
+  delete[] (HBdonnor2);
 
   cudaFree(d_xyz);
   cudaFree(d_charges);

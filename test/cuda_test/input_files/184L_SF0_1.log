@@ -38,23 +38,4 @@
 * minimization_tolerance         0.0000000001                                                      *
 * minimization_delta             0.0000100000                                                      *
 * dock_min_tol                   0.0000000001                                                      *
-* minimization_timeout           120                                                               *
-* sort_by_energy                 1                                                                 *
-* elec_scale                     1.00                                                              *
-* vdw_scale                      1.00                                                              *
-* overlay_optimizer              ln_auglag                                                         *
-* energy_optimizer               direct                                                            *
-* Overlay Cuttoff                0.0000000000                                                      *
-* ignore_h                       0                                                                 *
-* deal                           0                                                                 *
-*                                                                                                  *
-* generate_conformers            0                                                                 *
-*                                                                                                  *
-* output_prefix                  184L_SF0_1                                                        *
-* write_mol2                     1                                                                 *
-*                                                                                                  *
-* Ligand energy model            GAFF                                                              *
-* Atomic FF model                AMBER                                                             *
-*                                                                                                  *
-****************************************************************************************************
-****************************************************************************************************
+* minimization_timeout           120                    

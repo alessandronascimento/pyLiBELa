@@ -1,38 +1,53 @@
 #include "../../src/pyEnergy2.h"
 #include "../../src/pyGrid.h"
 #include "../../src/pyMol2.h"
+#include <cuda_runtime_api.h>
+#include <device_atomic_functions.h>
+#include <driver_types.h>
 #include <iostream> 
 #include <vector>
 #include "cudaEnergy2.cuh"
 
-__device__ double distance_squared(double x1, double x2, double y1, double y2,
+__device__ double ene_distance_squared(double x1, double x2, double y1, double y2,
                                    double z1, double z2) {
 
   return pow(x2 - x1, 2.0) + pow(y2 - y1, 2.0) + pow(z2 - z1, 2.0);
 }
 
-__device__ double distance(double x1, double x2, double y1, double y2,
-                           double z1, double z2) {
-
-  return sqrt(pow(x2 - x1, 2.0) + pow(y2 - y1, 2.0) + pow(z2 - z1, 2.0));
-}
-
-__device__ double angle(double x1, double y1, double z1, double x2, double y2,
+__device__ double ene_angle(double x1, double y1, double z1, double x2, double y2,
                         double z2, double x3, double y3, double z3) {
 
-  double ab = sqrt(distance_squared(x1, x2, y1, y2, z1, z2));
+  double ab = sqrt(ene_distance_squared(x1, x2, y1, y2, z1, z2));
   if (ab == 0.0)
     ab = 0.0001;
-  double ac = sqrt(distance_squared(x1, x3, y1, y3, z1, z3));
+  double ac = sqrt(ene_distance_squared(x1, x3, y1, y3, z1, z3));
   if (ac == 0.0)
     ac = 0.0001;
-  double bc = sqrt(distance_squared(x2, x3, y2, y3, z2, z3));
+  double bc = sqrt(ene_distance_squared(x2, x3, y2, y3, z2, z3));
   if (bc == 0.0)
     bc = 0.0001;
 
   double angle = acos(((ab * ab) + (bc * bc) - (ac * ac)) / (2 * ab * bc));
   angle = angle * 180.0 / PI;
   return (angle);
+}
+
+__device__ bool atom_is_acceptor(int a, int *d_HBacceptors, int HBacceptors_size) {
+
+  for (int i = 0; i < HBacceptors_size; i++) {
+    if (d_HBacceptors[i] == a)
+      return true;
+  }
+  return false;
+}
+
+__device__ int H_is_donor(int a, int* d_HBdonors0, int* d_HBdonors1, int HBdonors_size) {
+
+    for (int i = 0; i < HBdonors_size; i++) {
+      if (d_HBdonors1[i] == a) return d_HBdonors0[i];
+    }
+
+    return -1;
 }
 
 __device__ double trilinear_interpolation(double *grid, int x0, int y0, int z0,
@@ -67,7 +82,6 @@ __device__ void grids_trilinear_interpolation(
     DeviceGridInterpol *GI) {
 
   double xd, yd, zd;
-  double c00, c10, c01, c11, c0, c1;
 
   xd = double((x - x0) / (x1 - x0));
   yd = double((y - y0) / (y1 - y0));
@@ -89,106 +103,244 @@ __device__ void grids_trilinear_interpolation(
                                            xd, yd, zd, npointsx, npointsy);
 }
 
-__device__ bool atom_is_acceptor(int a, int *d_HBacceptors, int HBacceptors_size) {
-
-  for (int i = 0; i < HBacceptors_size; i++) {
-    if (d_HBacceptors[i] == a)
-      return true;
-  }
-  return false;
-}
-
-__device__ bool H_is_donor(int a, int* d_HBdonors, int HBdonors_size) {
-
-  for (int i = 0 ; i < HBdonors_size ; i++) {
-    if (d_HBdonors[i] == a)
-      return true;
-  }
-  return false;
-}
 
 __global__ void compute_ene_from_grids_softcore_solvation(
-    int N, int npointsx, int npointsy, int npointsz, double solvation_alpha, double solvation_beta, 
-    int HBacceptors_size, int HBdonors_size, double scale_elec_energy, double scale_vdw_energy, 
+    int N, int npointsx, int npointsy, int npointsz, 
+    double solvation_alpha, double solvation_beta, int HBacceptors_size, int HBdonors_size,  
     double xbegin, double ybegin, double zbegin, double grid_spacing, 
     double *d_elec_grid, double *d_vdwA, double *d_vdwB,
     double *d_hb_donor_grid, double *d_acceptor_grid, double *d_rec_solv_gauss,
     double *d_solv_gauss, double *d_charges, double *d_epsilons_sqrt, double *d_xyz,
-    double *d_radii, int *d_HBacceptors, int *d_HBdonors, double *output) {
+    double *d_radii, int *d_HBacceptors, int *d_HBdonors0, int *d_HBdonors1,  
+    double *elec, double *vdwA, double *vdwB, double *rec_solv, 
+    double *lig_solv, double *hb_donor, double *hb_acceptor) {
 
-  double elec = 0.0, vdwA = 0.0, vdwB = 0.00, rec_solv = 0.00, lig_solv = 0.00,
-         lig_affinity, hb_donor = 0.0, hb_acceptor = 0.0;
   int a1 = 0, b1 = 0, c1 = 0, a2 = 0, b2 = 0, c2 = 0, donor_index;
-  double af, bf, cf, angle_term;
+  double af, bf, cf, lig_affinity, angle_term;
 
   int i = threadIdx.x + blockIdx.x * blockDim.x;
 
-  if (i < N) {
+  if (i > N) return;
 
-    if (a1 > 0 and b1 > 0 and c1 > 0 and a2 < npointsx and b2 < npointsy and
-        c2 < npointsz) {
-
-      DeviceGridInterpol GI;
-      grids_trilinear_interpolation(
-          d_elec_grid, d_vdwA, d_vdwB, d_hb_donor_grid, d_acceptor_grid, d_rec_solv_gauss, d_solv_gauss,
-          af, bf, cf, a1, b1, c1, a2, b2, c2, npointsx, npointsy, &GI);
-
-      /*
-            if (use_pbsa and pbsa_loaded) {
-              elec += charges[i] * GI->pbsa;
-            } else if (use_delphi and delphi_loaded) {
-              elec += charges[i] * GI->delphi;
-            } else {
-              elec += charges[i] * GI->elec;
-            }
-      */
-      elec += d_charges[i] * GI.elec;
-
-      vdwA += d_epsilons_sqrt[i] * pow(d_radii[i], 6) * GI.vdwA;
-      vdwB += d_epsilons_sqrt[i] * pow(d_radii[i], 3) * GI.vdwB;
-
-      lig_affinity =
-          (solvation_alpha * d_charges[i] * d_charges[i]) + solvation_beta;
-      rec_solv += GI.solv_gauss * (4.0 / 3.0) * PI * pow(d_radii[i], 3);
-      lig_solv += lig_affinity * GI.rec_solv_gauss;
-
-      if (atom_is_acceptor(i, d_HBacceptors, HBacceptors_size )) {
-        hb_donor += GI.hb_donor;
-      } 
-      else {
-        if (HBdonors_size > 0) {
-          donor_index = H_is_donor(i, d_HBdonors, HBdonors_size);
-          if (donor_index >= 0) { // atom is a H donor
-            double x = (af * grid_spacing) + xbegin;
-            double y = (bf * grid_spacing) + ybegin;
-            double z = (cf * grid_spacing) + zbegin;
-            angle_term = angle(d_xyz[donor_index * 3 + 0], d_xyz[donor_index * 3 + 1],
-                               d_xyz[donor_index * 3 + 2], d_xyz[i * 3 + 0], d_xyz[i * 3 + 1],
-                               d_xyz[i * 3 + 2], x, y, z);
-            angle_term =
-                cos(angle_term * PI / 180.0) * cos(angle_term * PI / 180.0) *
-                cos(angle_term * PI / 180.0) * cos(angle_term * PI / 180.0);
-            hb_acceptor += GI.hb_acceptor * angle_term;
-          }
-        }
-      }
-    } else {
-      elec += 999999.9;
-      vdwA += 999999.9;
-      vdwB += 999999.9;
-    }
+  af = (d_xyz[i * 3 + 0] - xbegin)/grid_spacing;
+  bf = (d_xyz[i * 3 + 1] - ybegin)/grid_spacing;
+  cf = (d_xyz[i * 3 + 2] - zbegin)/grid_spacing;
+  a1 = floor(af);
+  b1 = floor(bf);
+  c1 = floor(cf);
+  a2 = ceil(af);
+  if (a2 <= a1){
+      a2++;
+  }
+  b2 = ceil(bf);
+  if (b2 <= b1){
+      b2++;
+  }
+  c2 = ceil(cf);
+  if (c2 <= c1){
+      c2++;
   }
 
-  *output = ((scale_elec_energy * elec) + (scale_vdw_energy * (vdwA - vdwB)) +
-         rec_solv + lig_solv + hb_donor + hb_acceptor);
+  // If atom is outside the Grid, penalize with a high potential 
+  if (!(a1 > 0 and b1 > 0 and c1 > 0 and a2 < npointsx and b2 < npointsy and c2 < npointsz)) {
+    atomicAdd(&elec[0], 999999.9); 
+    atomicAdd(vdwA, 999999.9); 
+    atomicAdd(vdwB, 999999.9); 
+    return;
+  }
+
+  DeviceGridInterpol GI;
+  grids_trilinear_interpolation(
+      d_elec_grid, d_vdwA, d_vdwB, d_hb_donor_grid, d_acceptor_grid, d_rec_solv_gauss, d_solv_gauss,
+      af, bf, cf, a1, b1, c1, a2, b2, c2, npointsx, npointsy, &GI);
+
+  /*
+        if (use_pbsa and pbsa_loaded) {
+          elec += charges[i] * GI->pbsa;
+        } else if (use_delphi and delphi_loaded) {
+          elec += charges[i] * GI->delphi;
+        } else {
+          elec += charges[i] * GI->elec;
+        }
+  */
+  atomicAdd(elec, d_charges[i] * GI.elec); 
+
+  atomicAdd(vdwA, d_epsilons_sqrt[i] * pow(d_radii[i], 6) * GI.vdwA); 
+  atomicAdd(vdwB, d_epsilons_sqrt[i] * pow(d_radii[i], 3) * GI.vdwB); 
+
+  lig_affinity = (solvation_alpha * d_charges[i] * d_charges[i]) + solvation_beta;
+  atomicAdd(rec_solv, GI.solv_gauss * (4.0 / 3.0) * PI * pow(d_radii[i], 3));
+  atomicAdd(lig_solv, lig_affinity * GI.rec_solv_gauss); 
+
+  if (atom_is_acceptor(i, d_HBacceptors, HBacceptors_size )) {
+    atomicAdd(hb_donor, GI.hb_donor); 
+  } 
+
+  else if (HBdonors_size > 0) {
+
+    donor_index = H_is_donor(i, d_HBdonors0, d_HBdonors1, HBdonors_size);
+
+    if (donor_index >= 0) { // atom is a H donor
+      double x = (af * grid_spacing) + xbegin;
+      double y = (bf * grid_spacing) + ybegin;
+      double z = (cf * grid_spacing) + zbegin;
+      angle_term = ene_angle(d_xyz[donor_index * 3 + 0], d_xyz[donor_index * 3 + 1],
+                          d_xyz[donor_index * 3 + 2], d_xyz[i * 3 + 0], d_xyz[i * 3 + 1],
+                          d_xyz[i * 3 + 2], x, y, z);
+      angle_term =
+          cos(angle_term * PI / 180.0) * cos(angle_term * PI / 180.0) *
+          cos(angle_term * PI / 180.0) * cos(angle_term * PI / 180.0);
+      atomicAdd(hb_acceptor, GI.hb_acceptor * angle_term);
+    }
+  }
 }
 
-double invoke_compute_ene_from_grids_softcore_solvation(Grid* Grids, Mol2 *Lig, 
-                                                 std::vector<std::vector<double>> xyz) {
+
+double invoke_compute_ene_from_grids_softcore_solvation(Grid* grid, Mol2 *lig, 
+                                                 const std::vector<std::vector<double>>& xyz) {
 
   double *d_elec_grid, *d_vdwA, *d_vdwB, *d_hb_donor_grid, *d_acceptor_grid, *d_rec_solv_gauss, *d_solv_gauss;
-  double *d_charges, *d_epsilons_sqrt, *d_xyz, *d_radii, *output;
-  int *d_HBdonors, *d_HBacceptors; 
+  double *d_charges, *d_epsilons_sqrt, *d_xyz, *d_radii;
+  double *elec, *vdwA, *vdwB, *rec_solv, *lig_solv, *hb_donor, *hb_acceptor; 
+  int *d_HBdonors0, *d_HBdonors1, *d_HBacceptors; 
 
+  size_t size_bytes{grid->npointsx * grid->npointsy * grid->npointsz * sizeof(double)};
+
+  cudaMalloc(&d_elec_grid, size_bytes);
+  cudaMalloc(&d_vdwA, size_bytes);
+  cudaMalloc(&d_vdwB, size_bytes);
+  cudaMalloc(&d_solv_gauss, size_bytes);
+  cudaMalloc(&d_rec_solv_gauss, size_bytes);
+  cudaMalloc(&d_hb_donor_grid, size_bytes);
+  cudaMalloc(&d_acceptor_grid, size_bytes);
+
+  cudaMemcpy(d_elec_grid, grid->r_elec_grid, size_bytes, cudaMemcpyHostToDevice); 
+  cudaMemcpy(d_vdwA, grid->r_vdwA_grid, size_bytes, cudaMemcpyHostToDevice); 
+  cudaMemcpy(d_vdwB, grid->r_vdwB_grid, size_bytes, cudaMemcpyHostToDevice); 
+  cudaMemcpy(d_solv_gauss, grid->r_solv_gauss, size_bytes, cudaMemcpyHostToDevice); 
+  cudaMemcpy(d_rec_solv_gauss, grid->r_rec_solv_gauss, size_bytes, cudaMemcpyHostToDevice); 
+  cudaMemcpy(d_hb_donor_grid, grid->r_hb_donor_grid, size_bytes, cudaMemcpyHostToDevice); 
+  cudaMemcpy(d_acceptor_grid, grid->r_hb_acceptor_grid, size_bytes, cudaMemcpyHostToDevice); 
+
+  cudaMalloc(&elec, sizeof(double));
+  cudaMalloc(&vdwA, sizeof(double));
+  cudaMalloc(&vdwB, sizeof(double));
+  cudaMalloc(&rec_solv, sizeof(double));
+  cudaMalloc(&lig_solv, sizeof(double));
+  cudaMalloc(&hb_donor, sizeof(double));
+  cudaMalloc(&hb_acceptor, sizeof(double));
+
+  double *out_elec = (double*) malloc(sizeof(double)); 
+  double *out_vdwA = (double*) malloc(sizeof(double)); 
+  double *out_vdwB = (double*) malloc(sizeof(double)); 
+  double *out_rec_solv = (double*) malloc(sizeof(double)); 
+  double *out_lig_solv = (double*) malloc(sizeof(double)); 
+  double *out_hb_donor = (double*) malloc(sizeof(double)); 
+  double *out_hb_acceptor = (double*) malloc(sizeof(double)); 
+
+  cudaMemset(&elec, 0, sizeof(double));
+  cudaMemset(&vdwA, 0, sizeof(double));
+  cudaMemset(&vdwB, 0, sizeof(double));
+  cudaMemset(&rec_solv, 0, sizeof(double));
+  cudaMemset(&lig_solv, 0, sizeof(double));
+  cudaMemset(&hb_donor, 0, sizeof(double));
+  cudaMemset(&hb_acceptor, 0, sizeof(double));
+
+  cudaMalloc(&d_xyz, xyz.size() * xyz[0].size() * sizeof(double));
+  cudaMalloc(&d_charges, lig->charges.size() * sizeof(double));
+  cudaMalloc(&d_radii, lig->radii.size() * sizeof(double));
+  cudaMalloc(&d_epsilons_sqrt, lig->epsilons_sqrt.size() * sizeof(double));
+  cudaMalloc(&d_HBdonors0, lig->HBdonors.size() * sizeof(int));
+  cudaMalloc(&d_HBdonors1, lig->HBdonors.size() * sizeof(int));
+  cudaMalloc(&d_HBacceptors, lig->HBacceptors.size() * sizeof(int));
+
+  double *xyz_temp = new double[xyz.size() * 3];
+
+  for (int i = 0; i < xyz.size(); i++) {
+    xyz_temp[3 * i] = xyz[i][0];
+    xyz_temp[(3 * i) + 2] = xyz[i][2];
+    xyz_temp[(3 * i) + 1] = xyz[i][1];
+  }
+
+  int *HBdonor0_temp = new int[lig->HBdonors.size()];
+  int *HBdonor1_temp = new int[lig->HBdonors.size()];
+
+  for (int i = 0; i < lig->HBdonors.size(); i++) {
+    HBdonor0_temp[i] = lig->HBdonors[i][0];
+    HBdonor1_temp[i] = lig->HBdonors[i][1];
+  }
   
+  cudaMemcpy(d_xyz, xyz_temp, xyz.size() * 3 * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_charges, lig->charges.data(), lig->charges.size() * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_radii, lig->radii.data(), lig->radii.size() * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_epsilons_sqrt, lig->epsilons_sqrt.data(), lig->epsilons_sqrt.size() * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_HBdonors0, HBdonor0_temp, lig->HBdonors.size() * sizeof(int), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_HBdonors1, HBdonor1_temp, lig->HBdonors.size() * sizeof(int), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_HBacceptors, lig->HBacceptors.data(), lig->HBacceptors.size() * sizeof(int), cudaMemcpyHostToDevice);
+
+
+  printf("compute ene from grids softcore solvation has begun invoking\n");
+  compute_ene_from_grids_softcore_solvation<<<(lig->N + 255) /256 , 256>>>(
+      lig->N, grid->npointsx, grid->npointsy, grid->npointsz,
+      grid->Input->solvation_alpha, grid->Input->solvation_beta, lig->HBacceptors.size(), 
+      lig->HBdonors.size(), grid->xbegin, grid->ybegin, grid->zbegin, grid->grid_spacing,
+      d_elec_grid, d_vdwA, d_vdwB, d_hb_donor_grid, d_acceptor_grid, d_rec_solv_gauss,
+      d_solv_gauss, d_charges, d_epsilons_sqrt, d_xyz, d_radii, d_HBacceptors,
+      d_HBdonors0, d_HBdonors1, elec, vdwA, vdwB, rec_solv, lig_solv, hb_donor, hb_acceptor
+      );
+  printf("compute ene from grids softcore solvation has finished invoking\n");
+
+  cudaMemcpy(out_elec, elec, sizeof(double), cudaMemcpyDeviceToHost);
+  cudaMemcpy(out_vdwA, vdwA, sizeof(double), cudaMemcpyDeviceToHost);
+  cudaMemcpy(out_vdwB, vdwB, sizeof(double), cudaMemcpyDeviceToHost);
+  cudaMemcpy(out_rec_solv, rec_solv, sizeof(double), cudaMemcpyDeviceToHost);
+  cudaMemcpy(out_lig_solv, lig_solv, sizeof(double), cudaMemcpyDeviceToHost);
+  cudaMemcpy(out_hb_donor, hb_donor, sizeof(double), cudaMemcpyDeviceToHost);
+  cudaMemcpy(out_hb_acceptor, hb_acceptor, sizeof(double), cudaMemcpyDeviceToHost);
+
+  double energy = ((grid->Input->scale_elec_energy * *elec) + 
+                  (grid->Input->scale_vdw_energy*(*vdwA - *vdwB)) + 
+                  *rec_solv + *lig_solv + *hb_donor + *hb_acceptor);
+
+
+  cudaFree(d_elec_grid);
+  cudaFree(d_vdwA);
+  cudaFree(d_vdwB);
+  cudaFree(d_solv_gauss);
+  cudaFree(d_rec_solv_gauss);
+  cudaFree(d_hb_donor_grid);
+  cudaFree(d_acceptor_grid);
+
+  cudaFree(elec);
+  cudaFree(vdwA);
+  cudaFree(vdwB);
+  cudaFree(rec_solv);
+  cudaFree(lig_solv);
+  cudaFree(hb_donor);
+  cudaFree(hb_acceptor);
+
+  free(out_elec);
+  free(out_vdwA);
+  free(out_vdwB);
+  free(out_rec_solv);
+  free(out_lig_solv);
+  free(out_hb_donor);
+  free(out_hb_acceptor);
+
+  cudaFree(d_xyz);
+  cudaFree(d_charges);
+  cudaFree(d_radii);
+  cudaFree(d_epsilons_sqrt);
+  cudaFree(d_HBdonors0);
+  cudaFree(d_HBdonors1);
+  cudaFree(d_HBacceptors);
+
+  delete[] (xyz_temp);
+  delete[] (HBdonor0_temp);
+  delete[] (HBdonor1_temp);
+
+  return energy;
 }
+
+// TODO Error handling
+// TODO Extract distance, distance_squared and angle functions

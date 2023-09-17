@@ -5,6 +5,7 @@
 #include "../../../src/pyPARSER.cpp"
 #include "../../../src/pyWRITER.cpp"
 #include "../cudaGrid.cuh"
+#include "../cudaEnergy2.cuh"
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -71,7 +72,7 @@ int main(int argc, char *argv[]) {
   printf("Computing grids centered at %10.5f %10.5f %10.5f.\n", com[0], com[1],
          com[2]);
   printf("This may take a while...Coffee time, maybe?\n");
-  delete Lig;
+  //delete Lig;
   delete Coord;
   delete HB;
   Grid *Grids = new Grid(Input, Writer, Rec, com);
@@ -103,20 +104,12 @@ int main(int argc, char *argv[]) {
   // }
 
   start = clock();
-  // invoke_compute_grid_hardcore_HB_CUDA(Grids, Rec);
+  invoke_compute_grid_hardcore_HB_CUDA(Grids, Rec);
+  cout << invoke_compute_ene_from_grids_softcore_solvation(Grids, Lig, Lig->xyz); 
   end = clock();
   printf("Grid computation took %7.3f seconds.\n",
          (1.0 * (end - start) / CLOCKS_PER_SEC));
-  cout << "N (atoms): " << Rec->N << '\n';
-
-  cout << "dielectric_model: " << Grids->Input->dielectric_model << '\n';
-  printf("Grids x y z: %ld %ld %ld\n\n", Grids->elec_grid.size(),
-         Grids->elec_grid[0].size(), Grids->elec_grid[0][0].size());
-
-  cout << Grids->r_elec_grid[0] << "\n";
-  cout << Grids->elec_grid[0][0][0] << "\n";
-
-  delete Rec;
+    delete Rec;
   delete Writer;
   delete Input;
 

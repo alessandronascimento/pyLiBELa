@@ -6,8 +6,7 @@ PYTHON_FILE = *.py
 
 EXEC= cudaTest
 
-CUDA_FLAGS= -L/usr/local/cuda/lib64 -lcudart
-
+CUDA_FLAGS= -L/usr/local/cuda/lib64 -lcudart 
 #BOOST_FLAGS = -lboost_python38 
 BOOST_FLAGS = -lboost_python310 
 
@@ -15,14 +14,13 @@ BOOST_FLAGS = -lboost_python310
 PYTHON_INCLUDE= -I /usr/include/python3.10
 
 LIBS = -I/usr/local/include/python3.10 \
-	 -I/usr/local/include/openbabel3   \
+	 -I/usr/include/openbabel3   \
 	 -I/usr/include/eigen3       \
 	 -DBUILD=0                   \
 	 -DHAVE_EIGEN              	 \
 	 # --expt-relaxed-constexpr
 	 
 
-# all: cuda cpp linknvcc
 all: grid
 
 python: 
@@ -32,8 +30,9 @@ cuda:
 	@ nvcc --compiler-options '-fPIC' -I /usr/local/cuda/include -c cudaTest.cu
 
 grid:
-	@ nvcc -c cudaGrid.o cudaGrid.cu $(LIBS)
-	
+	@ nvcc -c -o cudaGrid.o cudaGrid.cu $(LIBS)
+	@ nvcc -c -o cudaEnergy2.o cudaEnergy2.cu $(LIBS) -arch=sm_61	
+
 debug:
 	@ nvcc -c -g -G cudaGrid.o cudaGrid2.cu $(LIBS)
 
