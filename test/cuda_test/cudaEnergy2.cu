@@ -141,9 +141,9 @@ __global__ void compute_ene_from_grids_softcore_solvation(
       c2++;
   }
 
-  // If atom is outside the Grid, penalize with a high potential 
-  if (!(a1 > 0 and b1 > 0 and c1 > 0 and a2 < npointsx and b2 < npointsy and c2 < npointsz)) {
-    atomicAdd(&elec[0], 999999.9); 
+  // If it is outside the Grid boundaries, penalize with a high potential 
+  if (a1 < 0 or b1 < 0 or c1 < 0 or a2 > npointsx or b2 > npointsy or c2 > npointsz) {
+    atomicAdd(elec, 999999.9); 
     atomicAdd(vdwA, 999999.9); 
     atomicAdd(vdwB, 999999.9); 
     return;
@@ -238,13 +238,13 @@ double invoke_compute_ene_from_grids_softcore_solvation(Grid* grid, Mol2 *lig,
   double *out_hb_donor = (double*) malloc(sizeof(double)); 
   double *out_hb_acceptor = (double*) malloc(sizeof(double)); 
 
-  cudaMemset(&elec, 0, sizeof(double));
-  cudaMemset(&vdwA, 0, sizeof(double));
-  cudaMemset(&vdwB, 0, sizeof(double));
-  cudaMemset(&rec_solv, 0, sizeof(double));
-  cudaMemset(&lig_solv, 0, sizeof(double));
-  cudaMemset(&hb_donor, 0, sizeof(double));
-  cudaMemset(&hb_acceptor, 0, sizeof(double));
+  cudaMemset(elec, 0, sizeof(double));
+  cudaMemset(vdwA, 0, sizeof(double));
+  cudaMemset(vdwB, 0, sizeof(double));
+  cudaMemset(rec_solv, 0, sizeof(double));
+  cudaMemset(lig_solv, 0, sizeof(double));
+  cudaMemset(hb_donor, 0, sizeof(double));
+  cudaMemset(hb_acceptor, 0, sizeof(double));
 
   cudaMalloc(&d_xyz, xyz.size() * xyz[0].size() * sizeof(double));
   cudaMalloc(&d_charges, lig->charges.size() * sizeof(double));
@@ -298,9 +298,9 @@ double invoke_compute_ene_from_grids_softcore_solvation(Grid* grid, Mol2 *lig,
   cudaMemcpy(out_hb_donor, hb_donor, sizeof(double), cudaMemcpyDeviceToHost);
   cudaMemcpy(out_hb_acceptor, hb_acceptor, sizeof(double), cudaMemcpyDeviceToHost);
 
-  double energy = ((grid->Input->scale_elec_energy * *elec) + 
-                  (grid->Input->scale_vdw_energy*(*vdwA - *vdwB)) + 
-                  *rec_solv + *lig_solv + *hb_donor + *hb_acceptor);
+  double energy = ((grid->Input->scale_elec_energy * *out_elec) + 
+                  (grid->Input->scale_vdw_energy*(*out_vdwA - *out_vdwB)) + 
+                  *out_rec_solv + *out_lig_solv + *out_hb_donor + *out_hb_acceptor);
 
 
   cudaFree(d_elec_grid);

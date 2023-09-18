@@ -4,6 +4,7 @@
 #include "../../../src/pyMol2.cpp"
 #include "../../../src/pyPARSER.cpp"
 #include "../../../src/pyWRITER.cpp"
+#include "../../../src/pyEnergy2.cpp"
 #include "../cudaGrid.cuh"
 #include "../cudaEnergy2.cuh"
 #include <cstdlib>
@@ -103,15 +104,24 @@ int main(int argc, char *argv[]) {
   //     printf("\n");
   // }
 
-  start = clock();
   invoke_compute_grid_hardcore_HB_CUDA(Grids, Rec);
-  cout << invoke_compute_ene_from_grids_softcore_solvation(Grids, Lig, Lig->xyz); 
+  Energy2 *ene = new Energy2(Input);
+
+  start = clock();
+  cout << "Original: " << ene->compute_ene_from_grids_softcore_solvation(Grids, Lig, Lig->xyz) << "\n"; 
   end = clock();
-  printf("Grid computation took %7.3f seconds.\n",
-         (1.0 * (end - start) / CLOCKS_PER_SEC));
-    delete Rec;
+  printf("Original energy computation took %7.3f seconds.\n", (1.0 * (end - start) / CLOCKS_PER_SEC));
+  
+  start = clock();
+  cout << "Kernel: " << invoke_compute_ene_from_grids_softcore_solvation(Grids, Lig, Lig->xyz) << "\n"; 
+  end = clock();
+  printf("Kernel energy computation took %7.3f seconds.\n", (1.0 * (end - start) / CLOCKS_PER_SEC));
+  
+  delete Rec;
   delete Writer;
   delete Input;
+  delete ene;
+  delete Lig; 
 
   printf("*********************************************************************"
          "*******************************\n");

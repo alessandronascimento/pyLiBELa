@@ -10,8 +10,7 @@
 ****************************************************************************************************
 ****************************************************************************************************
 *                                                                                                  *
-* dock_parallel                  1                                                                 *
-* parallel_jobs                  8                                                                 *
+* dock_parallel                  0                                                                 *
 *                                                                                                  *
 * rec_mol2                       ./184L_DOCKPREP.mol2.gz                                           *
 * lig_mol2                       ./184L_LIG_DOCKPREP.mol2.gz                                       *
@@ -19,7 +18,7 @@
 * multifile                      multimol.dat                                                      *
 * mol2_aa                        0                                                                 *
 *                                                                                                  *
-* scoring function               Amber Softcore + Dessolvation                                     *
+* scoring function               Amber Softcore                                                    *
 * deltaij6                       244.14                                                            *
 * deltaij_es6                    244.14                                                            *
 * Electrostatic model            Coulomb                                                           *

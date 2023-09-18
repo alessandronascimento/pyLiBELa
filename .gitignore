@@ -1,5 +1,10 @@
 #object files
 *.o
 
+#log files
+*.log
+
 # McGrid executable
 test/cuda_test/McGrid/McGrid
+
+
