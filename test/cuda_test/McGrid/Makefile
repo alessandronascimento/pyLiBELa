@@ -1,9 +1,9 @@
 #!/bin/bash
 
 CC=g++
-CFLAGS=-c -O3 -ffast-math -fopenmp -DBUILD=0 -DHAVE_EIGEN -I/usr/local/include/openbabel3 -I/usr/include/eigen3 -I/usr/include/python3.10
-NVFLAGS=-DBUILD=0 -DHAVE_EIGEN -I/usr/local/include/openbabel3 -I/usr/include/eigen3 -I/usr/include/python3.10
-LDFLAGS=-lz -L/usr/lib/x86_64-linux-gnu -lopenbabel -lgomp -lpthread -lgsl -lgslcblas -lm -lpython3.10 -lboost_python310 -L/usr/local/cuda/lib64 -lcudart
+CFLAGS=-c -O3 -ffast-math -fopenmp -DBUILD=0 -DHAVE_EIGEN -I/usr/include/openbabel3 -I/usr/include/eigen3 -I/usr/include/python3.11
+NVFLAGS=-DBUILD=0 -DHAVE_EIGEN -I/usr/include/openbabel3 -I/usr/include/eigen3 -I/usr/include/python3.11
+LDFLAGS=-lz -L/usr/lib/x86_64-linux-gnu -lopenbabel -lgomp -lpthread -lgsl -lgslcblas -lm -lpython3.11 -lboost_python311 -L/usr/local/cuda/lib64 -lcudart
 SOURCES=McGrid.cpp 
 OBJECTS=$(SOURCES:.cpp=.o) cudaGrid.o cudaEnergy2.o
 
@@ -16,7 +16,7 @@ cudaGrid:
 	nvcc -c ../cudaGrid.o ../cudaGrid.cu $(NVFLAGS)
 
 cudaEnergy2: 
-	nvcc -c -g -G -arch=sm_61 ../cudaEnergy2.o ../cudaEnergy2.cu $(NVFLAGS)
+	nvcc -c -arch=sm_72 ../cudaEnergy2.o ../cudaEnergy2.cu $(NVFLAGS)
 
 McGrid: McGrid.o cudaGrid cudaEnergy2
 	$(CC) McGrid.o -o McGrid cudaGrid.o cudaEnergy2.o  $(LDFLAGS) 

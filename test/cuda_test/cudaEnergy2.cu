@@ -78,7 +78,7 @@ __device__ void grids_trilinear_interpolation(
     double *d_elec_grid, double *d_vdwA, double *d_vdwB,
     double *d_hb_donor_grid, double *d_acceptor_grid, double *d_rec_solv_gauss,
     double *d_solv_gauss, double x, double y, double z, int x0, int y0, int z0,
-    int x1, int y1, int z1, int npointsx, int npointsy,
+    int x1, int y1, int z1, int npointsx, int npointsy, int scoring_function,
     DeviceGridInterpol *GI) {
 
   double xd, yd, zd;
@@ -97,15 +97,24 @@ __device__ void grids_trilinear_interpolation(
                                          z1, xd, yd, zd, npointsx, npointsy);
   GI->hb_acceptor = trilinear_interpolation(d_acceptor_grid, x0, y0, z0, x1, y1,
                                             z1, xd, yd, zd, npointsx, npointsy);
-  GI->rec_solv_gauss = trilinear_interpolation(
-      d_rec_solv_gauss, x0, y0, z0, x1, y1, z1, xd, yd, zd, npointsx, npointsy);
-  GI->solv_gauss = trilinear_interpolation(d_solv_gauss, x0, y0, z0, x1, y1, z1,
-                                           xd, yd, zd, npointsx, npointsy);
+
+  if ((scoring_function == 0) or (scoring_function == 2) or (scoring_function == 4)){
+
+    GI->rec_solv_gauss = trilinear_interpolation(
+        d_rec_solv_gauss, x0, y0, z0, x1, y1, z1, xd, yd, zd, npointsx, npointsy);
+    GI->solv_gauss = trilinear_interpolation(d_solv_gauss, x0, y0, z0, x1, y1, z1,
+                                            xd, yd, zd, npointsx, npointsy);
+  }
+
+  else {
+    GI->rec_solv_gauss = 0.0;
+    GI->solv_gauss = 0.0;
+  }
 }
 
 
 __global__ void compute_ene_from_grids_softcore_solvation(
-    int N, int npointsx, int npointsy, int npointsz, 
+    int N, int npointsx, int npointsy, int npointsz, int scoring_function, 
     double solvation_alpha, double solvation_beta, int HBacceptors_size, int HBdonors_size,  
     double xbegin, double ybegin, double zbegin, double grid_spacing, 
     double *d_elec_grid, double *d_vdwA, double *d_vdwB,
@@ -120,7 +129,7 @@ __global__ void compute_ene_from_grids_softcore_solvation(
 
   int i = threadIdx.x + blockIdx.x * blockDim.x;
 
-  if (i > N) return;
+  if (i >= N) return;
 
   af = (d_xyz[i * 3 + 0] - xbegin)/grid_spacing;
   bf = (d_xyz[i * 3 + 1] - ybegin)/grid_spacing;
@@ -143,6 +152,7 @@ __global__ void compute_ene_from_grids_softcore_solvation(
 
   // If it is outside the Grid boundaries, penalize with a high potential 
   if (a1 < 0 or b1 < 0 or c1 < 0 or a2 > npointsx or b2 > npointsy or c2 > npointsz) {
+    printf("Thread %d failed the condition\n", i);
     atomicAdd(elec, 999999.9); 
     atomicAdd(vdwA, 999999.9); 
     atomicAdd(vdwB, 999999.9); 
@@ -152,7 +162,7 @@ __global__ void compute_ene_from_grids_softcore_solvation(
   DeviceGridInterpol GI;
   grids_trilinear_interpolation(
       d_elec_grid, d_vdwA, d_vdwB, d_hb_donor_grid, d_acceptor_grid, d_rec_solv_gauss, d_solv_gauss,
-      af, bf, cf, a1, b1, c1, a2, b2, c2, npointsx, npointsy, &GI);
+      af, bf, cf, a1, b1, c1, a2, b2, c2, npointsx, npointsy, scoring_function, &GI);
 
   /*
         if (use_pbsa and pbsa_loaded) {
@@ -281,7 +291,7 @@ double invoke_compute_ene_from_grids_softcore_solvation(Grid* grid, Mol2 *lig,
 
   printf("compute ene from grids softcore solvation has begun invoking\n");
   compute_ene_from_grids_softcore_solvation<<<(lig->N + 255) /256 , 256>>>(
-      lig->N, grid->npointsx, grid->npointsy, grid->npointsz,
+      lig->N, grid->npointsx, grid->npointsy, grid->npointsz, grid->Input->scoring_function,
       grid->Input->solvation_alpha, grid->Input->solvation_beta, lig->HBacceptors.size(), 
       lig->HBdonors.size(), grid->xbegin, grid->ybegin, grid->zbegin, grid->grid_spacing,
       d_elec_grid, d_vdwA, d_vdwB, d_hb_donor_grid, d_acceptor_grid, d_rec_solv_gauss,
