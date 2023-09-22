@@ -190,6 +190,7 @@ bool Mol2::parse_smiles(PARSER *Input, string smiles_input, string molname){
     }
     else{
         bret = false;
+        printf("bret set to false because ligand size %d is greater than Input.atom_limit %d\n",mol.NumAtoms(),Input->atom_limit);
     }
     return bret;
 }
@@ -1427,6 +1428,37 @@ void Mol2::initialize_gaff2(){
     ap.mass = 39.098;
     gaff_parameters.push_back(ap);
 
+    ap.type = "Nox";
+    ap.radius = 1.8240;
+    ap.epsilon = 0.1700;
+    ap.mass = 14.01;
+    gaff_parameters.push_back(ap);
+
+    ap.type = "Ntr";
+    ap.radius = 1.8240;
+    ap.epsilon = 0.1700;
+    ap.mass = 14.01;
+    gaff_parameters.push_back(ap);
+
+    ap.type = "Pac";
+    ap.radius = 2.0732;
+    ap.epsilon = 0.2295;
+    ap.mass = 30.97;
+    gaff_parameters.push_back(ap);
+
+    ap.type = "Sac";
+    ap.radius = 1.9825;
+    ap.epsilon = 0.2824;
+    ap.mass = 32.06;
+    gaff_parameters.push_back(ap);
+
+
+    ap.type = "Sox";
+    ap.radius = 1.9825;
+    ap.epsilon = 0.2824;
+    ap.mass = 32.06;
+    gaff_parameters.push_back(ap);
+
     this->gaff_force_field = gaff_parameters;
 }
 
@@ -1668,6 +1700,25 @@ string Mol2::sybyl_2_gaff(string atom){
     else if (atom == "Si"){
         gaff_atom = "Si";
     }
+    else if (atom =="Nox"){
+        gaff_atom = "n3";
+    }
+
+   else if (atom =="Ntr"){
+        gaff_atom = "n2";
+    }
+
+    else if (atom =="Pac"){
+        gaff_atom = "p3";
+    }
+
+    else if (atom =="Sac"){
+        gaff_atom = "sh";
+    }
+
+    else if (atom =="Sox"){
+        gaff_atom = "sh";
+    }
     else{
         bool found = false;
         for (unsigned i=0; i< this->gaff_force_field.size(); i++){
@@ -1789,6 +1840,9 @@ string Mol2::gaff_2_sybyl(string atom){
     }
     else if (atom =="HO"){
         sybyl_atom = "H";
+    }
+    else if (atom =="P"){
+        sybyl_atom = "P.3";
     }
     return(sybyl_atom);
 }
