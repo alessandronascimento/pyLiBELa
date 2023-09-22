@@ -151,8 +151,7 @@ __global__ void compute_ene_from_grids_softcore_solvation(
   }
 
   // If it is outside the Grid boundaries, penalize with a high potential 
-  if (a1 < 0 or b1 < 0 or c1 < 0 or a2 > npointsx or b2 > npointsy or c2 > npointsz) {
-    printf("Thread %d failed the condition\n", i);
+  if (a1 <= 0 or b1 <= 0 or c1 <= 0 or a2 >= npointsx or b2 >= npointsy or c2 >= npointsz) {
     atomicAdd(elec, 999999.9); 
     atomicAdd(vdwA, 999999.9); 
     atomicAdd(vdwB, 999999.9); 
@@ -288,8 +287,8 @@ double invoke_compute_ene_from_grids_softcore_solvation(Grid* grid, Mol2 *lig,
   cudaMemcpy(d_HBdonors1, HBdonor1_temp, lig->HBdonors.size() * sizeof(int), cudaMemcpyHostToDevice);
   cudaMemcpy(d_HBacceptors, lig->HBacceptors.data(), lig->HBacceptors.size() * sizeof(int), cudaMemcpyHostToDevice);
 
+  // ------------ KERNEL START -----------------------------------------
 
-  printf("compute ene from grids softcore solvation has begun invoking\n");
   compute_ene_from_grids_softcore_solvation<<<(lig->N + 255) /256 , 256>>>(
       lig->N, grid->npointsx, grid->npointsy, grid->npointsz, grid->Input->scoring_function,
       grid->Input->solvation_alpha, grid->Input->solvation_beta, lig->HBacceptors.size(), 
@@ -298,7 +297,6 @@ double invoke_compute_ene_from_grids_softcore_solvation(Grid* grid, Mol2 *lig,
       d_solv_gauss, d_charges, d_epsilons_sqrt, d_xyz, d_radii, d_HBacceptors,
       d_HBdonors0, d_HBdonors1, elec, vdwA, vdwB, rec_solv, lig_solv, hb_donor, hb_acceptor
       );
-  printf("compute ene from grids softcore solvation has finished invoking\n");
 
   cudaMemcpy(out_elec, elec, sizeof(double), cudaMemcpyDeviceToHost);
   cudaMemcpy(out_vdwA, vdwA, sizeof(double), cudaMemcpyDeviceToHost);

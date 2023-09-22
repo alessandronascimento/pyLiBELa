@@ -110,12 +110,12 @@ int main(int argc, char *argv[]) {
   start = clock();
   cout << "Original: " << ene->compute_ene_from_grids_softcore_solvation(Grids, Lig, Lig->xyz) << "\n"; 
   end = clock();
-  printf("Original energy computation took %7.3f seconds.\n", (1.0 * (end - start) / CLOCKS_PER_SEC));
+  printf("Original energy computation took %7.6f seconds.\n", (1.0 * (end - start) / CLOCKS_PER_SEC));
   
   start = clock();
   cout << "Kernel: " << invoke_compute_ene_from_grids_softcore_solvation(Grids, Lig, Lig->xyz) << "\n"; 
   end = clock();
-  printf("Kernel energy computation took %7.3f seconds.\n", (1.0 * (end - start) / CLOCKS_PER_SEC));
+  printf("Kernel energy computation took %7.6f seconds.\n", (1.0 * (end - start) / CLOCKS_PER_SEC));
   
   delete Rec;
   delete Writer;
