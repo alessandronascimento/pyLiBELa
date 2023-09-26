@@ -1719,6 +1719,11 @@ string Mol2::sybyl_2_gaff(string atom){
     else if (atom =="Sox"){
         gaff_atom = "sh";
     }
+
+    else if (atom =="Cl-"){
+        gaff_atom = "cl";
+    }
+        
     else{
         bool found = false;
         for (unsigned i=0; i< this->gaff_force_field.size(); i++){
