@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "../LiBELa/Mol2.cpp"
-#include "../LiBELa/PARSER.cpp"
+#include "../src/pyMol2.cpp"
+#include "../src/pyPARSER.cpp"
 
 using namespace std;
 
