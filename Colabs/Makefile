@@ -39,11 +39,11 @@ RM = rm -rf
 
 #Compilation and linking
 
-all: pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEnergy2.so pyConformer.so pyRAND.so pyGaussian.so pyMcEntropy.so pySA.so pyMC.so pyOptimizer.so pyDocker.so pyFullSearch.so
+all: pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEnergy2.so pyConformer.so pyRAND.so pyGaussian.so pyMcEntropy.so pySA.so pyMC.so pyOptimizer.so pyDocker.so pyFullSearch.so McCharge smiles2mol2
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
-	@ mkdir test
-	@ mv *.gz test/
+#	@ mkdir test
+#	@ mv *.gz test/
 	@ echo ' '
 
 
@@ -125,6 +125,18 @@ pyDocker.so: obj/pyDocker.o obj/pyMol2.o obj/pyOptimizer.o obj/pyPARSER.o obj/py
 pyFullSearch.so: obj/pyFullSearch.o obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o
 	@echo 'Building FULLSEARCH dynamic library.'
 	$(CC) -shared obj/pyFullSearch.o obj/pyMol2.o obj/pyPARSER.o obj/pyConformer.o obj/pyWRITER.o obj/pyCOORD_MC.o obj/pyGrid.o obj/pyEnergy2.o -o pyFullSearch.so $(LD_FLAGS)
+	@echo ' '
+
+McCharge: obj/pyMol2.o obj/pyPARSER.o
+	@echo 'Building McCharge tool...'
+	$(CC) $(CC_FLAGS) test/McCharge.cpp -c -o test/McCharge.o 
+	$(CC) obj/pyMol2.o obj/pyPARSER.o test/McCharge.o -o test/McCharge $(LD_FLAGS) -lpython3.10
+	@echo ' '
+
+smiles2mol2: obj/pyMol2.o
+	@echo 'Building smiles2mol2 tool...'
+	$(CC) $(CC_FLAGS) test/smiles2mol2.cpp -c -o test/smiles2mol2.o 
+	$(CC) obj/pyMol2.o test/smiles2mol2.o -o test/smiles2mol2 $(LD_FLAGS) -lpython3.10
 	@echo ' '
 	
 obj/%.o: src/%.cpp
