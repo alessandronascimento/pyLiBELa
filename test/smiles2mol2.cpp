@@ -7,7 +7,7 @@
 #include <openbabel/builder.h>
 #include <openbabel/obiter.h>
 #include <openbabel/elements.h>
-#include "../LiBELa/Mol2.cpp"
+#include "../src/pyMol2.cpp"
 
 using namespace std;
 using namespace OpenBabel;
