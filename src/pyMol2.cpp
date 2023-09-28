@@ -20,14 +20,14 @@ Mol2::Mol2(PARSER *Input, string molfile) {
         ok = this->parse_gzipped_file(Input, molfile);
         if (! ok){
             printf("Could not correctly parse mol2 file %s. Please check.\n", molfile.c_str());
-            exit(1);
+            //exit(1);
         }
     }
     else {
         ok = this->parse_mol2file(Input, molfile);
         if (! ok){
             printf("Could not correctly parse mol2 file %s. Please check.\n", molfile.c_str());
-            exit(1);
+            //exit(1);
         }
     }
 }
