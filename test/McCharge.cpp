@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "../src/pyMol2.cpp"
-#include "../src/pyPARSER.cpp"
+#include "../src/pyMol2.h"
+#include "../src/pyPARSER.h"
 
 using namespace std;
 
