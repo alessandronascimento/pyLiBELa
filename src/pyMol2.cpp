@@ -1476,7 +1476,7 @@ void Mol2::get_gaff_atomic_parameters(string gaff_atom, atom_param* ap){
     }
     if (!found){
         printf("Could not find atomic parameters for atom %s. Please, check.\n", gaff_atom.c_str());
-        exit(1);
+        //exit(1);
     }
 }
 
