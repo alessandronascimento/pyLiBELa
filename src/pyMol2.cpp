@@ -13,7 +13,7 @@ Mol2::Mol2(){
     str = new char[100];
 }
 
-bool Mol2::Mol2(PARSER *Input, string molfile) {
+Mol2::Mol2(PARSER *Input, string molfile) {
     bool ok;
     str = new char[100];
     if ((molfile.substr(molfile.size()-3, 3) == ".gz") or (molfile.substr(molfile.size()-2, 2) == ".z")){
