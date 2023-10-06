@@ -9,9 +9,9 @@ parallel_jobs		8
 # input files
 #
 
-rec_mol2                ./184L_DOCKPREP.mol2.gz
-lig_mol2                ./184L_LIG_DOCKPREP.mol2.gz
-reflig_mol2		        ./184L_LIG_DOCKPREP.mol2.gz
+rec_mol2                ./1A8K.rec.clean.mol2.gz
+lig_mol2                ./1A8K.lig.am1bcc.mol2.gz
+reflig_mol2		        ./1A8K.lig.am1bcc.mol2.gz
 multifile               multimol.dat
 
 #
