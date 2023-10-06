@@ -75,6 +75,7 @@ bool Mol2::parse_smiles(PARSER *Input, string smiles_input, string molname){
         string sybyl_gaff;
 
         this->N = mol.NumAtoms();
+	this->Nbonds = mol.NumBonds();
         this->molname = molname;
         this->Nres = 0;
         this->residue_pointer.push_back(1);
