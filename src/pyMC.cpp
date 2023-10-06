@@ -1409,7 +1409,7 @@ BOOST_PYTHON_MODULE(pyMC)
         .def_readwrite("internal_energy", & MC::step_t::internal_energy)
     ;
     
-    class_<energy_result_t>("energy_result_t)
+    class_<energy_result_t>("energy_result_t")
         .def_readwrite("vdw", & energy_result_t::vdw)
         .def_readwrite("elec", & energy_result_t::elec)
         .def_readwrite("rec_solv", & energy_result_t::rec_solv)
