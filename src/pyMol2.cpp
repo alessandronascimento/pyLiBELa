@@ -1780,7 +1780,7 @@ string Mol2::gaff_2_sybyl(string atom){
         sybyl_atom = "N.4";
     }
     else if (atom =="na"){
-        sybyl_atom = "N.pl";
+        sybyl_atom = "N.3";
     }
     else if (atom =="oh"){
         sybyl_atom = "O.3";
