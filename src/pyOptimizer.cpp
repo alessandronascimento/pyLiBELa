@@ -147,7 +147,7 @@ double Optimizer::objective_energy_function(const std::vector<double> &x, std::v
     double f, f2, t1, t2, t3, si;
 
     Mol2* Lig2 = (Mol2*) data;
-    new_xyz = double[Lig2->N*3];
+    double new_xyz [Lig2->N*3];
     this->xyz = this->xyz_vector_to_double(Lig2->xyz);
     new_xyz = this->rototranslate(this->xyz, Lig2, x[0], x[1], x[2], x[3], x[4], x[5]);
     f = evaluate_energy(Lig2, new_xyz);

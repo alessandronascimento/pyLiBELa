@@ -146,7 +146,7 @@ obj/%.o: src/%.cpp
 	@ echo ''
 
 clean:
-	@ $(RM) obj src test $(PROJ_NAME) *~
-	@ $(RM) *.so *.o *.h *.cpp
+	@ $(RM) obj/*  $(PROJ_NAME) *~
+	@ $(RM) *.so *.o
 
 .PHONY: all clean

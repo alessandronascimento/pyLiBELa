@@ -8,6 +8,15 @@
 #include <vector>
 #include "cudaEnergy2.cuh"
 
+#if !defined(__CUDA_ARCH__) || __CUDA_ARCH__ >= 600
+#else
+__device__ double atomicAdd(double* a, double b) { return b; }
+#endif
+
+//__device__ double s_global ;
+//__global__ void kernel () { atomicAdd (&s_global, 1.0) ; }
+
+
 __device__ double ene_distance_squared(double x1, double x2, double y1, double y2,
                                    double z1, double z2) {
 
