@@ -13,7 +13,8 @@ CC=g++
 
 #Flags for compiler
 CC_FLAGS=-fPIC                       \
-         -O3                         \
+	-O3                         \
+	-fopenmp					\
 	 -I/usr/include/python3.10 \
 	 -I/usr/include/openbabel3   \
 	 -I/usr/include/eigen3       \
@@ -30,7 +31,8 @@ LD_FLAGS=-L/usr/lib/x86_64-linux-gnu \
 	 -lnlopt_cxx                 \
 	 -lgsl                       \
 	 -lgslcblas                  \
-	 -lm 
+	 -lm 						\
+	 -lgomp
 
 
 NVFLAGS=-DBUILD=0 -DHAVE_EIGEN -I/usr/local/include/openbabel3 -I/usr/include/eigen3 -I/usr/include/python3.10
@@ -45,13 +47,18 @@ RM = rm -rf
 all: pyPARSER.so pyMol2.so pyWRITER.so pyGrid.so pyCOORD_MC.so pyFindHB.so pyEnergy2.so pyConformer.so pyRAND.so pyGaussian.so pyMcEntropy.so pySA.so pyMC.so pyOptimizer.so pyDocker.so pyFullSearch.so
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/rec.mol2.gz
 	@ wget -q https://raw.githubusercontent.com/alessandronascimento/pyLiBELa/main/test/lig.mol2.gz
-	@ mkdir test
+	@ mkdir -p test obj
 	@ mv *.gz test/
 	@ echo ' '
 
 cudaGrid: 
 	@echo 'Building CUDA objects'
-	nvcc -c obj/cudaGrid.o src/cudaGrid.cu $(NVFLAGS)
+	nvcc --compiler-options '-fPIC' -c -o obj/cudaGrid.o src/cudaGrid.cu $(NVFLAGS)
+	@echo ' '
+
+cudaEnergy2: 
+	@echo 'Building CUDA objects'
+	nvcc --compiler-options '-fPIC' -c -o obj/cudaEnergy2.o src/cudaEnergy2.cu $(NVFLAGS)
 	@echo ' '
 
 pyPARSER.so: obj/pyPARSER.o
@@ -71,7 +78,7 @@ pyWRITER.so : obj/pyWRITER.o obj/pyMol2.o obj/pyPARSER.o
 
 pyGrid.so:   obj/pyGrid.o obj/pyMol2.o obj/pyPARSER.o obj/pyWRITER.o cudaGrid
 	@echo 'Building GRID dynamic library.'
-	$(CC) -shared obj/pyGrid.o obj/pyMol2.o obj/pyPARSER.o obj/pyWRITER.o -o pyGrid.so $(LD_FLAGS) $(CUDAFLAGS)
+	$(CC) -shared obj/pyGrid.o obj/pyMol2.o obj/pyPARSER.o obj/pyWRITER.o obj/cudaGrid.o -o pyGrid.so $(LD_FLAGS) $(CUDAFLAGS)
 	@echo ' '
 
 pyCOORD_MC.so : obj/pyCOORD_MC.o obj/pyRAND.o obj/pyMol2.o
@@ -84,9 +91,9 @@ pyFindHB.so: obj/pyFindHB.o obj/pyMol2.o obj/pyPARSER.o obj/pyCOORD_MC.o
 	$(CC) -shared obj/pyFindHB.o obj/pyMol2.o obj/pyPARSER.o obj/pyCOORD_MC.o -o pyFindHB.so $(LD_FLAGS)
 	@echo ' '
 
-pyEnergy2.so : obj/pyEnergy2.o obj/pyPARSER.o obj/pyMol2.o obj/pyGrid.o obj/pyWRITER.o
+pyEnergy2.so : obj/pyEnergy2.o obj/pyPARSER.o obj/pyMol2.o obj/pyGrid.o obj/pyWRITER.o cudaEnergy2
 	@echo 'Building ENERGY2 dynamic library.'
-	$(CC) -shared obj/pyEnergy2.o obj/pyPARSER.o obj/pyMol2.o obj/pyGrid.o obj/pyWRITER.o -o pyEnergy2.so $(LD_FLAGS)
+	$(CC) -shared obj/pyEnergy2.o obj/pyPARSER.o obj/pyMol2.o obj/pyGrid.o obj/pyWRITER.o obj/cudaEnergy2.o -o pyEnergy2.so $(LD_FLAGS)
 	@echo ' '
 
 pyConformer.so: obj/pyConformer.o obj/pyPARSER.o obj/pyMol2.o
