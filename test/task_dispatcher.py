@@ -3,15 +3,15 @@ import os
 
 def main():
     
-    dir = sys.argv[1] 
-    src = "/home/fac001/workingproj/targets_refined_set"
-    out = "/home/fac001/workingproj/grids" 
+    src = "/home/alex/data/alex/down/targets_refined_set"
+    out = "/home/alex/data/alex/workproj/grids" 
 
-    arg1 = f"{src}/{dir}/{dir}_rec.mol2.gz"
-    arg2 = f"{src}/{dir}/{dir}_ligand.mol2.gz"
-    arg3 = f"{out}/{dir}"
-
-    os.system(f"./process_grids {arg1} {arg2} {arg3}")
+    with open("tasks.txt", 'w+') as f:
+        for dir in os.listdir(src):
+            arg1 = f"{src}/{dir}/{dir}_rec.mol2.gz"
+            arg2 = f"{src}/{dir}/{dir}_ligand.mol2.gz"
+            arg3 = f"{out}/{dir}"
+            f.write(f"{arg1} {arg2} {arg3}\n")
 
 if __name__ == "__main__":
     main()
