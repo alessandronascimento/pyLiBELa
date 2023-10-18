@@ -264,13 +264,13 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   cudaMemcpy(d_HBacceptors, rec->HBacceptors.data(),
              rec->HBacceptors.size() * sizeof(int), cudaMemcpyHostToDevice);
 
-  double *out_elec_grid = (double *)malloc(size_bytes);
-  double *out_vdwA_grid = (double *)malloc(size_bytes);
-  double *out_vdwB_grid = (double *)malloc(size_bytes);
-  double *out_solv_grid = (double *)malloc(size_bytes);
-  double *out_rec_solv_grid = (double *)malloc(size_bytes);
-  double *out_hbd_grid = (double *)malloc(size_bytes);
-  double *out_hba_grid = (double *)malloc(size_bytes);
+  grid->r_elec_grid = (double *)malloc(size_bytes);
+  grid->r_vdwA_grid = (double *)malloc(size_bytes);
+  grid->r_vdwB_grid = (double *)malloc(size_bytes);
+  grid->r_solv_gauss = (double *)malloc(size_bytes);
+  grid->r_rec_solv_gauss = (double *)malloc(size_bytes);
+  grid->r_hb_donor_grid = (double *)malloc(size_bytes);
+  grid->r_hb_acceptor_grid = (double *)malloc(size_bytes);
 
   dim3 blockdims(8, 8, 8);
   dim3 griddims(8, 8, 8);
@@ -288,18 +288,20 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid *grid, Mol2 *rec) {
 
   printf("Kernel has ended\n");
 
-  cudaMemcpy(out_elec_grid, d_out_elec_grid, size_bytes,
+  cudaMemcpy(grid->r_elec_grid, d_out_elec_grid, size_bytes,
              cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_vdwA_grid, d_out_vdwA_grid, size_bytes,
+  cudaMemcpy(grid->r_vdwA_grid, d_out_vdwA_grid, size_bytes,
              cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_vdwB_grid, d_out_vdwB_grid, size_bytes,
+  cudaMemcpy(grid->r_vdwB_grid, d_out_vdwB_grid, size_bytes,
              cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_solv_grid, d_out_solv_grid, size_bytes,
+  cudaMemcpy(grid->r_solv_gauss, d_out_solv_grid, size_bytes,
              cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_rec_solv_grid, d_out_rec_solv_grid, size_bytes,
+  cudaMemcpy(grid->r_rec_solv_gauss, d_out_rec_solv_grid, size_bytes,
              cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_hbd_grid, d_out_hbd_grid, size_bytes, cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_hba_grid, d_out_hba_grid, size_bytes, cudaMemcpyDeviceToHost);
+  cudaMemcpy(grid->r_hb_donor_grid, d_out_hbd_grid, size_bytes,
+             cudaMemcpyDeviceToHost);
+  cudaMemcpy(grid->r_hb_acceptor_grid, d_out_hba_grid, size_bytes,
+             cudaMemcpyDeviceToHost);
 
   int nx{grid->npointsx};
   int ny{grid->npointsy};
@@ -325,26 +327,26 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid *grid, Mol2 *rec) {
     for (int j = 0; j < ny; j++) {
       int idx = (nx * ny * i + nx * j);
       grid->elec_grid[i][j].insert(grid->elec_grid[i][j].end(),
-                                   out_elec_grid + idx,
-                                   out_elec_grid + idx + nz);
+                                   grid->r_elec_grid + idx,
+                                   grid->r_elec_grid + idx + nz);
       grid->vdwA_grid[i][j].insert(grid->vdwA_grid[i][j].end(),
-                                   out_vdwA_grid + idx,
-                                   out_vdwA_grid + idx + nz);
+                                   grid->r_vdwA_grid + idx,
+                                   grid->r_vdwA_grid + idx + nz);
       grid->vdwB_grid[i][j].insert(grid->vdwB_grid[i][j].end(),
-                                   out_vdwB_grid + idx,
-                                   out_vdwB_grid + idx + nz);
+                                   grid->r_vdwB_grid + idx,
+                                   grid->r_vdwB_grid + idx + nz);
       grid->rec_solv_gauss[i][j].insert(grid->rec_solv_gauss[i][j].end(),
-                                        out_rec_solv_grid + idx,
-                                        out_rec_solv_grid + idx + nz);
+                                        grid->r_rec_solv_gauss + idx,
+                                        grid->r_rec_solv_gauss + idx + nz);
       grid->solv_gauss[i][j].insert(grid->solv_gauss[i][j].end(),
-                                    out_solv_grid + idx,
-                                    out_solv_grid + idx + nz);
+                                    grid->r_solv_gauss + idx,
+                                    grid->r_solv_gauss + idx + nz);
       grid->hb_acceptor_grid[i][j].insert(grid->hb_acceptor_grid[i][j].end(),
-                                          out_hba_grid + idx,
-                                          out_hba_grid + idx + nz);
+                                          grid->r_hb_acceptor_grid + idx,
+                                          grid->r_hb_acceptor_grid + idx + nz);
       grid->hb_donor_grid[i][j].insert(grid->hb_donor_grid[i][j].end(),
-                                       out_hbd_grid + idx,
-                                       out_hbd_grid + idx + nz);
+                                       grid->r_hb_donor_grid + idx,
+                                       grid->r_hb_donor_grid + idx + nz);
     }
   }
 
@@ -369,14 +371,6 @@ void invoke_compute_grid_softcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   cudaFree(d_out_solv_grid);
   cudaFree(d_out_hba_grid);
   cudaFree(d_out_hbd_grid);
-
-  free(out_elec_grid);
-  free(out_vdwA_grid);
-  free(out_vdwB_grid);
-  free(out_solv_grid);
-  free(out_rec_solv_grid);
-  free(out_hba_grid);
-  free(out_hbd_grid);
 
   printf("Invoking finished\n");
 }
@@ -445,13 +439,13 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   cudaMemcpy(d_HBacceptors, rec->HBacceptors.data(),
              rec->HBacceptors.size() * sizeof(int), cudaMemcpyHostToDevice);
 
-  double *out_elec_grid = (double *)malloc(size_bytes);
-  double *out_vdwA_grid = (double *)malloc(size_bytes);
-  double *out_vdwB_grid = (double *)malloc(size_bytes);
-  double *out_solv_grid = (double *)malloc(size_bytes);
-  double *out_rec_solv_grid = (double *)malloc(size_bytes);
-  double *out_hbd_grid = (double *)malloc(size_bytes);
-  double *out_hba_grid = (double *)malloc(size_bytes);
+  grid->r_elec_grid = (double *)malloc(size_bytes);
+  grid->r_vdwA_grid = (double *)malloc(size_bytes);
+  grid->r_vdwB_grid = (double *)malloc(size_bytes);
+  grid->r_solv_gauss = (double *)malloc(size_bytes);
+  grid->r_rec_solv_gauss = (double *)malloc(size_bytes);
+  grid->r_hb_donor_grid = (double *)malloc(size_bytes);
+  grid->r_hb_acceptor_grid = (double *)malloc(size_bytes);
 
   dim3 blockdims(8, 8, 8);
   dim3 griddims(8, 8, 8);
@@ -479,18 +473,20 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid *grid, Mol2 *rec) {
 
   printf("Kernel has ended\n");
 
-  cudaMemcpy(out_elec_grid, d_out_elec_grid, size_bytes,
+  cudaMemcpy(grid->r_elec_grid, d_out_elec_grid, size_bytes,
              cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_vdwA_grid, d_out_vdwA_grid, size_bytes,
+  cudaMemcpy(grid->r_vdwA_grid, d_out_vdwA_grid, size_bytes,
              cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_vdwB_grid, d_out_vdwB_grid, size_bytes,
+  cudaMemcpy(grid->r_vdwB_grid, d_out_vdwB_grid, size_bytes,
              cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_solv_grid, d_out_solv_grid, size_bytes,
+  cudaMemcpy(grid->r_solv_gauss, d_out_solv_grid, size_bytes,
              cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_rec_solv_grid, d_out_rec_solv_grid, size_bytes,
+  cudaMemcpy(grid->r_rec_solv_gauss, d_out_rec_solv_grid, size_bytes,
              cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_hbd_grid, d_out_hbd_grid, size_bytes, cudaMemcpyDeviceToHost);
-  cudaMemcpy(out_hba_grid, d_out_hba_grid, size_bytes, cudaMemcpyDeviceToHost);
+  cudaMemcpy(grid->r_hb_donor_grid, d_out_hbd_grid, size_bytes,
+             cudaMemcpyDeviceToHost);
+  cudaMemcpy(grid->r_hb_acceptor_grid, d_out_hba_grid, size_bytes,
+             cudaMemcpyDeviceToHost);
 
   int nx{grid->npointsx};
   int ny{grid->npointsy};
@@ -516,26 +512,26 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid *grid, Mol2 *rec) {
     for (int j = 0; j < ny; j++) {
       int idx = (nx * ny * i + nx * j);
       grid->elec_grid[i][j].insert(grid->elec_grid[i][j].end(),
-                                   out_elec_grid + idx,
-                                   out_elec_grid + idx + nz);
+                                   grid->r_elec_grid + idx,
+                                   grid->r_elec_grid + idx + nz);
       grid->vdwA_grid[i][j].insert(grid->vdwA_grid[i][j].end(),
-                                   out_vdwA_grid + idx,
-                                   out_vdwA_grid + idx + nz);
+                                   grid->r_vdwA_grid + idx,
+                                   grid->r_vdwA_grid + idx + nz);
       grid->vdwB_grid[i][j].insert(grid->vdwB_grid[i][j].end(),
-                                   out_vdwB_grid + idx,
-                                   out_vdwB_grid + idx + nz);
+                                   grid->r_vdwB_grid + idx,
+                                   grid->r_vdwB_grid + idx + nz);
       grid->rec_solv_gauss[i][j].insert(grid->rec_solv_gauss[i][j].end(),
-                                        out_rec_solv_grid + idx,
-                                        out_rec_solv_grid + idx + nz);
+                                        grid->r_rec_solv_gauss + idx,
+                                        grid->r_rec_solv_gauss + idx + nz);
       grid->solv_gauss[i][j].insert(grid->solv_gauss[i][j].end(),
-                                    out_solv_grid + idx,
-                                    out_solv_grid + idx + nz);
+                                    grid->r_solv_gauss + idx,
+                                    grid->r_solv_gauss + idx + nz);
       grid->hb_acceptor_grid[i][j].insert(grid->hb_acceptor_grid[i][j].end(),
-                                          out_hba_grid + idx,
-                                          out_hba_grid + idx + nz);
+                                          grid->r_hb_acceptor_grid + idx,
+                                          grid->r_hb_acceptor_grid + idx + nz);
       grid->hb_donor_grid[i][j].insert(grid->hb_donor_grid[i][j].end(),
-                                       out_hbd_grid + idx,
-                                       out_hbd_grid + idx + nz);
+                                       grid->r_hb_donor_grid + idx,
+                                       grid->r_hb_donor_grid + idx + nz);
     }
   }
 
@@ -560,14 +556,6 @@ void invoke_compute_grid_hardcore_HB_CUDA(Grid *grid, Mol2 *rec) {
   cudaFree(d_out_solv_grid);
   cudaFree(d_out_hba_grid);
   cudaFree(d_out_hbd_grid);
-
-  free(out_elec_grid);
-  free(out_vdwA_grid);
-  free(out_vdwB_grid);
-  free(out_solv_grid);
-  free(out_rec_solv_grid);
-  free(out_hba_grid);
-  free(out_hbd_grid);
 
   printf("Invoking finished\n");
 }

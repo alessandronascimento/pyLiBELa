@@ -9,9 +9,9 @@ parallel_jobs		8
 # input files
 #
 
-rec_mol2                ./184L_DOCKPREP.mol2.gz
-lig_mol2                ./184L_LIG_DOCKPREP.mol2.gz
-reflig_mol2		        ./184L_LIG_DOCKPREP.mol2.gz
+rec_mol2                ./1A8K.rec.clean.mol2.gz
+lig_mol2                ./1A8K.lig.am1bcc.mol2.gz
+reflig_mol2		        ./1A8K.lig.am1bcc.mol2.gz
 multifile               multimol.dat
 
 #
@@ -22,7 +22,7 @@ deltaij			2.5
 deltaij_es		2.5
 mol2_aa			no
 search_box		45.0 45.0 45.0
-scoring_function        2
+scoring_function        1
 use_grids		yes
 grid_spacing            0.4
 grid_box                20.0    20.0    20.0    

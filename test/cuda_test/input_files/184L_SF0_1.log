@@ -12,13 +12,15 @@
 *                                                                                                  *
 * dock_parallel                  0                                                                 *
 *                                                                                                  *
-* rec_mol2                       ./184L_DOCKPREP.mol2.gz                                           *
-* lig_mol2                       ./184L_LIG_DOCKPREP.mol2.gz                                       *
-* reflig_mol2                    ./184L_LIG_DOCKPREP.mol2.gz                                       *
+* rec_mol2                       ./1A8K.rec.clean.mol2.gz                                          *
+* lig_mol2                       ./1A8K.lig.am1bcc.mol2.gz                                         *
+* reflig_mol2                    ./1A8K.lig.am1bcc.mol2.gz                                         *
 * multifile                      multimol.dat                                                      *
 * mol2_aa                        0                                                                 *
 *                                                                                                  *
-* scoring function               Amber FF + Dessolvation                                           *
+* scoring function               Amber Softcore                                                    *
+* deltaij6                       244.14                                                            *
+* deltaij_es6                    244.14                                                            *
 * Electrostatic model            Coulomb                                                           *
 * dielectric_model               r                                                                 *
 * diel                           2.000                                                             *

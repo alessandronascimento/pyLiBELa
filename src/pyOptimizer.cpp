@@ -27,6 +27,16 @@ Optimizer::Optimizer(Mol2* _Rec, Mol2* _RefLig, PARSER* _Parser, Grid* _Grids) {
 Optimizer::~Optimizer() {
 }
 
+double* Optimizer::xyz_vector_to_double(vector<vector<double> > coordinates){
+    double dxyz[coordinates.size()*3];
+    for (unsigned i=0; i<coordinates.size(); i++){
+        dxyz[3*i]=coordinates[i][0];
+        dxyz[(3*i)+1]=coordinates[i][1];
+        dxyz[(3*i)+2]=coordinates[i][2];
+    }
+    return (dxyz);
+}
+
 double Optimizer::distance(vector<double> atom1, vector<double> atom2) {
     return ( sqrt(((atom2[0]-atom1[0])*(atom2[0]-atom1[0]))+((atom2[1]-atom1[1])*(atom2[1]-atom1[1]))+((atom2[2]-atom1[2])*(atom2[2]-atom1[2]))) );
 }
@@ -35,8 +45,41 @@ double Optimizer::distance_squared(vector<double> atom1, vector<double> atom2) {
 }
 
 vector<vector<double> > Optimizer::update_coords(const std::vector<double> &x, Mol2* Lig2){
-    COORD_MC* Coord = new COORD_MC;
-    return(Coord->rototranslate(Lig2->xyz, Lig2, x[0], x[1], x[2], x[3], x[4], x[5]));
+    return(this->rototranslate(Lig2->xyz, Lig2, x[0], x[1], x[2], x[3], x[4], x[5]));
+}
+
+vector<double> Optimizer::compute_com(double* coords, Mol2 *Cmol){
+	double centerx=0.0;
+	double centery=0.0;
+	double centerz=0.0;
+	double totalmass=0.0;
+	vector<double> com(3);
+	for(int i=0; i<Cmol->N; i++){
+		centerx+= (Cmol->masses[i]*coords[3*i]);
+		centery+= (Cmol->masses[i]*coords[(3*i)+1]);
+		centerz+= (Cmol->masses[i]*coords[(3*i)+2]);
+		totalmass+= Cmol->masses[i];
+	}
+	com[0] = (centerx/totalmass);
+	com[1] = (centery/totalmass);
+	com[2] = (centerz/totalmass);
+	return(com);
+}
+
+double* Optimizer::rototranslate(double* coordinates, Mol2* Lig, double alpha, double beta, double gamma, double transx, double transy, double transz){
+    double new_coordinates[Lig->N*3];
+    vector<double> COM(3);
+    COM = this->compute_com(coordinates, Lig);
+	double x, y, z;
+	for(int i=0; i < Lig->N ; i++){
+		x=coordinates[3*i]-COM[0];
+		y=coordinates[(3*i)+1]-COM[1];
+		z=coordinates[(3*i)+2]-COM[2];
+		new_coordinates[3*i] = ((((x)*(((cos(alpha*PI/180))*(cos(gamma*PI/180)))-((sin(alpha*PI/180))*(cos(beta*PI/180))*sin(gamma*PI/180)))) + ((y)*(((-cos(alpha*PI/180))*(sin(gamma*PI/180)))-(sin(alpha*PI/180)*cos(beta*PI/180)*cos(gamma*PI/180))))+ ((z)*(sin(beta*PI/180)*sin(alpha*PI/180))))+transx+COM[0]);
+		new_coordinates[(3*i)+1] = ((((x)*((sin(alpha*PI/180)*cos(gamma*PI/180))+(cos(alpha*PI/180)*cos(beta*PI/180)*sin(gamma*PI/180)))) + ((y)*((-sin(alpha*PI/180)*sin(gamma*PI/180))+(cos(alpha*PI/180)*cos(beta*PI/180)*cos(gamma*PI/180)))) + ((z)*(-sin(beta*PI/180)*cos(alpha*PI/180))))+transy + COM[1]);
+		new_coordinates[(3*i)+2] = ((((x)*(sin(beta*PI/180)*sin(gamma*PI/180))) + ((y)*sin(beta*PI/180)*cos(gamma*PI/180)) + ((z)*cos(beta*PI/180)))+transz + COM[2]);
+	}
+    return(new_coordinates);
 }
 
 double Optimizer::evaluate_rmsd(Mol2* Lig1, Mol2* Lig2){
@@ -101,79 +144,39 @@ void Optimizer::evaluate_energy2(Mol2* Lig2, vector<vector<double> > new_xyz, en
 }
 
 double Optimizer::objective_energy_function(const std::vector<double> &x, std::vector<double> &grad, void *data){
-    vector<vector<double> > new_xyz;
-    COORD_MC* Coord = new COORD_MC;
-    Gaussian* Gauss = new Gaussian;
     double f, f2, t1, t2, t3, si;
 
     Mol2* Lig2 = (Mol2*) data;
-    new_xyz = Coord->rototranslate(Lig2->xyz, Lig2, x[0], x[1], x[2], x[3], x[4], x[5]);
+    double new_xyz [Lig2->N*3];
+    this->xyz = this->xyz_vector_to_double(Lig2->xyz);
+    new_xyz = this->rototranslate(this->xyz, Lig2, x[0], x[1], x[2], x[3], x[4], x[5]);
     f = evaluate_energy(Lig2, new_xyz);
-    if (Parser->use_score_optimization){
-        t1 = (Gauss->compute_shape_and_charge_density(Parser, RefLig, RefLig, RefLig->xyz));
-        t3 = (Gauss->compute_shape_and_charge_density(Parser, Lig2, Lig2, Lig2->xyz));
-        t2 = (Gauss->compute_shape_and_charge_density(Parser, RefLig, Lig2, new_xyz));
-        si = (2*t2)/(t1+t3);
-        f=f*si;
-    }
 
     if(!grad.empty()){
-        new_xyz = Coord->rototranslate(Lig2->xyz, Lig2, x[0]+Parser->min_delta, x[1], x[2], x[3], x[4], x[5]);
+        new_xyz = this->rototranslate(this->xyz, Lig2, x[0]+Parser->min_delta, x[1], x[2], x[3], x[4], x[5]);
         f2 = evaluate_energy(Lig2, new_xyz);
-        if (Parser->use_score_optimization){
-            t2 = (Gauss->compute_shape_and_charge_density(Parser, RefLig, Lig2, new_xyz));
-            si = (2*t2)/(t1+t3);
-            f2=f2*si;
-        }
         grad[0] = (f2-f)/Parser->min_delta;
 
-        new_xyz = Coord->rototranslate(Lig2->xyz, Lig2, x[0], x[1]+Parser->min_delta, x[2], x[3], x[4], x[5]);
+        new_xyz = this->rototranslate(this->xyz, Lig2, x[0], x[1]+Parser->min_delta, x[2], x[3], x[4], x[5]);
         f2 = evaluate_energy(Lig2, new_xyz);
-        if (Parser->use_score_optimization){
-            t2 = (Gauss->compute_shape_and_charge_density(Parser, RefLig, Lig2, new_xyz));
-            si = (2*t2)/(t1+t3);
-            f2=f2*si;
-        }
         grad[1] = (f2-f)/Parser->min_delta;
 
-        new_xyz = Coord->rototranslate(Lig2->xyz, Lig2, x[0], x[1], x[2]+Parser->min_delta, x[3], x[4], x[5]);
+        new_xyz = this->rototranslate(this->xyz, Lig2, x[0], x[1], x[2]+Parser->min_delta, x[3], x[4], x[5]);
         f2 = evaluate_energy(Lig2, new_xyz);
-        if (Parser->use_score_optimization){
-            t2 = (Gauss->compute_shape_and_charge_density(Parser, RefLig, Lig2, new_xyz));
-            si = (2*t2)/(t1+t3);
-            f2=f2*si;
-        }
         grad[2] = (f2-f)/Parser->min_delta;
 
-        new_xyz = Coord->rototranslate(Lig2->xyz, Lig2, x[0], x[1], x[2], x[3]+Parser->min_delta, x[4], x[5]);
+        new_xyz = this->rototranslate(this->xyz, Lig2, x[0], x[1], x[2], x[3]+Parser->min_delta, x[4], x[5]);
         f2 = evaluate_energy(Lig2, new_xyz);
-        if (Parser->use_score_optimization){
-            t2 = (Gauss->compute_shape_and_charge_density(Parser, RefLig, Lig2, new_xyz));
-            si = (2*t2)/(t1+t3);
-            f2=f2*si;
-        }
         grad[3] = (f2-f)/Parser->min_delta;
 
-        new_xyz = Coord->rototranslate(Lig2->xyz, Lig2, x[0], x[1], x[2], x[3], x[4]+Parser->min_delta, x[5]);
+        new_xyz = this->rototranslate(this->xyz, Lig2, x[0], x[1], x[2], x[3], x[4]+Parser->min_delta, x[5]);
         f2 = evaluate_energy(Lig2, new_xyz);
-        if (Parser->use_score_optimization){
-            t2 = (Gauss->compute_shape_and_charge_density(Parser, RefLig, Lig2, new_xyz));
-            si = (2*t2)/(t1+t3);
-            f2=f2*si;
-        }
         grad[4] = (f2-f)/Parser->min_delta;
 
-        new_xyz = Coord->rototranslate(Lig2->xyz, Lig2, x[0], x[1], x[2], x[3], x[4], x[5]+Parser->min_delta);
+        new_xyz = this->rototranslate(this->xyz, Lig2, x[0], x[1], x[2], x[3], x[4], x[5]+Parser->min_delta);
         f2 = evaluate_energy(Lig2, new_xyz);
-        if (Parser->use_score_optimization){
-            t2 = (Gauss->compute_shape_and_charge_density(Parser, RefLig, Lig2, new_xyz));
-            si = (2*t2)/(t1+t3);
-            f2=f2*si;
-        }
         grad[5] = (f2-f)/Parser->min_delta;
     }
-    delete Coord;
-    delete Gauss;
     return (f);
 }
 
