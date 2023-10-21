@@ -75,6 +75,7 @@ bool Mol2::parse_smiles(PARSER *Input, string smiles_input, string molname){
         string sybyl_gaff;
 
         this->N = mol.NumAtoms();
+	this->Nbonds = mol.NumBonds();
         this->molname = molname;
         this->Nres = 0;
         this->residue_pointer.push_back(1);
@@ -190,7 +191,7 @@ bool Mol2::parse_smiles(PARSER *Input, string smiles_input, string molname){
     }
     else{
         bret = false;
-        printf("bret set to false because ligand size %d is greater than Input.atom_limit %d\n",mol.NumAtoms(),Input->atom_limit);
+	printf("bret set to false because ligand size %d is greater than Input.atom_limit %d\n",mol.NumAtoms(),Input->atom_limit);
     }
     return bret;
 }
@@ -1452,7 +1453,7 @@ void Mol2::initialize_gaff2(){
     ap.mass = 32.06;
     gaff_parameters.push_back(ap);
 
-
+    
     ap.type = "Sox";
     ap.radius = 1.9825;
     ap.epsilon = 0.2824;
@@ -1700,7 +1701,8 @@ string Mol2::sybyl_2_gaff(string atom){
     else if (atom == "Si"){
         gaff_atom = "Si";
     }
-    else if (atom =="Nox"){
+
+   else if (atom =="Nox"){
         gaff_atom = "n3";
     }
 
@@ -1720,10 +1722,10 @@ string Mol2::sybyl_2_gaff(string atom){
         gaff_atom = "sh";
     }
 
-    else if (atom =="Cl-"){
+    else if (atom =="Cl"){
         gaff_atom = "cl";
     }
-        
+
     else{
         bool found = false;
         for (unsigned i=0; i< this->gaff_force_field.size(); i++){
@@ -1778,7 +1780,7 @@ string Mol2::gaff_2_sybyl(string atom){
         sybyl_atom = "N.4";
     }
     else if (atom =="na"){
-        sybyl_atom = "N.pl";
+        sybyl_atom = "N.3";
     }
     else if (atom =="oh"){
         sybyl_atom = "O.3";
@@ -1846,9 +1848,11 @@ string Mol2::gaff_2_sybyl(string atom){
     else if (atom =="HO"){
         sybyl_atom = "H";
     }
+
     else if (atom =="P"){
         sybyl_atom = "P.3";
     }
+
     return(sybyl_atom);
 }
 
@@ -2367,6 +2371,12 @@ BOOST_PYTHON_MODULE(pyMol2)
         .def_readwrite("mass", & Mol2::atom_param::mass)
     ;
 }
+
+
+
+
+
+
 
 
 

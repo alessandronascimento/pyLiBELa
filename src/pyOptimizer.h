@@ -34,7 +34,6 @@ public:
 	static Mol2* RefLig;
 	static PARSER* Parser;
 	static Grid* Grids;
-	double* xyz;
 
     struct opt_result_t{
 		int optimization_status;
@@ -60,16 +59,12 @@ public:
 	Optimizer(Mol2* _Rec, Mol2* _RefLig, PARSER* _Parser, Grid* _Grids);
 	virtual ~Optimizer();
 
-	double* xyz_vector_to_double(vector<vector<double> > coordinates);
-
 	static double evaluate_rmsd(Mol2* Lig1, Mol2* Lig2);
 	static void Simulated_Annealing(Mol2* Lig, opt_result_t* opt_result);
 
 	static vector<vector<double> > update_coords(const std::vector<double> &x, Mol2* Lig2);
     static double distance(vector<double> atom1, vector<double> atom2);
     static double distance_squared(vector<double> atom1, vector<double> atom2);
-	vector<double> compute_com(double* coords, Mol2 *Cmol);
-	double rototranslate(vector<vector<double> >coordinates, Mol2* Lig, double alpha, double beta, double gamma, double transx, double transy, double transz);
 
     static double evaluate_energy(Mol2* Lig2, vector<vector<double> > new_xyz);
     static void evaluate_energy2(Mol2* Lig2, vector<vector<double> > new_xyz, energy_result_t* energy_result);
