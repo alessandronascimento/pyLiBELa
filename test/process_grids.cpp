@@ -13,11 +13,13 @@
 #include <sstream>
 #include <vector>
 
-void write_grid(FILE* file, const std::vector< std::vector< std::vector <double>>>& vec) {
+void write_grid(FILE* file, const std::vector< std::vector< std::vector <double>>>& vec, bool print = false) {
   for (auto i : vec) {
     for (auto j : i) {
-      for (auto k : j)
+      for (auto k : j) {
         fwrite(&k, sizeof(double), 1, file);
+        if (print) std::cout << k << ' '; 
+      }
     }
   }
 }
@@ -73,7 +75,7 @@ int main(int argc, char* argv[]) {
     args.assign(argv + 1, argv + argc);
   }    
 
-  assert(args.size() == 3);
+  assert((args.size() == 3) && "Make sure you passed 3 arguments to the program: path/to/receptor.mol2, path/to/ligand.mol2, path/to/output_grid");
 
 
   // ------------- INPUT PARAMS ------------------------------------------
