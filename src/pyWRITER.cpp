@@ -716,8 +716,6 @@ void WRITER::write_pqr(Mol2 *Cmol, string outname){
 using namespace boost::python;
 
 
-//BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(wpdboverloads,write_pdb, 5, 6);
-
 BOOST_PYTHON_MODULE(pyWRITER)
 {
 
