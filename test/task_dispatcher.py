@@ -3,8 +3,11 @@ import os
 
 def main():
     
-    src = "/home/alex/data/alex/down/targets_refined_set"
-    out = "/home/alex/data/alex/workproj/grids" 
+    # Set the source path to the directory containing all ligand/receptor directories.
+    src = "/home/fac001/workingproj/targets_refined_set"
+    # Set the output path for the grids.
+    out = "/home/fac001/workingproj/grids"
+
 
     dirs = list(os.listdir(src))
 
