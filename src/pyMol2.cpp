@@ -51,8 +51,9 @@ bool Mol2::parse_smiles(PARSER *Input, string smiles_input, string molname){
  */
     if (mol.NumAtoms() < Input->atom_limit){
         OBBuilder builder;
-        builder.Build(mol);
         mol.AddHydrogens(false, true); // adding H atoms: false= not for polar atoms only. true=correct for pH 7.4.
+	builder.Build(mol);
+        
 
 /*
  * Minimize energy
