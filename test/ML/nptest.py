@@ -20,13 +20,16 @@ def load_grid_to_ndarray(filepath : str) -> np.ndarray:
 
 def main():
 
-    file_path = "/data/alex/workproj/GPTtest"
-    grid1 = load_grid_to_ndarray(f"{file_path}/1bgq.grid")
-    
-    columns = ["elec", "vdwA", "vdwB", "rec_solv_gauss", "solv_gauss", "hb_donor", "hb_acceptor"]
-    print(grid1[0][19][19])
+    file_path = ""
 
-    print(np.mean(grid1))
+    _,_,file = next(os.walk(file_path))
+    num_of_files = len(file)
+    print(f"{num_of_files} files in {file_path}")
+
+    grid_arr = np.empty((num_of_files, 7, 20, 20, 20))
+
+    for i, grid in enumerate(os.listdir(file_path)):
+        grid_arr[i] = load_grid_to_ndarray(f"{file_path}/{grid}")
 
 
 if __name__ == "__main__":
