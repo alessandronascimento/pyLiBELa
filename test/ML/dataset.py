@@ -1,4 +1,4 @@
-import torch
+import tensorflow as tf 
 import os
 
 def main():
@@ -9,7 +9,6 @@ def main():
     generator = torch.Generator().manual_seed(2023)
     train, test, validation = torch.utils.data.random_split(grids, (0.8, 0.1, 0.1), generator=generator)
     print(f"{train}\n{test}\n{validation}")
-   
 
 
 if __name__ == "__main__":
