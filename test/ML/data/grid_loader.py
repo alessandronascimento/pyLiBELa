@@ -40,7 +40,7 @@ class GridLoader():
         grid_names = []
   
         num_of_files = len(grid_list)
-        print(f"{num_of_files} .grid files found in {self.filepath}")
+        print(f"\n{num_of_files} .grid files found in {self.filepath}")
 
         grid_arr = np.empty((num_of_files, *self.grid_shape), dtype=np.float64)
 
