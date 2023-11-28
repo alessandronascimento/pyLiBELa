@@ -1,5 +1,4 @@
 import numpy as np
-import os
 import struct
 from typing import Generator, Any
 from tqdm import tqdm
@@ -7,7 +6,7 @@ from pathlib import Path
 
 class GridLoader():
 
-    def __init__(self, filepath : str, grid_shape : tuple[int, ...]):
+    def __init__(self, filepath : str | Path, grid_shape : tuple[int, ...]):
 
         self.filepath : Path = Path(filepath) 
         self.grid_shape : tuple[int, ...] = grid_shape

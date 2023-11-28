@@ -1,6 +1,10 @@
 #ifndef CUDA_ENERGY2_CUH
 #define CUDA_ENERGY2_CUH
 
+#include "pyGrid.h"
+#include "pyMol2.h"
+#include <vector>
+
 typedef struct st_DeviceGridInterpol {
 
   double vdwA;
@@ -13,7 +17,7 @@ typedef struct st_DeviceGridInterpol {
 
 } DeviceGridInterpol;
 
-double invoke_compute_ene_from_grids_softcore_solvation(Grid* grid, Mol2 *lig, 
-                                                 const std::vector<std::vector<double>>& xyz);
+double invoke_compute_ene_from_grids_softcore_solvation(
+    Grid *grid, Mol2 *lig, const std::vector<std::vector<double>> &xyz);
 
-#endif 
+#endif

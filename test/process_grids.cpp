@@ -48,14 +48,14 @@ void write_to_file(const Grid *grid) {
   write_grid(outgrid, grid->vdwA_grid);
   write_grid(outgrid, grid->vdwB_grid);
   write_grid(outgrid, grid->rec_solv_gauss);
-  write_grid(outgrid, grid->solv_gauss);
-  write_grid(outgrid, grid->hb_donor_grid);
-  write_grid(outgrid, grid->hb_acceptor_grid);
-
-  if (grid->pbsa_loaded)
-    write_grid(outgrid, grid->pbsa_grid);
-  if (grid->delphi_loaded)
-    write_grid(outgrid, grid->delphi_grid);
+  /* write_grid(outgrid, grid->solv_gauss); */
+  /* write_grid(outgrid, grid->hb_donor_grid); */
+  /* write_grid(outgrid, grid->hb_acceptor_grid); */
+  /**/
+  /* if (grid->pbsa_loaded) */
+  /*   write_grid(outgrid, grid->pbsa_grid); */
+  /* if (grid->delphi_loaded) */
+  /*   write_grid(outgrid, grid->delphi_grid); */
 
   fclose(outgrid);
 }

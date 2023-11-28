@@ -1,4 +1,3 @@
-import sys
 import os
 
 def main():
@@ -13,7 +12,7 @@ def main():
 
     with open("tasks.txt", 'w+') as f:
         for dir in dirs:
-            arg1 = f"{src}/{dir}/{dir}_rec.mol2.gz"     # receptor file
+            arg1 = f"{src}/{dir}/{dir}_ligand.mol2.gz"     # receptor file
             arg2 = f"{src}/{dir}/{dir}_ligand.mol2.gz"  # ligand file
             arg3 = f"{out}/{dir}"                       # output directory
             f.write(f"{arg1} {arg2} {arg3}\n")
