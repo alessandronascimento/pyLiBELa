@@ -7,10 +7,14 @@ import tensorflow as tf
 
 GRID_CHANNELS = 4
 GRID_DIM = 20
+SEED = 2023
+BATCH = 16
 
 def load_data() -> tuple[np.ndarray[Any, np.dtype[np.float64]], np.ndarray[Any, np.dtype[np.float64]], int]:
 
-    root_path : Path = Path("/data/alex/workproj")
+    # directory containing ligand and receptor grids and target subdirectories
+    root_path : Path = Path("/home/alexsouza/workingproj")
+
     shape = (GRID_CHANNELS, GRID_DIM, GRID_DIM, GRID_DIM)
 
     receptor_grids = GridLoader(root_path / "rec_grids", shape)
@@ -37,9 +41,48 @@ def load_data() -> tuple[np.ndarray[Any, np.dtype[np.float64]], np.ndarray[Any, 
 if __name__ == "__main__":
     grids, targets, total = load_data() 
     grids, targets = tf.convert_to_tensor(grids), tf.convert_to_tensor(targets)
-    print(grids.shape)
-    print(targets.shape)
 
-    conv = tf.keras.layers.Conv3D(2, 3, activation='relu', data_format='channels_first', input_shape=grids.shape[1:], padding="same")
-    fmap = conv(grids)
-    print(fmap.shape)
+    grids_norm_layer = tf.keras.layers.Normalization(axis=(1,2,3,4))
+    grids_norm_layer.adapt(grids)
+    grids = grids_norm_layer(grids)
+
+    targets_norm_layer = tf.keras.layers.Normalization(axis=None)
+    targets_revert_layer = tf.keras.layers.Normalization(axis=None, invert=True)
+    targets_norm_layer.adapt(targets)
+    targets_scaled = targets_norm_layer(targets)
+    targets_revert_layer.adapt(targets)
+
+    dataset = tf.data.Dataset.from_tensor_slices((grids, targets_scaled))
+    
+    train_val, test = tf.keras.utils.split_dataset(dataset, left_size=0.8, right_size=0.2,
+                                                   shuffle=True, seed=SEED)
+    train, valid = tf.keras.utils.split_dataset(train_val, left_size=0.8, right_size=0.2)
+
+    cnn_model = tf.keras.Sequential([
+        tf.keras.layers.Conv3D(64, 5, activation='relu', data_format='channels_first',
+                               input_shape=grids.shape[1:], padding="same"),
+        tf.keras.layers.MaxPool3D(data_format='channels_first'),
+        tf.keras.layers.Conv3D(128, 3, activation='relu', data_format='channels_first',
+                               padding="same"),
+        tf.keras.layers.Conv3D(128, 3, activation='relu', data_format='channels_first',
+                               padding="same"),
+        tf.keras.layers.MaxPool3D(data_format='channels_first'),
+        tf.keras.layers.Conv3D(256, 3, activation='relu', data_format='channels_first',
+                               padding="same"),
+        tf.keras.layers.Conv3D(256, 3, activation='relu', data_format='channels_first',
+                               padding="same"),
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(units=128, activation="relu"),
+        tf.keras.layers.Dense(units=64, activation="relu"),
+        tf.keras.layers.Dense(units=1),
+    ])
+
+    cnn_model.compile(loss="mse", 
+                      optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4), 
+                      metrics=["RootMeanSquaredError"])
+
+    out_info = cnn_model.fit(x=train.batch(BATCH), epochs=10, validation_data=valid.batch(BATCH))
+    mse_test, rmse_test = cnn_model.evaluate(test.batch(BATCH))
+
+    print(f"mse: {mse_test}")
+    print(f"rmse_test: {rmse_test}")
