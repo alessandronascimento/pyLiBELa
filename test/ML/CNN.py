@@ -33,7 +33,7 @@ def load_data() -> tuple[np.ndarray[Any, np.dtype[np.float64]], np.ndarray[Any, 
     for i, name in enumerate(valid):
         merged_grids[i][0] = rec_arr[rec_grid_names.index(name)]
         merged_grids[i][1] = lig_arr[lig_grid_names.index(name)]
-        targets[i] = target_dict[name]
+        targets[i] = -np.log(target_dict[name])
 
     merged_grids = merged_grids.reshape((total, 2*shape[0], shape[1], shape[2], shape[3]))
     return merged_grids, targets, total
