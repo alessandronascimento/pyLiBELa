@@ -42,7 +42,7 @@ if __name__ == "__main__":
     grids, targets, total = load_data() 
     grids, targets = tf.convert_to_tensor(grids), tf.convert_to_tensor(targets)
 
-    grids_norm_layer = tf.keras.layers.Normalization(axis=(1,2,3,4))
+    grids_norm_layer = tf.keras.layers.Normalization(axis=(1))
     grids_norm_layer.adapt(grids)
     grids = grids_norm_layer(grids)
 
