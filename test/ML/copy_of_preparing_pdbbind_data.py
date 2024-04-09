@@ -1,11 +1,17 @@
 import tensorflow as tf
+import tensorflow_decision_forests as tfdf
+import keras.api._v2.keras as keras
+import keras_tuner as kt
 from pathlib import Path
 from sklearn.model_selection import train_test_split
+from time import strftime
+
 
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 
 path_to_pdbbind = "/data/home/alessandro/PDBbind_v2020"
+LOG_DIR = "./log"
 
 config = ConfigProto()
 config.gpu_options.allow_growth = True
@@ -139,36 +145,86 @@ def create_datasets():
     return train_dataset, test_dataset, valid_dataset
 
 #@title Alex's model
-def create_model():
+def create_model(hp):
 
-    cnn_model = tf.keras.Sequential([
-            tf.keras.layers.Conv3D(64, 5, activation='relu', data_format='channels_last', input_shape=(60,60,60,6), padding="same"),
-            tf.keras.layers.MaxPool3D(data_format='channels_last'),
-            tf.keras.layers.Conv3D(128, 3, activation='relu', data_format='channels_last', padding="same"),
-            tf.keras.layers.Conv3D(128, 3, activation='relu', data_format='channels_last', padding="same"),
-            tf.keras.layers.MaxPool3D(data_format='channels_last'),
-            tf.keras.layers.Conv3D(256, 3, activation='relu', data_format='channels_last', padding="same"),
-            tf.keras.layers.Conv3D(256, 3, activation='relu', data_format='channels_last', padding="same"),
-            tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(units=128, activation="relu"),
-            tf.keras.layers.Dense(units=64, activation="relu"),
-            tf.keras.layers.Dense(units=1),
+    # FIXME bad coding:
+    # IF THIS CHANGES, THE NAMES LIST IN tune_model() MUST CHANGE 
+    filters1 = hp.Int('filter1', min_value=40, max_value=80, step=2)
+    kernel1 = hp.Int('kernel1', min_value=3, max_value=9, step=1)
+    filters2 = hp.Int('filter2', min_value=90, max_value=200, step=5)
+    kernel2 = hp.Int('kernel2', min_value=2, max_value=9, step=1)
+    filters3 = hp.Int('filter3', min_value=90, max_value=200, step=5)
+    kernel3 = hp.Int('kernel3', min_value=2, max_value=9, step=1)
+    units1 = hp.Int('units1', min_value=50, max_value=200, step=10)
+    units2 = hp.Int('units2', min_values=30, max_values=80, step=5)
+
+
+    cnn_model = keras.Sequential([
+            keras.layers.Conv3D(filters1, kernel1, activation='relu', data_format='channels_last', input_shape=(60,60,60,6), padding="same"),
+            keras.layers.MaxPool3D(data_format='channels_last'),
+            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_last', padding="same"),
+            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_last', padding="same"),
+            keras.layers.MaxPool3D(data_format='channels_last'),
+            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_last', padding="same"),
+            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_last', padding="same"),
+            keras.layers.Flatten(),
+            keras.layers.Dense(units=units1, activation="relu"),
+            keras.layers.Dense(units=units2, activation="relu"),
+            keras.layers.Dense(units=1),
         ])
 
-    cnn_model.compile(loss="mse", optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4), metrics=["RootMeanSquaredError"])
+    learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4, 1e-5])
+
+    cnn_model.compile(loss="mse", optimizer=keras.optimizers.Adam(learning_rate=learning_rate), metrics=["RootMeanSquaredError"])
 
     return cnn_model
 
-def run_model():
+def tune_model():
+    tuner = kt.BayesianOptimization(create_model,
+                                    objective='root_mean_squared_error',
+                                    max_trials=10,
+                                    directory=LOG_DIR,
+                                    project_name='grids_cnn')
 
-    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath='{epoch:02d}-{val_loss:.2f}.keras',
+    early_stop_cb = keras.callbacks.EarlyStopping(restore_best_weights=True,
+                                                  patience=2)
+
+    
+    train_dataset, test_dataset, valid_dataset = create_datasets()
+    tuner.search(train_dataset, epochs=10, validation_data=valid_dataset) # validation created from train dataset so that the hp search doesn't overfit over the true validation
+
+    hp_names = ['filter1', 'filter2', 'filter3', 'kernel1', 'kernel2', 'kernel3', 'units1', 'units2']
+
+    with open(f"{LOG_DIR}/hp_tuning_results.txt", "a") as f:
+        best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
+
+        for name in hp_names:
+            f.write(f"{name} -> {best_hps.get(name)}\n")
+
+
+def run_model(model):
+
+    checkpoint_cb = keras.callbacks.ModelCheckpoint(filepath= LOG_DIR + '/{epoch:02d}-{val_loss:.2f}.keras',
                                                     save_weights_only=True,
                                                     verbose=1)
-    cnn_model = create_model()
+
+    early_stop_cb = keras.callbacks.EarlyStopping(restore_best_weights=True,
+                                                  patience=1)
+
+    def get_dir() -> str :
+        return f"{LOG_DIR}/{strftime("run_%m_%d_%H_%M")}"
+
+    tensorboard_cb = keras.callbacks.TensorBoard(logdir=get_dir(), profile_batch=(100,200))
+    
+
+    model = create_model()
     train_dataset, test_dataset, valid_dataset = create_datasets()
 
-    out_info = cnn_model.fit(train_dataset, epochs=10, validation_data=valid_dataset, callbacks=[cp_callback])
-    mse_test = cnn_model.evaluate(test_dataset)
+    out_info = model.fit(train_dataset, epochs=10, validation_data=valid_dataset, callbacks=[checkpoint_cb, early_stop_cb, tensorboard_cb])
+    mse_test = model.evaluate(test_dataset)
 
 if __name__ == '__main__':
-    run_model()
+
+    train_dataset, test_dataset, valid_dataset = create_datasets()
+    cnn_model = create_model()
+    run_model(cnn_model)
