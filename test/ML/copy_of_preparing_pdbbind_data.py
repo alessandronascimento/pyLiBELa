@@ -1,17 +1,16 @@
 import tensorflow as tf
-import tensorflow_decision_forests as tfdf
-import keras.api._v2.keras as keras
 import keras_tuner as kt
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from time import strftime
 
+import keras.api._v2.keras as keras
 
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 
 path_to_pdbbind = "/data/home/alessandro/PDBbind_v2020"
-LOG_DIR = "./log"
+LOG_DIR = f"{Path(__file__).parent.resolve()}/logs"
 
 config = ConfigProto()
 config.gpu_options.allow_growth = True
@@ -45,7 +44,7 @@ def read_pdbbind_data():
                 binding_resolution.append(0.00)
             else:
                 binding_resolution.append(float(line2[1]))
-                
+
             binding_years.append(int(line2[2]))
             binding_score.append(float(line2[3]))
 
@@ -69,12 +68,15 @@ def _log_file_not_found(file_path):
     f.write(f'{file_path}\n')
 
 
-def data_generator(name_list, score_list):
+def data_generator(name_list, score_list, max):
   #ntargets=20
   weight_normal = 11/2
   weight_decoy = 11/20
 
   for i, name in enumerate(name_list):
+
+    if max != -1: 
+        if i >= max: break
 
     target = name.decode()
     file_path = f'{path_to_pdbbind}/targets/{target}/grid_30_0.5_SF0'
@@ -91,7 +93,7 @@ def data_generator(name_list, score_list):
     combined_grid = tf.concat([grid1, grid2], axis=-1)
 
     # Yield the data as a tuple
-    yield combined_grid, observable
+    yield combined_grid, observable, weight_normal
 
     # Yields the 10 related decoys of the current grid
     for j in range(1,11):
@@ -100,14 +102,14 @@ def data_generator(name_list, score_list):
 
       observable = 0.00
       combined_grid = tf.concat([grid1, grid2], axis=-1)
-      yield combined_grid, observable
+      yield combined_grid, observable, weight_decoy
 
 def slice_data(dataset):
   x = tf.concat([x for x, y in dataset], axis=-1)
   y = tf.concat([y for x, y in dataset], axis=-1)
   return x,y
 
-def create_datasets():
+def create_datasets(max=-1):
 
     binding_targets, binding_score = read_pdbbind_data()
 
@@ -115,7 +117,8 @@ def create_datasets():
     train_names, valid_names, train_scores, valid_scores = train_test_split(train_names, train_scores, train_size=0.8)
 
     output_signature = (tf.TensorSpec(shape=(60, 60, 60, 6), dtype=tf.float64, name='combgrid'),
-                        tf.TensorSpec(shape=(), dtype=tf.float32, name='ligscore'))
+                        tf.TensorSpec(shape=(), dtype=tf.float32, name='ligscore'),
+                        tf.TensorSpec(shape=(), dtype=tf.float32, name='weight'))
     batch_size = 5
     prefetch_size = 1
 
@@ -124,21 +127,21 @@ def create_datasets():
     train_dataset = tf.data.Dataset.from_generator(
         data_generator,
         output_signature=output_signature,
-        args=(tf.convert_to_tensor(train_names, dtype=tf.string), tf.convert_to_tensor(train_scores, dtype=tf.float32)),
+        args=(tf.convert_to_tensor(train_names, dtype=tf.string), tf.convert_to_tensor(train_scores, dtype=tf.float32), max),
         name="train_dataset_gen"
     ).batch(batch_size).prefetch(prefetch_size)
 
     test_dataset = tf.data.Dataset.from_generator(
         data_generator,
         output_signature=output_signature,
-        args=(tf.convert_to_tensor(test_names, dtype=tf.string), tf.convert_to_tensor(test_scores, dtype=tf.float32)),
+        args=(tf.convert_to_tensor(test_names, dtype=tf.string), tf.convert_to_tensor(test_scores, dtype=tf.float32), max),
         name="test_dataset_gen"
     ).batch(batch_size).prefetch(prefetch_size)
 
     valid_dataset = tf.data.Dataset.from_generator(
         data_generator,
         output_signature=output_signature,
-        args=(tf.convert_to_tensor(valid_names, dtype=tf.string), tf.convert_to_tensor(valid_scores, dtype=tf.float32)),
+        args=(tf.convert_to_tensor(valid_names, dtype=tf.string), tf.convert_to_tensor(valid_scores, dtype=tf.float32), max),
         name="valid_dataset_gen"
     ).batch(batch_size).prefetch(prefetch_size)
 
@@ -156,7 +159,7 @@ def create_model(hp):
     filters3 = hp.Int('filter3', min_value=90, max_value=200, step=5)
     kernel3 = hp.Int('kernel3', min_value=2, max_value=9, step=1)
     units1 = hp.Int('units1', min_value=50, max_value=200, step=10)
-    units2 = hp.Int('units2', min_values=30, max_values=80, step=5)
+    units2 = hp.Int('units2', min_value=30, max_value=80, step=5)
 
 
     cnn_model = keras.Sequential([
@@ -175,14 +178,21 @@ def create_model(hp):
 
     learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4, 1e-5])
 
-    cnn_model.compile(loss="mse", optimizer=keras.optimizers.Adam(learning_rate=learning_rate), metrics=["RootMeanSquaredError"])
+    cnn_model.compile(loss="mse", 
+                      optimizer=keras.optimizers.Adam(learning_rate=learning_rate), 
+                      metrics=[keras.metrics.MeanSquaredError()], 
+                      weighted_metrics=[])
 
     return cnn_model
 
+
+
 def tune_model():
+
+    trials=2
     tuner = kt.BayesianOptimization(create_model,
-                                    objective='root_mean_squared_error',
-                                    max_trials=10,
+                                    objective='mean_squared_error',
+                                    max_trials=trials,
                                     directory=LOG_DIR,
                                     project_name='grids_cnn')
 
@@ -190,21 +200,33 @@ def tune_model():
                                                   patience=2)
 
     
-    train_dataset, test_dataset, valid_dataset = create_datasets()
-    tuner.search(train_dataset, epochs=10, validation_data=valid_dataset) # validation created from train dataset so that the hp search doesn't overfit over the true validation
+    train_dataset, _, valid_dataset = create_datasets(max=100)
+    tuner.search(train_dataset, epochs=2, validation_data=valid_dataset, callbacks=[early_stop_cb]) # validation created from train dataset so that the hp search doesn't overfit over the true validation
 
     hp_names = ['filter1', 'filter2', 'filter3', 'kernel1', 'kernel2', 'kernel3', 'units1', 'units2']
 
     with open(f"{LOG_DIR}/hp_tuning_results.txt", "a") as f:
-        best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
+        best_hps = tuner.get_best_hyperparameters(num_trials=trials)[0]
 
         for name in hp_names:
             f.write(f"{name} -> {best_hps.get(name)}\n")
 
+    return tuner, best_hps 
 
-def run_model(model):
 
-    checkpoint_cb = keras.callbacks.ModelCheckpoint(filepath= LOG_DIR + '/{epoch:02d}-{val_loss:.2f}.keras',
+def run_model(model: kt.BayesianOptimization | tf.keras.Model, hps=None):
+    """
+    Runs fitting and evaluation
+    Args:
+        model: May be a model created manually or a keras Tuner object. 
+        hps: A keras Hyperprameters object to set the hyperparameters to 
+            be used in the model. Defaults to None and will assume the 
+            model already has pre-baked hyperparameters.
+    Returns: The outputs of fitting and evaluation, respectively.
+
+    """
+
+    checkpoint_cb = keras.callbacks.ModelCheckpoint(filepath= LOG_DIR + '/.keras',
                                                     save_weights_only=True,
                                                     verbose=1)
 
@@ -212,19 +234,28 @@ def run_model(model):
                                                   patience=1)
 
     def get_dir() -> str :
-        return f"{LOG_DIR}/{strftime("run_%m_%d_%H_%M")}"
+        return f"{LOG_DIR}/fit/{strftime('run_%m_%d_%H_%M')}"
 
-    tensorboard_cb = keras.callbacks.TensorBoard(logdir=get_dir(), profile_batch=(100,200))
+    tensorboard_cb = keras.callbacks.TensorBoard(log_dir=get_dir(), profile_batch=(100,200))
     
+    if hps is not None:
+        model = model.hypermodel.build(hps)
+        if model is not None: 
+            print("Warning: the running model has overwritten the hyperparameters")
 
-    model = create_model()
     train_dataset, test_dataset, valid_dataset = create_datasets()
 
-    out_info = model.fit(train_dataset, epochs=10, validation_data=valid_dataset, callbacks=[checkpoint_cb, early_stop_cb, tensorboard_cb])
-    mse_test = model.evaluate(test_dataset)
+    print("\nNow starting model fitting\n")
+
+    fit_out = model.fit(train_dataset, epochs=30, validation_data=valid_dataset, callbacks=[checkpoint_cb, early_stop_cb, tensorboard_cb])
+    eval_out = model.evaluate(test_dataset)
+
+    return fit_out, eval_out
 
 if __name__ == '__main__':
 
-    train_dataset, test_dataset, valid_dataset = create_datasets()
-    cnn_model = create_model()
-    run_model(cnn_model)
+    tuner, best_hps = tune_model()
+    run_model(tuner, best_hps)
+
+    # cnn_model = create_model()
+    # run_model(cnn_model)
