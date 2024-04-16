@@ -68,15 +68,12 @@ def _log_file_not_found(file_path):
     f.write(f'{file_path}\n')
 
 
-def data_generator(name_list, score_list, max):
+def data_generator(name_list, score_list):
   #ntargets=20
   weight_normal = 11/2
   weight_decoy = 11/20
 
   for i, name in enumerate(name_list):
-
-    if max != -1: 
-        if i >= max: break
 
     target = name.decode()
     file_path = f'{path_to_pdbbind}/targets/{target}/grid_30_0.5_SF0'
@@ -109,11 +106,14 @@ def slice_data(dataset):
   y = tf.concat([y for x, y in dataset], axis=-1)
   return x,y
 
-def create_datasets(max=-1):
+def create_datasets(max_targets=None):
 
     binding_targets, binding_score = read_pdbbind_data()
 
-    train_names, test_names, train_scores, test_scores = train_test_split(binding_targets, binding_score, train_size=0.8, shuffle=True)
+    train_names, test_names, train_scores, test_scores = train_test_split(binding_targets[:max_targets],
+                                                                          binding_score[:max_targets],
+                                                                          train_size=0.8,
+                                                                          shuffle=True)
     train_names, valid_names, train_scores, valid_scores = train_test_split(train_names, train_scores, train_size=0.8)
 
     output_signature = (tf.TensorSpec(shape=(60, 60, 60, 6), dtype=tf.float64, name='combgrid'),
@@ -163,17 +163,17 @@ def create_model(hp):
 
 
     cnn_model = keras.Sequential([
-            keras.layers.Conv3D(filters1, kernel1, activation='relu', data_format='channels_last', input_shape=(60,60,60,6), padding="same"),
-            keras.layers.MaxPool3D(data_format='channels_last'),
-            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_last', padding="same"),
-            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_last', padding="same"),
-            keras.layers.MaxPool3D(data_format='channels_last'),
-            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_last', padding="same"),
-            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_last', padding="same"),
-            keras.layers.Flatten(),
-            keras.layers.Dense(units=units1, activation="relu"),
-            keras.layers.Dense(units=units2, activation="relu"),
-            keras.layers.Dense(units=1),
+            keras.layers.Conv3D(filters1, kernel1, activation='relu', data_format='channels_last', input_shape=(60,60,60,6), padding="same", name='conv1'),
+            keras.layers.MaxPool3D(data_format='channels_last', name='maxpool1'),
+            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_last', padding="same", name='conv2'),
+            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_last', padding="same", name='conv3'),
+            keras.layers.MaxPool3D(data_format='channels_last', name="maxpool2"),
+            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_last', padding="same", name='conv4'),
+            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_last', padding="same", name='conv5'),
+            keras.layers.Flatten(name='flatten'),
+            keras.layers.Dense(units=units1, activation="relu", name='dense1'),
+            keras.layers.Dense(units=units2, activation="relu", name='dense2'),
+            keras.layers.Dense(units=1, name='out_dense'),
         ])
 
     learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4, 1e-5])
@@ -200,7 +200,7 @@ def tune_model():
                                                   patience=2)
 
     
-    train_dataset, _, valid_dataset = create_datasets(max=100)
+    train_dataset, _, valid_dataset = create_datasets(max_targets=100)
     tuner.search(train_dataset, epochs=2, validation_data=valid_dataset, callbacks=[early_stop_cb]) # validation created from train dataset so that the hp search doesn't overfit over the true validation
 
     hp_names = ['filter1', 'filter2', 'filter3', 'kernel1', 'kernel2', 'kernel3', 'units1', 'units2']
@@ -226,7 +226,7 @@ def run_model(model: kt.BayesianOptimization | tf.keras.Model, hps=None):
 
     """
 
-    checkpoint_cb = keras.callbacks.ModelCheckpoint(filepath= LOG_DIR + '/.keras',
+    checkpoint_cb = keras.callbacks.ModelCheckpoint(filepath= LOG_DIR + '/{epoch:02d}-weights.keras',
                                                     save_weights_only=True,
                                                     verbose=1)
 
@@ -240,8 +240,6 @@ def run_model(model: kt.BayesianOptimization | tf.keras.Model, hps=None):
     
     if hps is not None:
         model = model.hypermodel.build(hps)
-        if model is not None: 
-            print("Warning: the running model has overwritten the hyperparameters")
 
     train_dataset, test_dataset, valid_dataset = create_datasets()
 
