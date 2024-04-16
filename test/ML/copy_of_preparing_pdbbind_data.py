@@ -186,7 +186,6 @@ def create_model(hp):
     return cnn_model
 
 
-
 def tune_model():
 
     trials=2
@@ -201,7 +200,7 @@ def tune_model():
 
     
     train_dataset, _, valid_dataset = create_datasets(max_targets=100)
-    tuner.search(train_dataset, epochs=2, validation_data=valid_dataset, callbacks=[early_stop_cb]) # validation created from train dataset so that the hp search doesn't overfit over the true validation
+    tuner.search(train_dataset, epochs=2, validation_data=valid_dataset, callbacks=[early_stop_cb]) 
 
     hp_names = ['filter1', 'filter2', 'filter3', 'kernel1', 'kernel2', 'kernel3', 'units1', 'units2']
 

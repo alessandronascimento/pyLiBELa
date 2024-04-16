@@ -1,8 +1,9 @@
 import torch
 from math import floor
 from torch.utils.data import Dataset
-import numpy as np
+from torch import nn
 from pathlib import Path
+from sklearn.model_selection import train_test_split
 
 path_to_pdbbind = "/data/home/alessandro/PDBbind_v2020"
 LOG_DIR = "./log"
@@ -83,6 +84,43 @@ class GridDataset(Dataset):
         self._lig = process_file(self._file)
         return torch.cat((self._rec, self._lig), dim=-1), self.scores[grid_idx], weight
 
+def create_datasets(max_targets=None):
+    
+    binding_targets, binding_score = read_pdbbind_data()
+
+    train_targets, test_targets, train_scores, test_scores = train_test_split(binding_targets[:max_targets],
+                                                                          binding_score[:max_targets],
+                                                                          train_size=0.8,
+                                                                          shuffle=True)
+    train_targets, valid_targets, train_scores, valid_scores = train_test_split(train_targets, train_scores, train_size=0.8)
+
+    train_dataset = GridDataset(train_targets, train_scores) 
+    test_dataset = GridDataset(test_targets, test_scores) 
+    valid_dataset = GridDataset(valid_targets, valid_scores) 
+
+    return train_dataset, test_dataset, valid_dataset
+
+class CnnModel(nn.Module):
+
+    def __init__(self) -> None:
+        super.__init__()
+        self.flatten = nn.Flatten()
+        self.convolution_stack = nn.Sequential(
+            nn.Conv3d(in_channels=6, out_channels=32, kernel_size=3, padding=1)
+        )
+
+
+    # model = torch.nn.Sequential(
+    #     torch.nn.Conv3d(6, 32, 3, padding=1),
+    #     torch.nn.MaxPool3d(2),
+    #     torch.nn.Conv3d(32, 64, 3, padding=1),
+    #     torch.nn.MaxPool3d(2),
+    #     torch.nn.Conv3d(64, 128, 3, padding=1),
+    #     torch.nn.MaxPool3d(2),
+    #     torch.nn.Flatten(),
+    #     torch.nn.Linear(128*3*3*3, 128),
+    #     torch.nn.ReLU(),
+    #     torch.nn.Linear(128, 1)
 
 def test():
     #data = process_file(f'{path_to_pdbbind}/targets/8gpb/grid_30_0.5_SF0/McGrid_lig.grid')
