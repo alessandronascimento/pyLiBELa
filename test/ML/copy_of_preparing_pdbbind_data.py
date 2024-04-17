@@ -1,5 +1,6 @@
 import tensorflow as tf
 import keras_tuner as kt
+import sys
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from time import strftime
@@ -156,10 +157,8 @@ def create_model(hp):
     kernel2 = hp.Int('kernel2', min_value=2, max_value=9, step=1)
     filters3 = hp.Int('filter3', min_value=90, max_value=200, step=5)
     kernel3 = hp.Int('kernel3', min_value=2, max_value=9, step=1)
-    units1 = hp.Int('units1', min_value=50, max_value=200, step=10)
-    units2 = hp.Int('units2', min_value=30, max_value=80, step=5)
 
-
+    # Convolution stack
     cnn_model = keras.Sequential([
             keras.layers.Conv3D(filters1, kernel1, activation='relu', data_format='channels_first', input_shape=(6,60,60,60), padding="same", name='conv1'),
             keras.layers.MaxPool3D(data_format='channels_first', name='maxpool1'),
@@ -168,17 +167,27 @@ def create_model(hp):
             keras.layers.MaxPool3D(data_format='channels_first', name="maxpool2"),
             keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_first', padding="same", name='conv4'),
             keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_first', padding="same", name='conv5'),
-            keras.layers.Flatten(name='flatten'),
-            keras.layers.Dense(units=units1, activation="relu", name='dense1'),
-            keras.layers.Dense(units=units2, activation="relu", name='dense2'),
-            keras.layers.Dense(units=1, name='out_dense'),
-        ])
+            keras.layers.Flatten(name='flatten')])
+
+    # Tunes number of hidden layers
+    for i in range(hp.Choice('num_layers', [2,3,4])):
+        cnn_model.add(keras.layers.Dense(hp.Int(f'dense_units_{i}', min_value=20, max_value=200, step=5),
+                                         activation='relu',
+                                         name=f'dense_{i}'))
+
+    cnn_model.add(keras.layers.Dense(units=1, name='out_dense'))
 
     learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4, 1e-5])
 
+    optimizer = {"Adam" : keras.optimizers.Adam(learning_rate=learning_rate),
+                "RMSprop" : keras.optimizers.RMSprop(learning_rate=learning_rate),
+                "SGD" : keras.optimizers.SGD(learning_rate=learning_rate)}
+
+    choice = hp.Choice('optimizer', list(optimizer.keys()))
+
     cnn_model.compile(loss="mse", 
-                      optimizer=keras.optimizers.Adam(learning_rate=learning_rate), 
-                      metrics=[keras.metrics.MeanSquaredError()], 
+                      optimizer=optimizer[choice], 
+                      metrics=[keras.metrics.RootMeanSquaredError(name='rmse')], 
                       weighted_metrics=[])
 
     return cnn_model
@@ -186,27 +195,26 @@ def create_model(hp):
 
 def tune_model():
 
-    trials=2
+    trials=10
+    project_name = 'grids_cnn'
     tuner = kt.BayesianOptimization(create_model,
-                                    objective='mean_squared_error',
+                                    objective=kt.Objective('rmse', 'min'),
                                     max_trials=trials,
                                     directory=LOG_DIR,
-                                    project_name='grids_cnn')
+                                    project_name=project_name)
 
     early_stop_cb = keras.callbacks.EarlyStopping(restore_best_weights=True,
                                                   patience=2)
 
+
+    train_dataset, _, valid_dataset = create_datasets(max_targets=10)
+    tuner.search(train_dataset, epochs=1, validation_data=valid_dataset, callbacks=[early_stop_cb]) 
+
+    best_hps = tuner.get_best_hyperparameters(num_trials=trials)[0]
+    with open(f"{LOG_DIR}/{project_name}/hp_tuning_results.txt", "w") as sys.stdout:
+        tuner.results_summary(num_trials=trials)
     
-    train_dataset, _, valid_dataset = create_datasets(max_targets=100)
-    tuner.search(train_dataset, epochs=2, validation_data=valid_dataset, callbacks=[early_stop_cb]) 
-
-    hp_names = ['filter1', 'filter2', 'filter3', 'kernel1', 'kernel2', 'kernel3', 'units1', 'units2']
-
-    with open(f"{LOG_DIR}/hp_tuning_results.txt", "a") as f:
-        best_hps = tuner.get_best_hyperparameters(num_trials=trials)[0]
-
-        for name in hp_names:
-            f.write(f"{name} -> {best_hps.get(name)}\n")
+    sys.stdout = sys.__stdout__
 
     return tuner, best_hps 
 
