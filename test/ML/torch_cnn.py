@@ -47,7 +47,7 @@ def process_file(file_path):
         raise IOError(f"File path '{as_path}' does not exist")
 
     with open(file_path, 'rb') as f:
-        data = torch.frombuffer(f.read(), dtype=torch.float64).reshape(60, 60, 60, 3)
+        data = torch.frombuffer(f.read(), dtype=torch.float64).reshape(3, 60, 60, 60)
     return data
 
 
@@ -82,7 +82,7 @@ class GridDataset(Dataset):
             weight = self.weight_decoy
 
         self._lig = process_file(self._file)
-        return torch.cat((self._rec, self._lig), dim=-1), self.scores[grid_idx], weight
+        return torch.cat((self._rec, self._lig), dim=0), self.scores[grid_idx], weight
 
 def create_datasets(max_targets=None):
     
@@ -100,14 +100,61 @@ def create_datasets(max_targets=None):
 
     return train_dataset, test_dataset, valid_dataset
 
-class CnnModel(nn.Module):
+def get_device():
+    device = ("cuda" if torch.cuda.is_available() 
+        else "mps" if torch.backends.mps.is_available()
+        else "cpu")
+
+    return device
+
+class CNNModel(nn.Module):
 
     def __init__(self) -> None:
-        super.__init__()
+        super().__init__()
         self.flatten = nn.Flatten()
-        self.convolution_stack = nn.Sequential(
-            nn.Conv3d(in_channels=6, out_channels=32, kernel_size=3, padding=1)
-        )
+        self._current_shape = (6,60,60,60) 
+        self._old_out_channels = 0
+
+        self.conv1 = nn.Conv3d(in_channels=6, out_channels=64, kernel_size=3)
+        self.maxpool1 = nn.MaxPool3d(kernel_size=2)
+        self.conv2 = nn.Conv3d(in_channels=64, out_channels=64, kernel_size=2)
+        self.conv3 = nn.Conv3d(in_channels=64, out_channels=64, kernel_size=2)
+        self.maxpool2 = nn.MaxPool3d(kernel_size=2)
+        self.conv4 = nn.Conv3d(in_channels=64, out_channels=128, kernel_size=2)
+        self.conv5 = nn.Conv3d(in_channels=128, out_channels=128, kernel_size=2)
+
+    def make_conv(self, dims, out_channels, kernel_size, in_channels=None, padding=0, stride=1, dilation=1):
+        if in_channels is None: in_channels = self._old_out_channels
+        conv = nn.Conv3d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size)
+
+
+
+        
+    def _make_uniform(self, value):
+        if isinstance(value, int):
+            return (value, value, value)
+        else: return value
+
+    def _out_shape(self, dims, out_channels, kernel_size, padding=0, stride=1, dilation=1):
+        """
+        Helper function that returns a tuple with the shape
+        information as outputted by a Conv3d or MaxPool3d 
+        layer. Which can then be used as inputs for the next layer.
+        """
+
+        dims = self._make_uniform(dims)
+        kernel_size = self._make_uniform(kernel_size)
+        padding = self._make_uniform(padding)
+        stride = self._make_uniform(stride)
+        dilation = self._make_uniform(dilation) 
+       
+        # As specified in https://pytorch.org/docs/stable/generated/torch.nn.Conv3d.html
+        f = lambda i : floor(1 + (dims[i] + 2*padding[i] - 
+            dilation[i]*( kernel_size[i] - 1) - 1 ) / stride[i])
+
+        return (out_channels, f(0), f(1), f(2))
+
+
 
 
     # model = torch.nn.Sequential(
