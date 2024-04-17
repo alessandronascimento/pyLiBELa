@@ -60,7 +60,7 @@ def process_file(file_path):
 
   data = tf.io.read_file(file_path)
   data = tf.io.decode_raw(data, tf.float64)
-  data = tf.reshape(data, (60, 60, 60, 3))
+  data = tf.reshape(data, (3, 60, 60, 60))
   return data
 
 def _log_file_not_found(file_path):
@@ -87,7 +87,7 @@ def data_generator(name_list, score_list):
       continue
 
     observable = score_list[i]
-    combined_grid = tf.concat([grid1, grid2], axis=-1)
+    combined_grid = tf.concat([grid1, grid2], axis=0)
 
     # Yield the data as a tuple
     yield combined_grid, observable, weight_normal
@@ -98,13 +98,8 @@ def data_generator(name_list, score_list):
       grid2 = process_file(file_path + '/McGrid_dec_{}.grid'.format(j))
 
       observable = 0.00
-      combined_grid = tf.concat([grid1, grid2], axis=-1)
+      combined_grid = tf.concat([grid1, grid2], axis=0)
       yield combined_grid, observable, weight_decoy
-
-def slice_data(dataset):
-  x = tf.concat([x for x, y in dataset], axis=-1)
-  y = tf.concat([y for x, y in dataset], axis=-1)
-  return x,y
 
 def create_datasets(max_targets=None):
 
@@ -116,7 +111,7 @@ def create_datasets(max_targets=None):
                                                                           shuffle=True)
     train_names, valid_names, train_scores, valid_scores = train_test_split(train_names, train_scores, train_size=0.8)
 
-    output_signature = (tf.TensorSpec(shape=(60, 60, 60, 6), dtype=tf.float64, name='combgrid'),
+    output_signature = (tf.TensorSpec(shape=(6, 60, 60, 60), dtype=tf.float64, name='combgrid'),
                         tf.TensorSpec(shape=(), dtype=tf.float32, name='ligscore'),
                         tf.TensorSpec(shape=(), dtype=tf.float32, name='weight'))
     batch_size = 5
@@ -127,21 +122,24 @@ def create_datasets(max_targets=None):
     train_dataset = tf.data.Dataset.from_generator(
         data_generator,
         output_signature=output_signature,
-        args=(tf.convert_to_tensor(train_names, dtype=tf.string), tf.convert_to_tensor(train_scores, dtype=tf.float32), max),
+        args=(tf.convert_to_tensor(train_names, dtype=tf.string), 
+              tf.convert_to_tensor(train_scores, dtype=tf.float32)),
         name="train_dataset_gen"
     ).batch(batch_size).prefetch(prefetch_size)
 
     test_dataset = tf.data.Dataset.from_generator(
         data_generator,
         output_signature=output_signature,
-        args=(tf.convert_to_tensor(test_names, dtype=tf.string), tf.convert_to_tensor(test_scores, dtype=tf.float32), max),
+        args=(tf.convert_to_tensor(test_names, dtype=tf.string), 
+              tf.convert_to_tensor(test_scores, dtype=tf.float32)),
         name="test_dataset_gen"
     ).batch(batch_size).prefetch(prefetch_size)
 
     valid_dataset = tf.data.Dataset.from_generator(
         data_generator,
         output_signature=output_signature,
-        args=(tf.convert_to_tensor(valid_names, dtype=tf.string), tf.convert_to_tensor(valid_scores, dtype=tf.float32), max),
+        args=(tf.convert_to_tensor(valid_names, dtype=tf.string),
+              tf.convert_to_tensor(valid_scores, dtype=tf.float32)),
         name="valid_dataset_gen"
     ).batch(batch_size).prefetch(prefetch_size)
 
@@ -163,13 +161,13 @@ def create_model(hp):
 
 
     cnn_model = keras.Sequential([
-            keras.layers.Conv3D(filters1, kernel1, activation='relu', data_format='channels_last', input_shape=(60,60,60,6), padding="same", name='conv1'),
-            keras.layers.MaxPool3D(data_format='channels_last', name='maxpool1'),
-            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_last', padding="same", name='conv2'),
-            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_last', padding="same", name='conv3'),
-            keras.layers.MaxPool3D(data_format='channels_last', name="maxpool2"),
-            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_last', padding="same", name='conv4'),
-            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_last', padding="same", name='conv5'),
+            keras.layers.Conv3D(filters1, kernel1, activation='relu', data_format='channels_first', input_shape=(6,60,60,60), padding="same", name='conv1'),
+            keras.layers.MaxPool3D(data_format='channels_first', name='maxpool1'),
+            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_first', padding="same", name='conv2'),
+            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_first', padding="same", name='conv3'),
+            keras.layers.MaxPool3D(data_format='channels_first', name="maxpool2"),
+            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_first', padding="same", name='conv4'),
+            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_first', padding="same", name='conv5'),
             keras.layers.Flatten(name='flatten'),
             keras.layers.Dense(units=units1, activation="relu", name='dense1'),
             keras.layers.Dense(units=units2, activation="relu", name='dense2'),
