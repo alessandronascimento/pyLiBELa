@@ -1,5 +1,6 @@
 import torch
-from math import floor
+from math import floor, prod
+from typing import Optional, OrderedDict
 from torch.utils.data import Dataset
 from torch import nn
 from pathlib import Path
@@ -109,54 +110,7 @@ def get_device():
 
 class CNNModel(nn.Module):
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.flatten = nn.Flatten()
-        self._current_shape = (6,60,60,60) 
-        self._old_out_channels = 0
-
-        self.conv1 = nn.Conv3d(in_channels=6, out_channels=64, kernel_size=3)
-        self.maxpool1 = nn.MaxPool3d(kernel_size=2)
-        self.conv2 = nn.Conv3d(in_channels=64, out_channels=64, kernel_size=2)
-        self.conv3 = nn.Conv3d(in_channels=64, out_channels=64, kernel_size=2)
-        self.maxpool2 = nn.MaxPool3d(kernel_size=2)
-        self.conv4 = nn.Conv3d(in_channels=64, out_channels=128, kernel_size=2)
-        self.conv5 = nn.Conv3d(in_channels=128, out_channels=128, kernel_size=2)
-
-    def make_conv(self, dims, out_channels, kernel_size, in_channels=None, padding=0, stride=1, dilation=1):
-        if in_channels is None: in_channels = self._old_out_channels
-        conv = nn.Conv3d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size)
-
-
-
-        
-    def _make_uniform(self, value):
-        if isinstance(value, int):
-            return (value, value, value)
-        else: return value
-
-    def _out_shape(self, dims, out_channels, kernel_size, padding=0, stride=1, dilation=1):
-        """
-        Helper function that returns a tuple with the shape
-        information as outputted by a Conv3d or MaxPool3d 
-        layer. Which can then be used as inputs for the next layer.
-        """
-
-        dims = self._make_uniform(dims)
-        kernel_size = self._make_uniform(kernel_size)
-        padding = self._make_uniform(padding)
-        stride = self._make_uniform(stride)
-        dilation = self._make_uniform(dilation) 
-       
-        # As specified in https://pytorch.org/docs/stable/generated/torch.nn.Conv3d.html
-        f = lambda i : floor(1 + (dims[i] + 2*padding[i] - 
-            dilation[i]*( kernel_size[i] - 1) - 1 ) / stride[i])
-
-        return (out_channels, f(0), f(1), f(2))
-
-
-
-
+    def __init__(self, input_shape : tuple[int, int, int, int]) -> None:
     # model = torch.nn.Sequential(
     #     torch.nn.Conv3d(6, 32, 3, padding=1),
     #     torch.nn.MaxPool3d(2),
@@ -168,15 +122,148 @@ class CNNModel(nn.Module):
     #     torch.nn.Linear(128*3*3*3, 128),
     #     torch.nn.ReLU(),
     #     torch.nn.Linear(128, 1)
+        super().__init__()
+        self.flatten = nn.Flatten()
+        self._current_shape = input_shape 
+        self._old_out_channels = 0
+        self.model_stack = nn.Sequential(OrderedDict([
+            ('conv1', self.make_conv3d(out_channels=32,
+                                        kernel_size=3,
+                                        in_channels=input_shape[0])),
+            ('maxpool1', self.make_maxpool3d(kernel_size=2)),
+            ('conv2', self.make_conv3d(out_channels=64, kernel_size=3)),
+            ('conv3', self.make_conv3d(out_channels=64, kernel_size=2)),
+            ('maxpool2', self.make_maxpool3d(kernel_size=2)),
+            ('conv4', self.make_conv3d(out_channels=128, kernel_size=2)),
+            ('conv5', self.make_conv3d(out_channels=128, kernel_size=2)),
+            ('flat', self.make_flatten()),
+            ('linear1', self.make_linear(units=128)),
+            ('activation1', nn.ReLU()),
+            ('linear2', self.make_linear(units=64)),
+            ('activation2', nn.ReLU()),
+            ('out', self.make_linear(units=1))
+            ]))
+
+    def forward(self, x):
+        x = self.model_stack(x)
+        return x
+
+    def make_conv3d(self,
+                  out_channels,
+                  kernel_size,
+                  in_channels=None,
+                  padding=0,
+                  stride=1,
+                  dilation=1) -> nn.Conv3d:
+        """
+        Returns a Conv3d layer handling input shape automatically 
+        """
+
+        if in_channels is None: in_channels = self._old_out_channels
+        conv = nn.Conv3d(in_channels=in_channels, 
+                         out_channels=out_channels, 
+                         kernel_size=kernel_size,
+                         padding=padding,
+                         stride=stride,
+                         dilation=dilation)
+
+        if not isinstance(self._current_shape, tuple): raise ValueError("Current shape must be multidimensional")
+
+        dims = [self._current_shape[1], self._current_shape[2], self._current_shape[3]]
+        out = self._out_dims(dims, 
+                              kernel_size=kernel_size,
+                              padding=padding,
+                              stride=stride,
+                              dilation=dilation)
+
+        self._old_out_channels = out_channels
+        self._current_shape = (out_channels, out[0], out[1], out[2])
+
+        return conv
+
+    def make_maxpool3d(self,
+                       kernel_size,
+                       stride=1,
+                       padding=0,
+                       dilation=1) -> nn.MaxPool3d:
+        """
+        Returns a MaxPool3d layer handling input shape automatically 
+        """
+
+        if not isinstance(self._current_shape, tuple): raise ValueError("Current shape must be multidimensional")
+
+        maxpool = nn.MaxPool3d(kernel_size=kernel_size,
+                               stride=stride,
+                               padding=padding,
+                               dilation=dilation)
+
+        dims = [self._current_shape[1], self._current_shape[2], self._current_shape[3]]
+        out = self._out_dims(dims, 
+                              kernel_size=kernel_size,
+                              padding=padding,
+                              stride=stride,
+                              dilation=dilation)
+        self._current_shape = (self._old_out_channels, out[0], out[1], out[2])
+        return maxpool 
+
+    def make_flatten(self) -> nn.Flatten:
+        """
+        Returns a Flatten layer handling shape automatically 
+        """
+        self._current_shape = prod(self._current_shape)
+        return nn.Flatten()
+
+    def make_linear(self, units) -> nn.Linear:
+        """
+        Returns a Linear layer handling input shape automatically 
+        """
+
+        if not isinstance(self._current_shape, int): raise ValueError("Shape must be flat")
+
+        lin = nn.Linear(in_features=self._current_shape, out_features=units)
+
+        self._current_shape = units
+        return lin
+
+    def _make_uniform(self, value : int | list[int]) -> tuple[list[int], list[int]]:
+        if isinstance(value, int):
+            return [value,], [0, 0, 0]
+        else: return value, [0, 1, 2]
+
+
+    def _out_dims(self, dims : list[int],
+                   kernel_size : int | list[int],
+                   padding : int | list[int] = 0,
+                   stride : int | list[int] = 1,
+                   dilation : int | list[int] = 1) -> tuple[int, int, int]:
+        """
+        Helper function that returns a tuple with the dimension (excluding channel)
+        shape information as outputted by a Conv3d or MaxPool3d 
+        layer. Which can then be used as inputs for the next layer.
+        """
+
+        kernel_size, kernel_shape = self._make_uniform(kernel_size)
+        padding, padding_shape = self._make_uniform(padding)
+        stride, stride_shape = self._make_uniform(stride)
+        dilation, dilation_shape = self._make_uniform(dilation) 
+       
+        def reshape(i : int) -> int:
+            return floor(1 + (dims[i] + 2*padding[padding_shape[i]] - 
+            dilation[dilation_shape[i]]*( kernel_size[kernel_shape[i]] - 1) - 1 ) / stride[stride_shape[i]])
+
+        return (reshape(0), reshape(1), reshape(2))
+
+
 
 def test():
+
     #data = process_file(f'{path_to_pdbbind}/targets/8gpb/grid_30_0.5_SF0/McGrid_lig.grid')
     #print(data)
     targets, scores = read_pdbbind_data()
-    dataset = GridDataset(targets[:23], scores[:23])
-    for data in dataset:
-        print(f"{dataset._file}:")
-        print(data[0].dim(), data[1], data[2])
+    # dataset = GridDataset(targets[:23], scores[:23])
+    cnn = CNNModel((6,60,60,60)).to(get_device())
+    print(cnn)
+
 
 if __name__ == '__main__':
     test()

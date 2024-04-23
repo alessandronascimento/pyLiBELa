@@ -160,14 +160,43 @@ def create_model(hp):
 
     # Convolution stack
     cnn_model = keras.Sequential([
-            keras.layers.Conv3D(filters1, kernel1, activation='relu', data_format='channels_first', input_shape=(6,60,60,60), padding="same", name='conv1'),
-            keras.layers.MaxPool3D(data_format='channels_first', name='maxpool1'),
-            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_first', padding="same", name='conv2'),
-            keras.layers.Conv3D(filters2, kernel2, activation='relu', data_format='channels_first', padding="same", name='conv3'),
-            keras.layers.MaxPool3D(data_format='channels_first', name="maxpool2"),
-            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_first', padding="same", name='conv4'),
-            keras.layers.Conv3D(filters3, kernel3, activation='relu', data_format='channels_first', padding="same", name='conv5'),
-            keras.layers.Flatten(name='flatten')])
+            keras.layers.Conv3D(filters1,
+                                kernel1,
+                                activation='relu',
+                                data_format='channels_first',
+                                input_shape=(6,60,60,60),
+                                padding="same",
+                                name='conv1'),
+            keras.layers.MaxPool3D(data_format='channels_first',
+                                   name='maxpool1'),
+            keras.layers.Conv3D(filters2,
+                                kernel2,
+                                activation='relu',
+                                data_format='channels_first',
+                                padding="same",
+                                name='conv2'),
+            keras.layers.Conv3D(filters2,
+                                kernel2,
+                                activation='relu',
+                                data_format='channels_first',
+                                padding="same",
+                                name='conv3'),
+            keras.layers.MaxPool3D(data_format='channels_first',
+                                   name="maxpool2"),
+            keras.layers.Conv3D(filters3,
+                                kernel3,
+                                activation='relu',
+                                data_format='channels_first',
+                                padding="same",
+                                name='conv4'),
+            keras.layers.Conv3D(filters3,
+                                kernel3,
+                                activation='relu',
+                                data_format='channels_first',
+                                padding="same",
+                                name='conv5'),
+            keras.layers.Flatten(name='flatten')
+    ])
 
     # Tunes number of hidden layers
     for i in range(hp.Choice('num_layers', [2,3,4])):
