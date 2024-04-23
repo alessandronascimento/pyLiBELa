@@ -1,7 +1,8 @@
 import torch
-from math import floor, prod
-from typing import Optional, OrderedDict
-from torch.utils.data import Dataset
+from math import floor
+from typing import OrderedDict
+from torch.utils.data import Dataset, DataLoader
+from torch.optim import Optimizer
 from torch import nn
 from pathlib import Path
 from sklearn.model_selection import train_test_split
@@ -111,23 +112,12 @@ def get_device():
 class CNNModel(nn.Module):
 
     def __init__(self, input_shape : tuple[int, int, int, int]) -> None:
-    # model = torch.nn.Sequential(
-    #     torch.nn.Conv3d(6, 32, 3, padding=1),
-    #     torch.nn.MaxPool3d(2),
-    #     torch.nn.Conv3d(32, 64, 3, padding=1),
-    #     torch.nn.MaxPool3d(2),
-    #     torch.nn.Conv3d(64, 128, 3, padding=1),
-    #     torch.nn.MaxPool3d(2),
-    #     torch.nn.Flatten(),
-    #     torch.nn.Linear(128*3*3*3, 128),
-    #     torch.nn.ReLU(),
-    #     torch.nn.Linear(128, 1)
         super().__init__()
         self.flatten = nn.Flatten()
         self._current_shape = input_shape 
         self._old_out_channels = 0
         self.model_stack = nn.Sequential(OrderedDict([
-            ('conv1', self.make_conv3d(out_channels=32,
+            ('conv1',   self.make_conv3d(out_channels=32,
                                         kernel_size=3,
                                         in_channels=input_shape[0])),
             ('maxpool1', self.make_maxpool3d(kernel_size=2)),
@@ -210,7 +200,9 @@ class CNNModel(nn.Module):
         """
         Returns a Flatten layer handling shape automatically 
         """
-        self._current_shape = prod(self._current_shape)
+        if not isinstance(self._current_shape, tuple): raise ValueError("Current shape must be multidimensional")
+
+        self._current_shape = self._current_shape[0] * self._current_shape[1] * self._current_shape[2]
         return nn.Flatten()
 
     def make_linear(self, units) -> nn.Linear:
@@ -237,9 +229,9 @@ class CNNModel(nn.Module):
                    stride : int | list[int] = 1,
                    dilation : int | list[int] = 1) -> tuple[int, int, int]:
         """
-        Helper function that returns a tuple with the dimension (excluding channel)
-        shape information as outputted by a Conv3d or MaxPool3d 
-        layer. Which can then be used as inputs for the next layer.
+        Helper function that returns a tuple with the shape 
+        information (excluding channels) as outputted by a Conv3d 
+        or MaxPool3d layer to be used by next layer.
         """
 
         kernel_size, kernel_shape = self._make_uniform(kernel_size)
@@ -253,6 +245,47 @@ class CNNModel(nn.Module):
 
         return (reshape(0), reshape(1), reshape(2))
 
+def train_model(model : nn.Module, 
+                train_data: DataLoader, 
+                valid_data: DataLoader,
+                optimizer : Optimizer, 
+                epochs : int,
+                loss_fn):
+
+    batch_size : int = train_data.batch_size
+    size = len(train_data)
+
+    for epoch in range(epochs):
+        # TRAINING STEP -----------------------------
+        avg_loss = 0
+        running_loss = 0
+        print(f"EPOCH {epoch+1}")
+        model.train()
+        for batch, (X, y) in enumerate(train_data):
+            pred = model(X)
+            loss = loss_fn(pred, y)
+
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+            running_loss += loss.item()
+
+            if batch % batch_size == 0:
+                avg_loss = running_loss / batch_size # loss per batch
+                print(f"batch {batch+1} loss: {avg_loss}")
+                running_loss = 0
+
+        # VALIDATION STEP ---------------------------
+        running_vloss = 0 
+        model.eval()
+        with torch.no_grad():
+            for Xv, yv in valid_data:
+                vpred = model(Xv)
+                vloss = loss_fn(vpred, yv)
+                running_vloss += vloss.item()
+
+        avg_vloss = running_vloss / (size + 1)
+        print(f"LOSS train {avg_loss} valid {avg_vloss}")
 
 
 def test():
@@ -262,7 +295,14 @@ def test():
     targets, scores = read_pdbbind_data()
     # dataset = GridDataset(targets[:23], scores[:23])
     cnn = CNNModel((6,60,60,60)).to(get_device())
-    print(cnn)
+    learning_rate = 1e-3
+    batch_size = 5
+    epochs = 10
+    loss_fn = nn.MSELoss()
+    optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate)
+    train, _, valid = create_datasets(max_targets=100)
+    train_d, valid_d = DataLoader(train, batch_size=batch_size), DataLoader(valid, batch_size=batch_size)
+    train_model(cnn, train_d, valid_d, optimizer, epochs, loss_fn)
 
 
 if __name__ == '__main__':
