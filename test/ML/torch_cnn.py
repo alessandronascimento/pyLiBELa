@@ -134,21 +134,32 @@ class CNNModel(nn.Module):
         self._current_shape = input_shape 
         self._old_out_channels = 0
         self.model_stack = nn.Sequential(OrderedDict([
-            ('conv1',    self.make_conv3d(out_channels=32,
-                                        kernel_size=3,
-                                        in_channels=input_shape[0])),
-            ('maxpool1', self.make_maxpool3d(kernel_size=2)),
-            ('conv2',    self.make_conv3d(out_channels=64, kernel_size=3)),
-            ('conv3',    self.make_conv3d(out_channels=64, kernel_size=2)),
-            ('maxpool2', self.make_maxpool3d(kernel_size=2)),
-            ('conv4',    self.make_conv3d(out_channels=128, kernel_size=2)),
-            ('conv5',    self.make_conv3d(out_channels=128, kernel_size=2)),
-            ('flat',     self.make_flatten()),
-            ('linear1',  self.make_linear(units=8)),
+            # ('conv1',    self.make_conv3d(out_channels=32,
+            #                             kernel_size=3,
+            #                             in_channels=input_shape[0])),
+            ('conv1',    nn.Conv3d(in_channels=input_shape[0], out_channels=32, kernel_size=3)),
+            # ('maxpool1', self.make_maxpool3d(kernel_size=2)),
+            ('maxpool1', nn.MaxPool3d(kernel_size=2)),
+            # ('conv2',    self.make_conv3d(out_channels=64, kernel_size=3)),
+            ('conv2',    nn.Conv3d(in_channels=32, out_channels=64, kernel_size=3)),
+            # ('conv3',    self.make_conv3d(out_channels=64, kernel_size=2)),
+            ('conv3', nn. Conv3d(in_channels=64, out_channels=64, kernel_size=2)),
+            # ('maxpool2', self.make_maxpool3d(kernel_size=2)),
+            ('maxpool2', nn.MaxPool3d(kernel_size=2)),
+            # ('conv4',    self.make_conv3d(out_channels=128, kernel_size=2)),
+            ('conv4', nn.Conv3d(in_channels=64, out_channels=128, kernel_size=2)),
+            # ('conv5',    self.make_conv3d(out_channels=128, kernel_size=2)),
+            ('conv5', nn.Conv3d(in_channels=128, out_channels=128, kernel_size=2)),
+            # ('flat',     self.make_flatten()),
+            ('flat', nn.Flatten()),
+            # ('linear1',  self.make_linear(units=8)),
+            ('linear1', nn.Linear(in_features=170368, out_features=128)),
             ('activ1', nn.ReLU()),
-            ('linear2',  self.make_linear(units=4)),
+            # ('linear2',  self.make_linear(units=4)),
+            ('linear2', nn.Linear(in_features=128, out_features=64)),
             ('activ2', nn.ReLU()),
-            ('out',      self.make_linear(units=1))
+            # ('out',      self.make_linear(units=1))
+            ('out', nn.Linear(in_features=64, out_features=1))
             ]))
 
     def forward(self, x):
@@ -278,36 +289,29 @@ def train_model(model : nn.Module,
         # TRAINING STEP -----------------------------
         avg_loss = 0
         running_loss = 0
-        print(f"EPOCH {epoch+1}")
+        print(f"\nEPOCH {epoch+1}/{epochs}")
         model.train()
-        for batch, (X, y, w) in enumerate(train_data):
+        for X, y, w in train_data:
             pred = model(X)
             loss = loss_fn(pred, y)
-            # loss = loss * w.mean() # sample weight
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            running_loss += loss.item()
+            running_loss += loss.item() * w.sum().item()
 
-            if batch % 100 == 0:
-                avg_loss = running_loss / batch_size # loss per batch
-                print(f"batch #{batch} loss: {avg_loss:.4f}\r")
-                running_loss = 0
+        print(f"Train Loss: {running_loss/len(train_data):.4f}")
 
         # VALIDATION STEP ---------------------------
-        running_vloss = 0 
         model.eval()
         with torch.no_grad():
-            for Xv, yv, wv in valid_data:
+            running_vloss = 0 
+            for Xv, yv, _ in valid_data:
                 vpred = model(Xv)
                 vloss = loss_fn(vpred, yv)
-                # vloss *= wv
-
                 running_vloss += vloss.item()
 
-        size = len(valid_data)
-        avg_vloss = running_vloss / (size + 1)
-        print(f"LOSS train {avg_loss} valid {avg_vloss}")
+        print(f"Validation Loss: {running_vloss/len(valid_data):.4f}")
+
 
 
 def test():
