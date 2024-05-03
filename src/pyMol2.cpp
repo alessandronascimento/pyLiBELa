@@ -59,7 +59,7 @@ bool Mol2::parse_smiles(PARSER *Input, string smiles_input, string molname){
  * Minimize energy
  */
 
-        OBForceField* OBff = OBForceField::FindForceField("MMFF94");
+	OBForceField* OBff = OBForceField::FindForceField( Input->ligand_energy_model.c_str());
         OBff->Setup(mol);
         OBff->SteepestDescent(100);
         OBff->UpdateCoordinates(mol);

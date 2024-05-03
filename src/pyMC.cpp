@@ -1394,8 +1394,6 @@ BOOST_PYTHON_MODULE(pyMC)
         .def("check_angle", & MC::check_angle)
         .def("increment_angles", & MC::increment_angles)
         .def("ligand_is_inside_box", & MC::ligand_is_inside_box)
-
-
     ;
 
     class_<MC::step_t>("step_t")
@@ -1410,4 +1408,15 @@ BOOST_PYTHON_MODULE(pyMC)
         .def_readwrite("torsion_angles", & MC::step_t::torsion_angles)
         .def_readwrite("internal_energy", & MC::step_t::internal_energy)
     ;
+    
+    class_<energy_result_t>("energy_result_t")
+        .def_readwrite("vdw", & energy_result_t::vdw)
+        .def_readwrite("elec", & energy_result_t::elec)
+        .def_readwrite("rec_solv", & energy_result_t::rec_solv)
+        .def_readwrite("lig_solv", & energy_result_t::lig_solv)
+        .def_readwrite("hb_donor", & energy_result_t::hb_donor)
+        .def_readwrite("hb_acceptor", & energy_result_t::hb_acceptor)
+        .def_readwrite("restraints", & energy_result_t::restraints)
+        .def_readwrite("total", & energy_result_t::total)
+    ;   
 }
