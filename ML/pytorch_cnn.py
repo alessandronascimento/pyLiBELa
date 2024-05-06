@@ -5,9 +5,26 @@ from typing import OrderedDict, Literal, Optional
 from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
 import numpy as np
+import wandb
+
+
 
 path_to_pdbbind = "/data/home/alessandro/PDBbind_v2020"
 LOG_DIR = "logs"
+
+wandb.init(
+    # set the wandb project where this run will be logged
+    project="CNN_PyTorch",
+
+    # track hyperparameters and run metadata
+    config={
+    "learning_rate": 1e-4,
+    "architecture": "CNN",
+    "dataset": "PDBBind",
+    "epochs": 30,
+    }
+)	
+
 
 def read_pdbbind_data():
     #@title Getting list of targets with grids
@@ -210,6 +227,8 @@ class CNNModel(nn.Module):
         out = self.model(x)
         return out
 
+def weighted_mse_loss(input, target, weight):
+    return torch.sum(weight * (input - target) ** 2)
 
 def train_model(model, train_loader, val_loader, epochs=30, learning_rate=1e-4):
   """
@@ -243,25 +262,27 @@ def train_model(model, train_loader, val_loader, epochs=30, learning_rate=1e-4):
     for data, target, weight in train_loader:
       optimizer.zero_grad()
       output = model(data)
-      loss = criterion(output, target)
+      loss = weighted_mse_loss(output, target, weight)
+#      loss = criterion(output, target)
       loss.backward()
       optimizer.step()
-      train_loss += loss.item() * weight.sum().item()
+      train_loss += loss.item()
 
     # Validation phase
     model.eval()
     with torch.no_grad():
       val_loss = 0.0
-      for data, target, _ in val_loader:  # Ignore weight during validation
+      for data, target, weight  in val_loader:  # Ignore weight during validation
         output = model(data)
-        val_loss += criterion(output, target).item()
+        val_loss += weighted_mse_loss(output, target, weight).item()
 
     # Print training and validation loss
     avg_train_loss = train_loss / len(train_loader)
     avg_val_loss = val_loss / len(val_loader)
     print(f"[Train]: Loss: {avg_train_loss:.4f}")
     print(f"[Val]: Loss: {avg_val_loss:.4f}")
-
+    
+    wandb.log({"loss": avg_train_loss, "val_loss" : avg_val_loss})
     fit_out.append((avg_train_loss, avg_val_loss))
 
   # Evaluation on test seit (optional)
