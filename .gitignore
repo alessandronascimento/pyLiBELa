@@ -10,3 +10,4 @@ test/cuda_test/McGrid/McGrid
 
 test/ML/logs
 test/ML/wandb
+wandb

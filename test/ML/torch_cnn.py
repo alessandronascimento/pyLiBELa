@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 
 path_to_pdbbind = "/data/home/alessandro/PDBbind_v2020"
 LOG_DIR = "./log"
-USE_WANDB = False
+USE_WANDB = True 
 
 def read_pdbbind_data():
     #@title Getting list of targets with grids
@@ -204,10 +204,10 @@ def train_model(model : nn.Module,
         print(f"\nEPOCH {epoch+1}/{epochs}")
         model.train()
         pad = 15
-        count = 0
         total_train = len(train_data)
         for i, (X, y, w) in enumerate(train_data):
 
+            # progress bar
             pad_left = int(i*pad/total_train)
             print(f"\rRunning Epoch... |{'':{'='}<{pad_left}}>{'':{' '}>{pad-pad_left-1}}|", end='')
 
@@ -217,8 +217,6 @@ def train_model(model : nn.Module,
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
-
-            count += 1
 
         loss = running_loss/total_train
         if USE_WANDB: wandb.log({"train loss": loss})
@@ -264,11 +262,11 @@ def test():
     device = get_device()
     cnn = CNNModel((6,60,60,60)).to(device)
     learning_rate = 1e-3
-    batch_size = 5
-    epochs = 10
+    batch_size = 20
+    epochs = 20
     loss_fn = WeightedMSELoss 
     optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate)
-    train, _, valid = create_datasets(device, batch_size, max_targets=100)
+    train, _, valid = create_datasets(device, batch_size, max_targets=None)
     train_model(cnn, train, valid, optimizer, epochs, loss_fn)
 
 
