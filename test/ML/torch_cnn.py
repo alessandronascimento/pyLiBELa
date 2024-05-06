@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 
 path_to_pdbbind = "/data/home/alessandro/PDBbind_v2020"
 LOG_DIR = "./log"
+USE_WANDB = False
 
 def read_pdbbind_data():
     #@title Getting list of targets with grids
@@ -183,9 +184,9 @@ def train_model(model : nn.Module,
                 valid_data: DataLoader,
                 optimizer : Optimizer, 
                 epochs : int,
-                loss_fn : nn.MSELoss):
-
-    wandb.init(
+                loss_fn):
+    
+    if USE_WANDB: wandb.init(
         # set the wandb project where this run will be logged
         project="Torch-grids",
 
@@ -211,16 +212,16 @@ def train_model(model : nn.Module,
             print(f"\rRunning Epoch... |{'':{'='}<{pad_left}}>{'':{' '}>{pad-pad_left-1}}|", end='')
 
             pred = model(X)
-            loss = loss_fn(pred, y)
+            loss = loss_fn(pred, y, w)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            running_loss += loss.item() * w.sum().item()
+            running_loss += loss.item()
 
             count += 1
 
         loss = running_loss/total_train
-        wandb.log({"train loss": loss})
+        if USE_WANDB: wandb.log({"train loss": loss})
         print('\n')
         print(f"Train Loss: {loss:.4f}")
 
@@ -229,16 +230,21 @@ def train_model(model : nn.Module,
         model.eval()
         with torch.no_grad():
             running_vloss = 0 
-            for Xv, yv, _ in valid_data:
+            for Xv, yv, wv in valid_data:
                 vpred = model(Xv)
-                vloss = loss_fn(vpred, yv)
+                vloss = loss_fn(vpred, yv, wv)
                 running_vloss += vloss.item()
 
         vloss = running_loss/len(valid_data)
-        wandb.log({"valid loss": vloss})
+        if USE_WANDB: wandb.log({"valid loss": vloss})
         print(f"Validation Loss: {vloss:.4f}")
 
-    wandb.finish()
+    if USE_WANDB: wandb.finish()
+
+def WeightedMSELoss(x : torch.Tensor, y : torch.Tensor, w : torch.Tensor):
+    l = (x - y)*(x - y) * w
+    return l.sum()/l.size(dim=0)
+
 
 def test():
 
@@ -246,12 +252,21 @@ def test():
     #print(data)
     # dataset = GridDataset(targets[:23], scores[:23])
 
+
+    # a = torch.tensor([1, 2, 3, 4], dtype=torch.float32)
+    # b = torch.tensor([4, 3, 2, 1], dtype=torch.float32)
+    # w = torch.tensor([1, 1, 1 ,1], dtype=torch.float32)
+    # 
+    # should give the same results with w vector set as ones
+    # print(nn.MSELoss()(a, b))
+    # print(WeightedMSELoss(a, b, w))
+
     device = get_device()
     cnn = CNNModel((6,60,60,60)).to(device)
     learning_rate = 1e-3
     batch_size = 5
     epochs = 10
-    loss_fn = nn.MSELoss()
+    loss_fn = WeightedMSELoss 
     optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate)
     train, _, valid = create_datasets(device, batch_size, max_targets=100)
     train_model(cnn, train, valid, optimizer, epochs, loss_fn)
