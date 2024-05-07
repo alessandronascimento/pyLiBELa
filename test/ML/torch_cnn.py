@@ -2,6 +2,8 @@ import torch
 import numpy as np
 import wandb
 from math import floor
+from pathlib import Path
+from datetime import datetime
 from typing import OrderedDict, Literal, Optional
 from torch.utils.data import Dataset, DataLoader
 from torch.optim import Optimizer
@@ -11,7 +13,7 @@ from sklearn.model_selection import train_test_split
 
 path_to_pdbbind = "/data/home/alessandro/PDBbind_v2020"
 LOG_DIR = "./log"
-USE_WANDB = True 
+USE_WANDB = False
 
 def read_pdbbind_data():
     #@title Getting list of targets with grids
@@ -192,16 +194,23 @@ def train_model(model : nn.Module,
 
         # track hyperparameters and run metadata
         config={
+        "model_structure": '\n\t'.join([str(x) for x in model.modules() if "Sequential" not in str(x)]),
         "learning_rate": optimizer.state_dict()['param_groups'][0]['lr'],
         "architecture": "CNN",
         "dataset": "PDBbind",
         "epochs": epochs,
         }
     )
+
+    start_time = datetime.now()
+    checkpoint_folder =  Path(f"logs/torch/checkpoints/{start_time.strftime('%d-%m-%Y_%H:%M')}")
+    checkpoint_folder.mkdir(parents=True, exist_ok=True)
+
     for epoch in range(epochs):
         # TRAINING STEP -----------------------------
         running_loss = 0
         print(f"\nEPOCH {epoch+1}/{epochs}")
+        
         model.train()
         pad = 15
         total_train = len(train_data)
@@ -222,6 +231,13 @@ def train_model(model : nn.Module,
         if USE_WANDB: wandb.log({"train loss": loss})
         print('\n')
         print(f"Train Loss: {loss:.4f}")
+
+        # save checkpoint
+        torch.save({'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': loss}, 
+            checkpoint_folder / f"EPOCH-{epoch}.pt")
 
 
         # VALIDATION STEP ---------------------------
@@ -268,6 +284,7 @@ def test():
     optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate)
     train, _, valid = create_datasets(device, batch_size, max_targets=None)
     train_model(cnn, train, valid, optimizer, epochs, loss_fn)
+
 
 
 if __name__ == '__main__':
