@@ -16,9 +16,11 @@ def create_scatter(grid, view: gl.GLViewWidget):
     g_max, g_min = np.max(grid[1]), np.min(grid[1])
     b_max, b_min = np.max(grid[2]), np.min(grid[2])
 
-    total_points = grid_dims[1] * grid_dims[2] * grid_dims[3]
     out_rgba = []
     out_coords = []
+
+    scatter = gl.GLScatterPlotItem()
+    view.addItem(scatter)
 
     for x in range(grid_dims[1]): 
         for y in range(grid_dims[2]):
@@ -38,20 +40,27 @@ def create_scatter(grid, view: gl.GLViewWidget):
                     alpha_channel = (g+b)/2
 
                 out_coords.append([x,y,z])
-                out_rgba.append((r,g,b, alpha_channel))
-                
+                out_rgba.append([r,g,b, alpha_channel])
 
-    scatter = gl.GLScatterPlotItem(out_coords, color=out_rgba)
-    view.addItem(scatter)
+    out_coords = np.array(out_coords)
+    out_rgba = np.array(out_rgba)
+                
+    scatter.setGLOptions('translucent')
+    scatter.setData(pos=out_coords, color=out_rgba)
+
 
 def main():
 
-    pg.mkQApp()
+    app = pg.mkQApp()
     view = gl.GLViewWidget()
+    view.setBackgroundColor(0.2)
+    view.show()
 
     grid_shape = (3,60,60,60)
     grid = process_grid('./10gs/grid_30_0.5_SF0/McGrid_rec.grid', grid_shape)
-    create_scatter(grid, view)
+    create_scatter(grid[:,:,:,:], view)
+
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

@@ -17,7 +17,6 @@ def create_scatter(grid, view):
     g_max, g_min = np.max(grid[1]), np.min(grid[1])
     b_max, b_min = np.max(grid[2]), np.min(grid[2])
 
-    total_points = grid_dims[1] * grid_dims[2] * grid_dims[3]
     out_rgba = []
     out_coords = []
 
