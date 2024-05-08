@@ -7,7 +7,15 @@
 # McGrid executable
 test/cuda_test/McGrid/McGrid
 
+# pycache dirs 
+__pycache__/
 
+# training logs
 test/ML/logs
+
+# wandb data
 test/ML/wandb
 wandb
+
+
+
