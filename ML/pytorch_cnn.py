@@ -225,6 +225,7 @@ class CNNModel(nn.Module):
   def forward(self, x):
         # Set 1
         out = self.model(x)
+	out = torch.flatten(out)
         return out
 
 def weighted_mse_loss(input, target, weight):
