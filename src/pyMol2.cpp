@@ -61,7 +61,9 @@ bool Mol2::parse_smiles(PARSER *Input, string smiles_input, string molname){
 
 	OBForceField* OBff = OBForceField::FindForceField( Input->ligand_energy_model.c_str());
         OBff->Setup(mol);
-        OBff->SteepestDescent(100);
+	mol.SetTotalCharge(mol.GetTotalCharge());
+	OBff->GetCoordinates(mol);
+        OBff->SteepestDescent(Input->conformer_min_steps);
         OBff->UpdateCoordinates(mol);
 
  /*
