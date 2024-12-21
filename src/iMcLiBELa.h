@@ -16,6 +16,7 @@ struct energy_result_t{
     double hb_donor;
     double hb_acceptor;
     double restraints;
+    double si; 
     double total;
 };
 

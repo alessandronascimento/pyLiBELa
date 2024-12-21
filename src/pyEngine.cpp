@@ -106,10 +106,16 @@ void Engine::Run_docking(PARSER* Input, Mol2* Rec, Mol2* RefLig, Grid* Grids){
                 if (lig_is_opened){
                     if (Input->use_grids){
                         Dock->run(Rec, Lig2, RefLig, center, Input, Grids, i+1);
-                    }
+/*                        printf("Elec: %7.3f, VdW: %7.3f, Solv: %7.3f, HB: %7.3f, Total: %7.3f\n", Dock->best_energy_t->elec, Dock->best_energy_t->vdw, 
+                            (Dock->best_energy_t->rec_solv+Dock->best_energy_t->lig_solv), 
+                            (Dock->best_energy_t->hb_donor+Dock->best_energy_t->hb_acceptor), Dock->best_energy_t->total);
+*/                    }
                     else {
                         Dock->run(Rec, Lig2, RefLig, center, Input, i+1);
-                    }
+/*                        printf("Elec: %7.3f, VdW: %7.3f, Solv: %7.3f, HB: %7.3f, Total: %7.3f\n", Dock->best_energy_t->elec, Dock->best_energy_t->vdw, 
+                            (Dock->best_energy_t->rec_solv+Dock->best_energy_t->lig_solv), 
+                            (Dock->best_energy_t->hb_donor+Dock->best_energy_t->hb_acceptor), Dock->best_energy_t->total);
+*/                    }
                     delete Dock;
                 }
                 delete Lig2;

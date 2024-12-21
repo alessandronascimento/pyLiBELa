@@ -35,6 +35,8 @@ public:
 	double best_ene;
 	//!
 	int best_conf;
+    //! Data type with results from docking calculation
+    energy_result_t* best_energy_t;
     //!
     WRITER* Writer;
 #ifdef HAS_GUI

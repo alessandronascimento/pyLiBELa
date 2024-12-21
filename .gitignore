@@ -1,0 +1,8 @@
+# Ignore library files
+*.so
+
+# Ignore object file 
+obj
+
+# Ignore my local Makefile
+Makefile.MacOS

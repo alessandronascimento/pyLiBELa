@@ -111,7 +111,7 @@ bool Mol2::parse_smiles(PARSER *Input, string smiles_input, string molname){
                 sybyl_gaff = this->gaff_2_sybyl(sybyl_atom);
                 if (sybyl_gaff == ""){
                     bret=false;
-                    printf("bret set to false because of atom %s\n", sybyl_atom);
+                    printf("bret set to false because of atom %s\n", sybyl_atom.c_str());
                 }
                 atom_param* at = new atom_param;
                 this->get_gaff_atomic_parameters(sybyl_atom, at);

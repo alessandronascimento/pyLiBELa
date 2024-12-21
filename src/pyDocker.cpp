@@ -376,6 +376,7 @@ void  Docker::Dock_conformers(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double>
      * ASN, Feb/2013.
      */
 
+
     if (Input->sort_by_energy){
         index = this->sort_vector(energies);
     }
@@ -388,7 +389,7 @@ void  Docker::Dock_conformers(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double>
     energy_status=0;
 
     new_xyz = new_mcoords[index[0]];
-    energy_result_t* best_energy_t = new energy_result_t;
+    best_energy_t = new energy_result_t;
 
     for (int i=0; i<Input->conformers_to_evaluate; i++){
         if (int(new_mcoords[index[i]].size()) == Lig->N){
@@ -425,14 +426,14 @@ void  Docker::Dock_conformers(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double>
     //    t2 = Gauss2->compute_shape_and_charge_density(Input, RefLig, RefLig, RefLig->xyz, RefLig->xyz);
     t3 = Gauss2->compute_shape_and_charge_density(Input, Lig, Lig, new_xyz, new_xyz);
 
-    si = (2*t1) / (t2+t3);
+    best_energy_t->si = (2*t1) / (t2+t3);
     delete Gauss2;
 
     Lig->xyz = new_xyz;
 
     if (match){
         sprintf(info, "%5d %-12.12s %-4.4s %-10.3g  %-8.3g %-8.3g %-8.3g %-8.2f %-8.3g %3d %2d %2d %.2f", counter, Lig->molname.c_str(), Lig->resnames[0].c_str(), overlays[best_conf],
-                best_energy_t->elec, best_energy_t->vdw, best_energy_t->rec_solv+best_energy_t->lig_solv, best_energy_t->hb_donor+best_energy_t->hb_acceptor, best_energy_t->total, best_conf, overlay_status[best_conf], energy_status, si);
+                best_energy_t->elec, best_energy_t->vdw, best_energy_t->rec_solv+best_energy_t->lig_solv, best_energy_t->hb_donor+best_energy_t->hb_acceptor, best_energy_t->total, best_conf, overlay_status[best_conf], energy_status, best_energy_t->si);
     }
     else {
         sprintf(info, "%5d %-12.12s %-4.4s %-10.3g  %-8.3g %-8.3g %-8.3g %-8.2f %-8.3g %3d %2d %2d %.2f", counter, Lig->molname.c_str(), Lig->resnames[0].c_str(), overlays[best_conf],
@@ -443,7 +444,7 @@ void  Docker::Dock_conformers(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double>
     if (Input->write_mol2){
         bool will_write = true;
         if (Input->use_writeMol2_score_cutoff){
-            if (si < Input->writeMol2_score_cutoff){
+            if (best_energy_t->si < Input->writeMol2_score_cutoff){
                 will_write = false;
             }
         }
@@ -455,7 +456,7 @@ void  Docker::Dock_conformers(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double>
         if (will_write and match){
 #pragma omp critical
             {
-                this->write_mol2(Lig, new_xyz, best_energy_t, si);
+                this->write_mol2(Lig, new_xyz, best_energy_t, best_energy_t->si);
             }
         }
     }
@@ -565,7 +566,7 @@ void Docker::Dock_conformers(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double> 
 
     new_xyz = new_mcoords[index[0]];
 
-    energy_result_t* best_energy_t = new energy_result_t;
+    best_energy_t = new energy_result_t;
 
     Gaussian* Gauss2 = new Gaussian;
     t2 = Gauss2->compute_shape_and_charge_density(Input, RefLig, RefLig, RefLig->xyz, RefLig->xyz);
@@ -602,14 +603,14 @@ void Docker::Dock_conformers(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double> 
     t1 = Gauss2->compute_shape_and_charge_density(Input, RefLig, Lig, RefLig->xyz, new_xyz);
     t3 = Gauss2->compute_shape_and_charge_density(Input, Lig, Lig, new_xyz,new_xyz);
 
-    si = (2*t1) / (t2+t3);
+    best_energy_t->si = (2*t1) / (t2+t3);
     delete Gauss2;
 
     Lig->xyz = new_xyz;
 
     if (match){
         sprintf(info, "%5d %-12.12s %-4.4s %-10.3g  %-8.3g %-8.3g %-8.3g %-8.2f %-8.3g %3d %2d %2d %.2f", counter, Lig->molname.c_str(), Lig->resnames[0].c_str(), overlays[best_conf],
-                best_energy_t->elec, best_energy_t->vdw, (best_energy_t->rec_solv + best_energy_t->lig_solv), (best_energy_t->hb_donor + best_energy_t->hb_acceptor), best_energy_t->total, best_conf, overlay_status[best_conf], energy_status, si);
+                best_energy_t->elec, best_energy_t->vdw, (best_energy_t->rec_solv + best_energy_t->lig_solv), (best_energy_t->hb_donor + best_energy_t->hb_acceptor), best_energy_t->total, best_conf, overlay_status[best_conf], energy_status, best_energy_t->si);
     }
     else {
         sprintf(info, "%5d %-12.12s %-4.4s %-10.3g  %-8.3g %-8.3g %-8.3g %-8.2f %-8.3g %3d %2d %2d %.2f", counter, Lig->molname.c_str(), Lig->resnames[0].c_str(), overlays[best_conf],
@@ -620,7 +621,7 @@ void Docker::Dock_conformers(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double> 
     if (Input->write_mol2){
         bool will_write = true;
         if (Input->use_writeMol2_score_cutoff){
-            if (si < Input->writeMol2_score_cutoff){
+            if (best_energy_t->si < Input->writeMol2_score_cutoff){
                 will_write = false;
             }
         }
@@ -632,7 +633,7 @@ void Docker::Dock_conformers(Mol2* Rec, Mol2* Lig, Mol2* RefLig, vector<double> 
         if (will_write and match){
 #pragma omp critical
             {
-                this->write_mol2(Lig, new_xyz, best_energy_t, si);
+                this->write_mol2(Lig, new_xyz, best_energy_t, best_energy_t->si);
             }
         }
     }
@@ -857,6 +858,7 @@ bool Docker::minimize_energy(PARSER* Input, Optimizer* Opt, Mol2* Rec, Mol2* Lig
     // Using the similarity index to define whether energy optimization will or will no be
     // done. In this case, si has to be greater than or equal to overlay_cutoff
     //
+
     if (Input->use_overlay_cutoff){
         Gaussian* Gauss = new Gaussian;
         double t1, t2, t3, si;
