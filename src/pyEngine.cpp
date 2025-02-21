@@ -102,8 +102,8 @@ void Engine::Run_docking(PARSER* Input, Mol2* Rec, Mol2* RefLig, Grid* Grids){
                         }
                     }
                 }
-                Docker* Dock = new Docker(Writer);
                 if (lig_is_opened){
+                    Docker* Dock = new Docker(Writer);
                     if (Input->use_grids){
                         Dock->run(Rec, Lig2, RefLig, center, Input, Grids, i+1);
 /*                        printf("Elec: %7.3f, VdW: %7.3f, Solv: %7.3f, HB: %7.3f, Total: %7.3f\n", Dock->best_energy_t->elec, Dock->best_energy_t->vdw, 
